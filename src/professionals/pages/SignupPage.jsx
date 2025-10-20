@@ -1,23 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  TextField, 
-  Button, 
-  Checkbox,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  FormControl,
-  IconButton,
-  InputAdornment,
-  AppBar,
-  Toolbar,
-  useMediaQuery,
-  useTheme,
-  Menu,
-  MenuItem
+import {  Box, Container,  Typography,  TextField,  Button,  Checkbox, FormControlLabel, Radio, RadioGroup, FormControl, IconButton,InputAdornment, AppBar,Toolbar,useMediaQuery,useTheme, Menu,MenuItem
 } from '@mui/material';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
@@ -35,6 +17,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SecurityIcon from '@mui/icons-material/Security';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { registerProfessional, generateOtp } from '../../API/authApi';
+import loginRegisterImage from '../../assets/images/login&register.png';
 
 const GradientAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
@@ -355,34 +338,55 @@ const SignupPage = () => {
           maxWidth="xl"
           sx={{
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            minHeight: { xs: 'auto', md: '80vh' },
+            alignItems: 'stretch',
+            minHeight: { xs: 'auto', md: '100vh' },
             width: '100%',
             gap: 0,
             px: { xs: 1, sm: 2, md: 0 }
           }}
         >
+          {/* Left Side - Image */}
+          <Box sx={{ 
+            display: { xs: 'none', md: 'flex' },
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100vh',
+            backgroundColor: '#f8f9fa',
+            position: 'relative'
+          }}>
+            <Box
+              component="img"
+              src={loginRegisterImage}
+              alt="Signup & Register"
+              sx={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center'
+              }}
+            />
+          </Box>
 
-          {/* Signup Form */}
+          {/* Right Side - Signup Form */}
           <Box sx={{ 
             width: { xs: '100%', md: '500px' },
-            height: { xs: 'auto', md: 'auto' },
+            height: { xs: 'auto', md: '100vh' },
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             px: { xs: 2, sm: 3, md: 4, lg: 6 },
             py: { xs: 3, sm: 4 },
             backgroundColor: '#FFFFFF',
-            borderRadius: { xs: '8px', md: '12px' },
-            boxShadow: { 
-              xs: '0 4px 20px rgba(0, 0, 0, 0.1)', 
-              md: '0 6px 24px rgba(0, 0, 0, 0.15)' 
-            },
-            mt: { xs: 2, md: 0 }
+            borderRadius: { xs: '8px', md: '0' },
+            boxShadow: { xs: '0 4px 20px rgba(0, 0, 0, 0.1)', md: 'none' },
+            overflow: 'auto'
           }}>
               {/* Header */}
-              <Box sx={{ mb: { xs: 3, sm: 4 } }}>
+              <Box sx={{ 
+                mb: { xs: 3, sm: 4 },
+                pt: { xs: 2, sm: 3, md: 4 }
+              }}>
                 <Typography
                   variant="h4"
                   sx={{
@@ -502,7 +506,8 @@ const SignupPage = () => {
                   display: 'flex', 
                   flexDirection: { xs: 'column', sm: 'row' },
                   gap: { xs: 2, sm: 2 }, 
-                  mb: { xs: 2, sm: 3 } 
+                  mb: { xs: 2, sm: 3 },
+                  width: '100%'
                 }}>
                   {/* First Name Field */}
                   <Box sx={{ flex: 1 }}>
@@ -536,8 +541,9 @@ const SignupPage = () => {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '8px',
                           height: { xs: '44px', sm: '48px' },
+                          backgroundColor: '#FFFFFF',
                           '& fieldset': {
-                            borderColor: '#D1C4E9',
+                            borderColor: '#E0E0E0',
                             borderWidth: '1px'
                           },
                           '&:hover fieldset': {
@@ -545,12 +551,14 @@ const SignupPage = () => {
                           },
                           '&.Mui-focused fieldset': {
                             borderColor: '#9C27B0',
+                            borderWidth: '2px'
                           },
                         },
                         '& .MuiInputBase-input': {
                           fontFamily: 'Poppins',
                           fontSize: { xs: '13px', sm: '14px' },
                           color: '#000000',
+                          padding: '12px 14px',
                           '&::placeholder': {
                             color: '#999999',
                             opacity: 1
@@ -592,8 +600,9 @@ const SignupPage = () => {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '8px',
                           height: { xs: '44px', sm: '48px' },
+                          backgroundColor: '#FFFFFF',
                           '& fieldset': {
-                            borderColor: '#D1C4E9',
+                            borderColor: '#E0E0E0',
                             borderWidth: '1px'
                           },
                           '&:hover fieldset': {
@@ -601,12 +610,14 @@ const SignupPage = () => {
                           },
                           '&.Mui-focused fieldset': {
                             borderColor: '#9C27B0',
+                            borderWidth: '2px'
                           },
                         },
                         '& .MuiInputBase-input': {
                           fontFamily: 'Poppins',
                           fontSize: { xs: '13px', sm: '14px' },
                           color: '#000000',
+                          padding: '12px 14px',
                           '&::placeholder': {
                             color: '#999999',
                             opacity: 1
@@ -649,8 +660,9 @@ const SignupPage = () => {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '8px',
                         height: { xs: '44px', sm: '48px' },
+                        backgroundColor: '#FFFFFF',
                         '& fieldset': {
-                          borderColor: '#D1C4E9',
+                          borderColor: '#E0E0E0',
                           borderWidth: '1px'
                         },
                         '&:hover fieldset': {
@@ -658,12 +670,14 @@ const SignupPage = () => {
                         },
                         '&.Mui-focused fieldset': {
                           borderColor: '#9C27B0',
+                          borderWidth: '2px'
                         },
                       },
                       '& .MuiInputBase-input': {
                         fontFamily: 'Poppins',
                         fontSize: { xs: '13px', sm: '14px' },
                         color: '#000000',
+                        padding: '12px 14px',
                         '&::placeholder': {
                           color: '#999999',
                           opacity: 1
@@ -705,8 +719,9 @@ const SignupPage = () => {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '8px',
                         height: { xs: '44px', sm: '48px' },
+                        backgroundColor: '#FFFFFF',
                         '& fieldset': {
-                          borderColor: '#D1C4E9',
+                          borderColor: '#E0E0E0',
                           borderWidth: '1px'
                         },
                         '&:hover fieldset': {
@@ -714,12 +729,14 @@ const SignupPage = () => {
                         },
                         '&.Mui-focused fieldset': {
                           borderColor: '#9C27B0',
+                          borderWidth: '2px'
                         },
                       },
                       '& .MuiInputBase-input': {
                         fontFamily: 'Poppins',
                         fontSize: { xs: '13px', sm: '14px' },
                         color: '#000000',
+                        padding: '12px 14px',
                         '&::placeholder': {
                           color: '#999999',
                           opacity: 1
@@ -761,8 +778,9 @@ const SignupPage = () => {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '8px',
                         height: { xs: '44px', sm: '48px' },
+                        backgroundColor: '#FFFFFF',
                         '& fieldset': {
-                          borderColor: '#D1C4E9',
+                          borderColor: '#E0E0E0',
                           borderWidth: '1px'
                         },
                         '&:hover fieldset': {
@@ -770,12 +788,14 @@ const SignupPage = () => {
                         },
                         '&.Mui-focused fieldset': {
                           borderColor: '#9C27B0',
+                          borderWidth: '2px'
                         },
                       },
                       '& .MuiInputBase-input': {
                         fontFamily: 'Poppins',
                         fontSize: { xs: '13px', sm: '14px' },
                         color: '#000000',
+                        padding: '12px 14px',
                         '&::placeholder': {
                           color: '#999999',
                           opacity: 1
@@ -815,46 +835,49 @@ const SignupPage = () => {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            onClick={togglePasswordVisibility}
-                            edge="end"
-                            sx={{ 
-                              color: '#9C27B0',
-                              '&:hover': {
-                                backgroundColor: 'transparent'
-                              }
-                            }}
-                          >
-                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '8px',
-                        height: { xs: '44px', sm: '48px' },
-                        '& fieldset': {
-                          borderColor: '#D1C4E9',
-                          borderWidth: '1px'
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#9C27B0',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#9C27B0',
-                        },
+                          onClick={togglePasswordVisibility}
+                          edge="end"
+                          sx={{ 
+                            color: '#9C27B0',
+                            '&:hover': {
+                              backgroundColor: 'transparent'
+                            }
+                          }}
+                        >
+                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      height: { xs: '44px', sm: '48px' },
+                      backgroundColor: '#FFFFFF',
+                      '& fieldset': {
+                        borderColor: '#E0E0E0',
+                        borderWidth: '1px'
                       },
-                      '& .MuiInputBase-input': {
-                        fontFamily: 'Poppins',
-                        fontSize: { xs: '13px', sm: '14px' },
-                        color: '#000000',
-                        '&::placeholder': {
-                          color: '#999999',
-                          opacity: 1
-                        }
+                      '&:hover fieldset': {
+                        borderColor: '#9C27B0',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#9C27B0',
+                        borderWidth: '2px'
+                      },
+                    },
+                    '& .MuiInputBase-input': {
+                      fontFamily: 'Poppins',
+                      fontSize: { xs: '13px', sm: '14px' },
+                      color: '#000000',
+                      padding: '12px 14px',
+                      '&::placeholder': {
+                        color: '#999999',
+                        opacity: 1
                       }
-                    }}
-                  />
+                    }
+                  }}
+                />
                 </Box>
 
                 {/* Terms and Conditions */}
@@ -1086,10 +1109,7 @@ const SignupPage = () => {
             </Box>
           </Container>
       </Box>
-
-      {/* SweetAlert notifications are handled automatically */}
     </>
   );
 };
-
 export default SignupPage;
