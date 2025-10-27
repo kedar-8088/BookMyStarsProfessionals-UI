@@ -9,3 +9,4 @@ export { default as PreferencesRoute } from './PreferencesRoute';
 export { default as CompleteProfileRoute } from './CompleteProfileRoute';
 export { default as LoginRoute } from './LoginRoute';
 export { default as SignupRoute } from './SignupRoute';
+export { default as UserLandingRoute } from './UserLandingRoute';

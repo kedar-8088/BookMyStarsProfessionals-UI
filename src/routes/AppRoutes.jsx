@@ -1,6 +1,20 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { HomeRoute, ProfessionalRoute, FeaturesRoute, BasicInfoRoute, PhysicalDetailsRoute, ShowcaseRoute, EducationBackgroundRoute, PreferencesRoute, CompleteProfileRoute, LoginRoute, SignupRoute } from './components';
+import {
+  HomeRoute,
+  ProfessionalRoute,
+  FeaturesRoute,
+  BasicInfoRoute,
+  PhysicalDetailsRoute,
+  ShowcaseRoute,
+  EducationBackgroundRoute,
+  PreferencesRoute,
+  CompleteProfileRoute,
+  LoginRoute,
+  SignupRoute,
+  UserLandingRoute
+} from './components';
+import Dashboard from '../professionals/pages/Dashboard';
 
 const AppRoutes = () => {
   return (
@@ -16,8 +30,9 @@ const AppRoutes = () => {
       <Route path="/complete-profile" element={<CompleteProfileRoute />} />
       <Route path="/login" element={<LoginRoute />} />
       <Route path="/signup" element={<SignupRoute />} />
+  <Route path="/UserLanding" element={<UserLandingRoute />} />
+  <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 };
-
 export default AppRoutes;

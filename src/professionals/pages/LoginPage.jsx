@@ -180,7 +180,7 @@ const LoginPage = () => {
         
         showSuccessAlert('Login Successful!', 'Welcome back! Redirecting to your dashboard...');
         setTimeout(() => {
-          navigate('/professional');
+          navigate('/dashboard');
         }, 2000);
       } else {
         console.error('Login failed:', response);
