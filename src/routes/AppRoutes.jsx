@@ -10,6 +10,7 @@ import {
   EducationBackgroundRoute,
   PreferencesRoute,
   CompleteProfileRoute,
+  ViewProfileRoute,
   LoginRoute,
   SignupRoute,
   UserLandingRoute
@@ -28,6 +29,7 @@ const AppRoutes = () => {
       <Route path="/education-background" element={<EducationBackgroundRoute />} />
       <Route path="/preferences" element={<PreferencesRoute />} />
       <Route path="/complete-profile" element={<CompleteProfileRoute />} />
+      <Route path="/view-profile" element={<ViewProfileRoute />} />
       <Route path="/login" element={<LoginRoute />} />
       <Route path="/signup" element={<SignupRoute />} />
   <Route path="/UserLanding" element={<UserLandingRoute />} />

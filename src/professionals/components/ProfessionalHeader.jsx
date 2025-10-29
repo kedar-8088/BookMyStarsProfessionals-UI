@@ -126,8 +126,12 @@ const ProfessionalHeader = () => {
                 >
                   Features
                 </Button>
-                <Button color="inherit" sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}>
-                  Dummy text
+                <Button 
+                  color="inherit" 
+                  sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
+                  onClick={() => navigate('/dashboard')}
+                >
+                  Dashboard
                 </Button>
               </Box>
             </motion.div>
@@ -231,7 +235,7 @@ const ProfessionalHeader = () => {
           >
             <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/'); }}>Home</MenuItem>
             <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/features'); }}>Features</MenuItem>
-            <MenuItem onClick={handleMobileMenuClose}>Dummy text</MenuItem>
+            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/dashboard'); }}>Dashboard</MenuItem>
             {isLoggedIn ? [
               <MenuItem key="welcome" onClick={handleMobileMenuClose}>
                 Welcome, {userData?.userName || 'User'}

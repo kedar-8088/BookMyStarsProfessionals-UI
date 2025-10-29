@@ -368,48 +368,120 @@ const PhysicalDetailsPage = () => {
       try {
         // Fetch genders
         setLoadingGenders(true);
+        console.log('🔄 Fetching genders...');
         const gendersResponse = await getAllGenders();
-        if (gendersResponse.data.code === 200) {
-          setGenders(gendersResponse.data.data);
-        }
+        console.log('🎯 Genders API response:', gendersResponse);
+        console.log('🎯 Full response structure:', JSON.stringify(gendersResponse, null, 2));
+        
+        if (gendersResponse.success && gendersResponse.data.code === 200) {
+          const gendersArray = gendersResponse.data.data || [];
+          console.log('✅ Genders loaded successfully:', gendersArray);
+          console.log('✅ Genders array length:', gendersArray.length);
+          
+          if (gendersArray.length === 0) {
+            console.warn('⚠️ Genders array is empty, using fallback');
+            // Set fallback genders if API returns empty array
+            setGenders([
+              { genderId: 1, genderName: 'Male' },
+              { genderId: 2, genderName: 'Female' }
+            ]);
+            console.log('🔄 Using fallback genders');
+          } else {
+            setGenders(gendersArray);
+          }
+        } else {
+          console.error('❌ Failed to load genders:', gendersResponse);
+          // Set fallback genders if API fails
+          setGenders([
+            { genderId: 1, genderName: 'Male' },
+            { genderId: 2, genderName: 'Female' }
+          ]);
+          console.log('🔄 Using fallback genders');
+        } 
 
-        // Fetch skin colors
+        // Fetch skin colors (Axios response)
         setLoadingSkinColors(true);
-        const skinColorsResponse = await getAllSkinColors();
-        if (skinColorsResponse.data.code === 200) {
-          setSkinColors(skinColorsResponse.data.data);
+        try {
+          const skinColorsResponse = await getAllSkinColors();
+          if (skinColorsResponse.data.code === 200) {
+            setSkinColors(skinColorsResponse.data.data || []);
+          } else {
+            console.error('Failed to load skin colors:', skinColorsResponse);
+            setSkinColors([]);
+          }
+        } catch (error) {
+          console.error('Error loading skin colors:', error);
+          setSkinColors([]);
         }
 
-        // Fetch eye colors
+        // Fetch eye colors (Axios response)
         setLoadingEyeColors(true);
-        const eyeColorsResponse = await getAllEyeColors();
-        if (eyeColorsResponse.data.code === 200) {
-          setEyeColors(eyeColorsResponse.data.data);
+        try {
+          const eyeColorsResponse = await getAllEyeColors();
+          if (eyeColorsResponse.data.code === 200) {
+            setEyeColors(eyeColorsResponse.data.data || []);
+          } else {
+            console.error('Failed to load eye colors:', eyeColorsResponse);
+            setEyeColors([]);
+          }
+        } catch (error) {
+          console.error('Error loading eye colors:', error);
+          setEyeColors([]);
         }
 
-        // Fetch hair colors
+        // Fetch hair colors (Axios response)
         setLoadingHairColors(true);
-        const hairColorsResponse = await getAllHairColors();
-        if (hairColorsResponse.data.code === 200) {
-          setHairColors(hairColorsResponse.data.data);
+        try {
+          const hairColorsResponse = await getAllHairColors();
+          if (hairColorsResponse.data.code === 200) {
+            setHairColors(hairColorsResponse.data.data || []);
+          } else {
+            console.error('Failed to load hair colors:', hairColorsResponse);
+            setHairColors([]);
+          }
+        } catch (error) {
+          console.error('Error loading hair colors:', error);
+          setHairColors([]);
         }
 
-        // Fetch body types
+        // Fetch body types (Axios response)
         setLoadingBodyTypes(true);
-        const bodyTypesResponse = await getAllBodyTypes();
-        if (bodyTypesResponse.data.code === 200) {
-          setBodyTypes(bodyTypesResponse.data.data);
+        try {
+          const bodyTypesResponse = await getAllBodyTypes();
+          if (bodyTypesResponse.data.code === 200) {
+            setBodyTypes(bodyTypesResponse.data.data || []);
+          } else {
+            console.error('Failed to load body types:', bodyTypesResponse);
+            setBodyTypes([]);
+          }
+        } catch (error) {
+          console.error('Error loading body types:', error);
+          setBodyTypes([]);
         }
 
-        // Fetch shoe sizes
+        // Fetch shoe sizes (Axios response)
         setLoadingShoeSizes(true);
-        const shoeSizesResponse = await getAllShoeSizes();
-        if (shoeSizesResponse.data.code === 200 || shoeSizesResponse.data.code === 0) {
-          setShoeSizes(shoeSizesResponse.data.data);
+        try {
+          const shoeSizesResponse = await getAllShoeSizes();
+          if (shoeSizesResponse.data.code === 200 || shoeSizesResponse.data.code === 0) {
+            setShoeSizes(shoeSizesResponse.data.data || []);
+          } else {
+            console.error('Failed to load shoe sizes:', shoeSizesResponse);
+            setShoeSizes([]);
+          }
+        } catch (error) {
+          console.error('Error loading shoe sizes:', error);
+          setShoeSizes([]);
         }
       } catch (error) {
         console.error('Error fetching master data:', error);
-        showErrorAlert('Data Loading Error', 'Failed to load form data');
+        showErrorAlert('Data Loading Error', 'Failed to load form data. Please refresh the page.');
+        
+        // Set fallback data for critical fields
+        setGenders([
+          { genderId: 1, genderName: 'Male' },
+          { genderId: 2, genderName: 'Female' }
+        ]);
       } finally {
         setLoadingGenders(false);
         setLoadingSkinColors(false);
@@ -476,10 +548,19 @@ const PhysicalDetailsPage = () => {
           console.log('🎯 Using Female fallback:', genderId);
         }
       }
+    } else {
+      console.warn('🎯 No genders available, using hardcoded fallback');
+      // Use hardcoded fallback when API fails
+      if (genderName === 'Male') {
+        genderId = 1;
+      } else if (genderName === 'Female') {
+        genderId = 2;
+      }
     }
     
     if (genderId) {
       handleFormDataChange('gender', genderId);
+      console.log('✅ Gender ID set successfully:', genderId);
     } else {
       console.error('🎯 Could not determine gender ID for:', genderName);
       console.error('🎯 Available genders:', genders);
@@ -692,6 +773,19 @@ const PhysicalDetailsPage = () => {
               ))}
             </ul>
           </Alert>
+        </Box>
+      )}
+
+      {/* Debug Panel - Only show in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <Box sx={{ p: 2, backgroundColor: '#f5f5f5', border: '1px solid #ddd', borderRadius: 1, m: 2 }}>
+          <Typography variant="h6" sx={{ mb: 1, color: '#666' }}>Debug Info:</Typography>
+          <Typography variant="body2" sx={{ color: '#666' }}>
+            Genders loaded: {genders.length} | Selected: {selectedGender} | Form Gender ID: {formData.gender}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#666' }}>
+            Loading states: Genders: {loadingGenders ? 'Yes' : 'No'} | Skin: {loadingSkinColors ? 'Yes' : 'No'} | Eye: {loadingEyeColors ? 'Yes' : 'No'}
+          </Typography>
         </Box>
       )}
       
@@ -953,7 +1047,12 @@ const PhysicalDetailsPage = () => {
                 <Box sx={{ display: 'flex', gap: 4 }}>
                   {/* Gender Column */}
                   <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500 }}>Gender</Typography>
+                    <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500 }}>
+                      Gender
+                      {loadingGenders && (
+                        <CircularProgress size={16} sx={{ ml: 1, color: '#DA498D' }} />
+                      )}
+                    </Typography>
                     <FormControl component="fieldset">
                       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
                         <FormControlLabel
@@ -961,6 +1060,7 @@ const PhysicalDetailsPage = () => {
                             <Radio
                               checked={selectedGender === 'Male'}
                               onChange={() => handleGenderChange('Male')}
+                              disabled={loadingGenders}
                               sx={{
                                 color: '#444444',
                                 '&.Mui-checked': {
@@ -985,6 +1085,7 @@ const PhysicalDetailsPage = () => {
                             <Radio
                               checked={selectedGender === 'Female'}
                               onChange={() => handleGenderChange('Female')}
+                              disabled={loadingGenders}
                               sx={{
                                 color: '#444444',
                                 '&.Mui-checked': {

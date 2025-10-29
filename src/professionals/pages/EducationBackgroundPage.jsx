@@ -17,6 +17,9 @@ import { createEducation, linkEducationToProfile, getEducationsByProfileId, save
 import { createWorkExperience, linkWorkExperienceToProfile, getWorkExperiencesByProfileId, saveOrUpdateWorkExperience, deleteWorkExperience } from '../../API/workExperienceApi';
 import { createCertification, linkCertificationToProfile, getCertificationsByProfileId, saveOrUpdateCertification, deleteCertification, uploadCertificationDocument } from '../../API/certificationApi';
 import { saveOrUpdateProfessionalSkill, getProfessionalSkillsByProfileId, deleteProfessionalSkill } from '../../API/professionalSkillsApi';
+import { sessionManager } from '../../API/authApi';
+import profileFlowManager from '../../utils/profileFlowManager';
+import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import Swal from 'sweetalert2';
@@ -140,8 +143,8 @@ const EducationBackgroundPage = () => {
   const [submittedCertificationEntries, setSubmittedCertificationEntries] = useState(new Set());
   const [submittedSkills, setSubmittedSkills] = useState(new Set());
 
-  // Get professionals profile ID from localStorage or context
-  const professionalsProfileId = localStorage.getItem('professionalsProfileId') || 4; // Default for testing
+  // State for professionals profile ID
+  const [professionalsProfileId, setProfessionalsProfileId] = useState(null);
   
   const filteredSkills = skills.filter(skill =>
     skill.skillName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -193,6 +196,12 @@ const EducationBackgroundPage = () => {
       setIsSubmitting(true);
       setSubmitError(null);
 
+      // Ensure profile exists before submitting
+      const profileId = await ensureProfileExists();
+      if (!profileId) {
+        throw new Error('Professionals profile not found. Please complete the basic info step first.');
+      }
+
       // Find skill ID from skills array
       const selectedSkill = skills.find(skill => skill.skillName === skillName);
       if (!selectedSkill) {
@@ -200,7 +209,7 @@ const EducationBackgroundPage = () => {
       }
 
       const skillData = {
-        professionalsProfileId: parseInt(professionalsProfileId),
+        professionalsProfileId: parseInt(profileId),
         skillId: selectedSkill.skillId,
         skillName: skillName,
         rating: rating
@@ -448,10 +457,17 @@ const EducationBackgroundPage = () => {
   };
 
   // Form submission handlers
-  const handleWorkExperienceSubmit = async (entry) => {
+  const handleWorkExperienceSubmit = async (entry, options = {}) => {
+    const { showAlerts = true, throwOnError = false } = options;
     try {
       setIsSubmitting(true);
       setSubmitError(null);
+
+      // Ensure profile exists before submitting
+      const profileId = await ensureProfileExists();
+      if (!profileId) {
+        throw new Error('Professionals profile not found. Please complete the basic info step first.');
+      }
 
       // Find category ID from categories array
       const selectedCategory = categories.find(cat => cat.categoryName === entry.category);
@@ -463,26 +479,76 @@ const EducationBackgroundPage = () => {
         categoryId: selectedCategory.categoryId,
         categoryName: entry.category,
         description: entry.description,
-        professionalsProfileId: parseInt(professionalsProfileId),
+        professionalsProfileId: parseInt(profileId),
         projectName: entry.projectName,
         roleTitle: entry.roleTitle,
         year: parseInt(entry.year)
       };
 
+      console.log('🔄 Submitting work experience:', workExperienceData);
       const response = await saveOrUpdateWorkExperience(workExperienceData);
+      console.log('📡 Work experience API response:', response);
       
-      if (response.code === 1000) {
-        console.log('Work experience saved/updated successfully:', response.data);
+      // Handle different response codes (1000 for success, 200 also means success)
+      if (response.code === 1000 || response.code === 200) {
+        console.log('✅ Work experience saved/updated successfully:', response.data || response);
         // Mark this entry as submitted
         setSubmittedWorkEntries(prev => new Set(prev).add(entry.id));
-        return response.data;
+        
+        // Show success message if alerts are enabled
+        if (showAlerts) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Work experience saved successfully',
+            confirmButtonColor: '#69247C',
+            timer: 2000,
+            timerProgressBar: true
+          });
+        }
+        
+        return response.data || response;
       } else {
-        throw new Error(response.message || 'Failed to save/update work experience');
+        // Log the full response for debugging
+        console.error('❌ API returned non-success code:', response);
+        const errorMessage = response.message || response.error || 'Failed to save/update work experience';
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      console.error('Error submitting work experience:', error);
-      setSubmitError(error.message || 'Failed to submit work experience');
-      throw error;
+      console.error('❌ Error submitting work experience:', error);
+      
+      // Handle Axios errors which have a different structure
+      let errorMessage = 'Failed to submit work experience';
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorMessage = error.response.data?.message || error.response.data?.error || error.message;
+        console.error('Error response data:', error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = 'No response from server. Please check your connection.';
+        console.error('No response received:', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        errorMessage = error.message || 'Failed to submit work experience';
+      }
+      
+      setSubmitError(errorMessage);
+      
+      // Show error alert if alerts are enabled
+      if (showAlerts) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#69247C'
+        });
+      }
+      
+      // Throw error if requested (for handleAllSubmissions)
+      if (throwOnError) {
+        throw error;
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -493,12 +559,18 @@ const EducationBackgroundPage = () => {
       setIsSubmitting(true);
       setSubmitError(null);
 
+      // Ensure profile exists before submitting
+      const profileId = await ensureProfileExists();
+      if (!profileId) {
+        throw new Error('Professionals profile not found. Please complete the basic info step first.');
+      }
+
       const educationData = {
         academyName: entry.institution,
         gradePercentage: entry.grade,
         highestQualification: entry.qualification,
         passoutYear: parseInt(entry.year),
-        professionalsProfileId: parseInt(professionalsProfileId)
+        professionalsProfileId: parseInt(profileId)
       };
 
       const response = await saveOrUpdateEducation(educationData);
@@ -525,12 +597,18 @@ const EducationBackgroundPage = () => {
       setIsSubmitting(true);
       setSubmitError(null);
 
+      // Ensure profile exists before submitting
+      const profileId = await ensureProfileExists();
+      if (!profileId) {
+        throw new Error('Professionals profile not found. Please complete the basic info step first.');
+      }
+
       const certificationData = {
         certificationName: entry.certificationName,
         credentialId: entry.credentialId,
         issueDate: entry.issueDate,
         issuedBy: entry.issuingOrganization,
-        professionalsProfileId: parseInt(professionalsProfileId)
+        professionalsProfileId: parseInt(profileId)
       };
 
       const response = await saveOrUpdateCertification(certificationData);
@@ -616,7 +694,7 @@ const EducationBackgroundPage = () => {
       // Submit work experiences
       for (const entry of workEntries) {
         if (entry.category && entry.roleTitle && entry.projectName && entry.year) {
-          const result = await handleWorkExperienceSubmit(entry);
+          const result = await handleWorkExperienceSubmit(entry, { showAlerts: false, throwOnError: true });
           results.workExperiences.push(result);
         }
       }
@@ -698,8 +776,100 @@ const EducationBackgroundPage = () => {
     navigate('/showcase');
   };
 
+  // Initialize profile ID
+  useEffect(() => {
+    const initializeProfile = async () => {
+      try {
+        // Check if user is logged in
+        if (!sessionManager.isLoggedIn()) {
+          navigate('/login');
+          return;
+        }
+
+        // Initialize profile flow manager
+        const initResult = await profileFlowManager.initialize();
+        
+        // Get profile ID from session or profile flow manager
+        let profileId = sessionManager.getProfessionalsProfileId();
+        
+        if (!profileId && initResult.profileId) {
+          profileId = initResult.profileId;
+        }
+
+        // If still no profile ID, try to create one
+        if (!profileId) {
+          const professionalsId = sessionManager.getProfessionalsId();
+          if (professionalsId) {
+            console.log('🔄 Creating professionals profile...');
+            const createResult = await saveOrUpdateProfessionalsProfileByProfessionalsId(professionalsId, {});
+            if (createResult.success && createResult.data?.professionalsProfileId) {
+              profileId = createResult.data.professionalsProfileId;
+              console.log('✅ Profile created with ID:', profileId);
+            }
+          }
+        }
+
+        if (profileId) {
+          setProfessionalsProfileId(profileId);
+          console.log('✅ Using profile ID:', profileId);
+        } else {
+          console.error('❌ Could not get or create profile ID');
+          Swal.fire({
+            icon: 'error',
+            title: 'Profile Error',
+            text: 'Unable to initialize your profile. Please try logging in again.',
+            confirmButtonColor: '#69247C'
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing profile:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Initialization Error',
+          text: 'Failed to initialize your profile. Please refresh the page.',
+          confirmButtonColor: '#69247C'
+        });
+      }
+    };
+
+    initializeProfile();
+  }, [navigate]);
+
+  // Ensure profile exists before operations
+  const ensureProfileExists = async () => {
+    if (professionalsProfileId) {
+      return professionalsProfileId;
+    }
+
+    // Try to get from session
+    let profileId = sessionManager.getProfessionalsProfileId();
+    if (profileId) {
+      setProfessionalsProfileId(profileId);
+      return profileId;
+    }
+
+    // Try to create profile
+    const professionalsId = sessionManager.getProfessionalsId();
+    if (professionalsId) {
+      console.log('🔄 Creating professionals profile...');
+      const createResult = await saveOrUpdateProfessionalsProfileByProfessionalsId(professionalsId, {});
+      if (createResult.success && createResult.data?.professionalsProfileId) {
+        profileId = createResult.data.professionalsProfileId;
+        setProfessionalsProfileId(profileId);
+        console.log('✅ Profile created with ID:', profileId);
+        return profileId;
+      }
+    }
+
+    throw new Error('Professionals profile not found. Please ensure you have completed the basic info step.');
+  };
+
   // Load existing data
   const loadExistingData = async () => {
+    if (!professionalsProfileId) {
+      return; // Don't load if profile ID is not set
+    }
+    
     try {
       // Load existing work experiences
       const workExperiencesResponse = await getWorkExperiencesByProfileId(professionalsProfileId);
@@ -1717,7 +1887,15 @@ const EducationBackgroundPage = () => {
                       {/* Done Button - Only show if not submitted */}
                       {!submittedWorkEntries.has(entry.id) && (
                       <Button
-                          onClick={() => handleWorkExperienceSubmit(entry)}
+                          onClick={async () => {
+                            try {
+                              await handleWorkExperienceSubmit(entry);
+                            } catch (error) {
+                              // Error is already handled in handleWorkExperienceSubmit
+                              // This catch prevents unhandled promise rejection
+                              console.error('Work experience submission error:', error);
+                            }
+                          }}
                           disabled={isSubmitting}
                         sx={{
                           width: '86px',

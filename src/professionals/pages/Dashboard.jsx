@@ -23,6 +23,15 @@ const CarouselContainer = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   padding: '0 100px',
   margin: '0',
+  transition: 'all 0.3s ease-in-out',
+  cursor: 'pointer',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+    '& .carousel-slide': {
+      transform: 'scale(1.05)',
+    },
+  },
   [theme.breakpoints.down('xl')]: {
     maxWidth: '1200px',
     height: '320px',
@@ -99,7 +108,7 @@ const Dashboard = () => {
   // logout handled by ProfileNavBar menu; keep back button only
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#f7f7fb', py: 0 }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: 'white', py: 0 }}>
       <ProfileNavBar />
 
       {/* Banner (same as Basic Info page) */}
@@ -110,6 +119,7 @@ const Dashboard = () => {
             {slides.map((slide, idx) => (
               <motion.div
                 key={idx}
+                className="carousel-slide"
                 initial={{ opacity: idx === currentSlide ? 1 : 0 }}
                 animate={{ opacity: idx === currentSlide ? 1 : 0 }}
                 transition={{ duration: 0.8 }}
@@ -123,7 +133,8 @@ const Dashboard = () => {
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat',
-                  zIndex: 0
+                  zIndex: 0,
+                  transition: 'transform 0.3s ease-in-out',
                 }}
               />
             ))}
@@ -177,19 +188,48 @@ const Dashboard = () => {
               background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              mb: 1
+              mb: 1,
+              transition: 'all 0.3s ease-in-out',
+              display: 'inline-block',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                background: 'linear-gradient(90deg, #8B2FA0 0%, #E85AA3 100%)',
+                WebkitBackgroundClip: 'text',
+              }
             }}
           >
             {`Welcome back${user && user.userName ? ', ' + user.userName : '!'}`}
           </Typography>
-          <Typography sx={{ color: '#666666', fontSize: { xs: '14px', sm: '15px' } }}>
+          <Typography 
+            sx={{ 
+              color: '#666666', 
+              fontSize: { xs: '14px', sm: '15px' },
+              transition: 'color 0.3s ease-in-out',
+              '&:hover': {
+                color: '#333333',
+              }
+            }}
+          >
             Your profile summary is below. Edit your profile anytime from the profile menu.
           </Typography>
         </Box>
       </Container>
 
       <Container maxWidth="md" sx={{ pt: 6 }}>
-        <Paper sx={{ p: 4, borderRadius: 2 }} elevation={2}>
+        <Paper 
+          sx={{ 
+            p: 4, 
+            borderRadius: 2,
+            transition: 'all 0.3s ease-in-out',
+            cursor: 'default',
+            '&:hover': {
+              elevation: 8,
+              transform: 'translateY(-4px)',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+            }
+          }} 
+          elevation={2}
+        >
           <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
             User Dashboard
           </Typography>
@@ -198,15 +238,67 @@ const Dashboard = () => {
             <Typography sx={{ mb: 2 }}>No user data found in session. Please login.</Typography>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography><strong>Professionals ID:</strong> {user.professionalsId || '—'}</Typography>
-              <Typography><strong>Username:</strong> {user.userName || '—'}</Typography>
-              <Typography><strong>Email:</strong> {user.email || '—'}</Typography>
-              <Typography><strong>Mobile:</strong> {user.mobileNumber || '—'}</Typography>
+              <Typography 
+                sx={{ 
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    color: 'primary.main',
+                    transform: 'translateX(4px)',
+                  }
+                }}
+              >
+                <strong>Professionals ID:</strong> {user.professionalsId || '—'}
+              </Typography>
+              <Typography 
+                sx={{ 
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    color: 'primary.main',
+                    transform: 'translateX(4px)',
+                  }
+                }}
+              >
+                <strong>Username:</strong> {user.userName || '—'}
+              </Typography>
+              <Typography 
+                sx={{ 
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    color: 'primary.main',
+                    transform: 'translateX(4px)',
+                  }
+                }}
+              >
+                <strong>Email:</strong> {user.email || '—'}
+              </Typography>
+              <Typography 
+                sx={{ 
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    color: 'primary.main',
+                    transform: 'translateX(4px)',
+                  }
+                }}
+              >
+                <strong>Mobile:</strong> {user.mobileNumber || '—'}
+              </Typography>
             </Box>
           )}
 
           <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
-            <Button variant="contained" color="primary" onClick={() => navigate(-1)}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={() => navigate(-1)}
+              sx={{
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 20px rgba(105, 36, 124, 0.4)',
+                  backgroundColor: 'primary.dark',
+                }
+              }}
+            >
               Back
             </Button>
           </Box>

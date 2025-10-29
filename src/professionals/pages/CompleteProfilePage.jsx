@@ -5,38 +5,110 @@ import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import EditIcon from '@mui/icons-material/Edit';
 import { Person as PersonIcon, Phone as PhoneIcon, Work as WorkIcon, CalendarToday as CalendarTodayIcon, Favorite as FavoriteIcon, Email as EmailIcon, LocationOn as LocationOnIcon } from '@mui/icons-material';
 import menImage from '../../assets/images/Men.jpg';
-import { getProfessionalsProfileById } from '../../API/professionalsProfileApi';
+import { getProfessionalsProfileById, saveOrUpdateProfessionalsProfile, updateProfessionalsProfile } from '../../API/professionalsProfileApi';
+import { sessionManager } from '../../API/authApi';
+import profileFlowManager from '../../utils/profileFlowManager';
+import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
 import AuthImage from '../../components/common/AuthImage';
 import AuthVideo from '../../components/common/AuthVideo';
+import Swal from 'sweetalert2';
 
 const CompleteProfilePage = () => {
   const navigate = useNavigate();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [profileId, setProfileId] = useState(null);
+  const [isCompleting, setIsCompleting] = useState(false);
 
+  // Initialize profile ID on mount
   useEffect(() => {
-    fetchProfileData();
-  }, []);
+    const initializeProfile = async () => {
+      try {
+        // Check if user is logged in
+        if (!sessionManager.isLoggedIn()) {
+          navigate('/login');
+          return;
+        }
+
+        // Initialize profile flow manager
+        const initResult = await profileFlowManager.initialize();
+        
+        // Get profile ID from session or profile flow manager
+        let id = sessionManager.getProfessionalsProfileId();
+        
+        if (!id && initResult.profileId) {
+          id = initResult.profileId;
+        }
+
+        // If still no profile ID, try to create one
+        if (!id) {
+          const professionalsId = sessionManager.getProfessionalsId();
+          if (professionalsId) {
+            console.log('🔄 Creating professionals profile...');
+            const createResult = await saveOrUpdateProfessionalsProfileByProfessionalsId(professionalsId, {});
+            if (createResult.success && createResult.data?.professionalsProfileId) {
+              id = createResult.data.professionalsProfileId;
+              console.log('✅ Profile created with ID:', id);
+            }
+          }
+        }
+
+        if (id) {
+          setProfileId(id);
+          console.log('✅ Using profile ID:', id);
+        } else {
+          console.error('❌ Could not get or create profile ID');
+          setError('Unable to initialize your profile. Please ensure you have completed the basic info step.');
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing profile:', error);
+        setError('Failed to initialize your profile. Please refresh the page.');
+        setLoading(false);
+      }
+    };
+
+    initializeProfile();
+  }, [navigate]);
 
   const fetchProfileData = async () => {
+    if (!profileId) {
+      setError('Profile ID not available');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      // Using the profile ID from the API response you provided
-      const response = await getProfessionalsProfileById(4);
+      setError(null);
+      console.log('🔄 Fetching profile data for ID:', profileId);
+      const response = await getProfessionalsProfileById(profileId);
+      console.log('📡 Profile API response:', response);
       
       if (response.success && response.data.code === 1000) {
         setProfileData(response.data.data);
+        console.log('✅ Profile data loaded successfully');
       } else {
-        setError(response.data?.message || 'Failed to fetch profile data');
+        const errorMessage = response.data?.message || response.data?.error || 'Failed to fetch profile data';
+        console.error('❌ Failed to fetch profile:', errorMessage);
+        setError(errorMessage);
       }
     } catch (err) {
-      setError('An error occurred while fetching profile data');
-      console.error('Error fetching profile:', err);
+      console.error('❌ Error fetching profile:', err);
+      setError(err.response?.data?.message || err.message || 'An error occurred while fetching profile data');
     } finally {
       setLoading(false);
     }
   };
+
+  // Fetch profile data when profile ID is available
+  useEffect(() => {
+    if (profileId) {
+      fetchProfileData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId]);
 
   // Helper function to format date
   const formatDate = (dateString) => {
@@ -77,53 +149,218 @@ const CompleteProfilePage = () => {
     navigate('/preferences');
   };
 
+  // Handle Complete Profile button click
+  const handleCompleteProfile = async () => {
+    if (!profileId || !profileData) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Profile Not Ready',
+        text: 'Please wait for your profile to load before completing.',
+        confirmButtonColor: '#69247C'
+      });
+      return;
+    }
 
-  if (loading) {
-    return (
-      <>
-        <BasicInfoNavbar />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-          <CircularProgress sx={{ color: '#DA498D' }} />
-        </Box>
-      </>
-    );
-  }
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: 'Complete Your Profile?',
+      text: 'Are you sure you want to mark your profile as complete? This will make your profile visible to potential clients.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#69247C',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, Complete Profile!',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'swal2-popup-custom',
+        title: 'swal2-title-custom',
+        content: 'swal2-content-custom',
+        confirmButton: 'swal2-confirm-custom',
+        cancelButton: 'swal2-cancel-custom'
+      }
+    });
 
-  if (error) {
-    return (
-      <>
-        <BasicInfoNavbar />
-        <Box sx={{ py: 2, backgroundColor: 'white', minHeight: '100vh', px: 2 }}>
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-          <Button variant="contained" onClick={fetchProfileData} sx={{ 
-            background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-            '&:hover': { background: 'linear-gradient(90deg, #5a1f6a 0%, #C43A7A 100%)' }
-          }}>
-            Retry
-          </Button>
-        </Box>
-      </>
-    );
-  }
+    if (!result.isConfirmed) {
+      return;
+    }
 
-  if (!profileData) {
-    return (
-      <>
-        <BasicInfoNavbar />
-        <Box sx={{ py: 2, backgroundColor: 'white', minHeight: '100vh', px: 2 }}>
-          <Alert severity="info">
-            No profile data available
-          </Alert>
-        </Box>
-      </>
-    );
-  }
+    try {
+      setIsCompleting(true);
+
+      // Show loading alert
+      Swal.fire({
+        title: 'Completing Profile...',
+        text: 'Please wait while we save your profile',
+        icon: 'info',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // Prepare profile data for update - include all existing profile data plus completion flags
+      const profileUpdateData = {
+        ...profileData,
+        professionalsProfileId: profileId,
+        isComplete: true,
+        isActive: true,
+        completedDate: new Date().toISOString()
+      };
+
+      console.log('🔄 Completing profile with data:', profileUpdateData);
+
+      // Try update first, if that fails, try save-or-update
+      let response = await updateProfessionalsProfile(profileUpdateData);
+      
+      // If update fails (maybe profile doesn't have an ID yet), try save-or-update
+      if (!response.success) {
+        console.log('⚠️ Update failed, trying save-or-update...');
+        const professionalsId = sessionManager.getProfessionalsId();
+        if (professionalsId) {
+          response = await saveOrUpdateProfessionalsProfileByProfessionalsId(professionalsId, profileUpdateData);
+        }
+      }
+      
+      console.log('📡 Complete profile API response:', response);
+
+      if (response.success) {
+        // Show success alert
+        const result = await Swal.fire({
+          title: 'Profile Completed!',
+          text: response.message || 'Your profile has been completed and saved successfully!',
+          icon: 'success',
+          confirmButtonColor: '#69247C',
+          confirmButtonText: 'Go to Dashboard',
+          customClass: {
+            popup: 'swal2-popup-custom',
+            title: 'swal2-title-custom',
+            content: 'swal2-content-custom',
+            confirmButton: 'swal2-confirm-custom'
+          }
+        });
+
+        // Refresh profile data to get updated status
+        await fetchProfileData();
+
+        // Navigate to dashboard after successful completion
+        navigate('/dashboard');
+      } else {
+        throw new Error(response.error || 'Failed to complete profile');
+      }
+    } catch (error) {
+      console.error('❌ Error completing profile:', error);
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Completion Failed',
+        text: error.message || 'An error occurred while completing your profile. Please try again.',
+        confirmButtonColor: '#69247C'
+      });
+    } finally {
+      setIsCompleting(false);
+    }
+  };
 
   return (
     <>
-      <BasicInfoNavbar />
+      <style>
+        {`
+          .swal2-popup-custom {
+            font-family: 'Poppins', sans-serif !important;
+            border-radius: 12px !important;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.15) !important;
+          }
+          
+          .swal2-title-custom {
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 600 !important;
+            font-size: 24px !important;
+            color: #69247C !important;
+          }
+          
+          .swal2-content-custom {
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 400 !important;
+            font-size: 16px !important;
+            color: #444444 !important;
+            line-height: 1.5 !important;
+          }
+          
+          .swal2-confirm-custom {
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            background: linear-gradient(90deg, #69247C 0%, #DA498D 100%) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            transition: all 0.3s ease !important;
+          }
+          
+          .swal2-confirm-custom:hover {
+            background: linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%) !important;
+            transform: translateY(-1px) !important;
+          }
+          
+          .swal2-cancel-custom {
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            background: #f5f5f5 !important;
+            color: #666666 !important;
+            border: 1px solid #d9d9d9 !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            transition: all 0.3s ease !important;
+          }
+          
+          .swal2-cancel-custom:hover {
+            background: #e9e9e9 !important;
+            transform: translateY(-1px) !important;
+          }
+        `}
+      </style>
+      {loading && (
+        <>
+          <BasicInfoNavbar />
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+            <CircularProgress sx={{ color: '#DA498D' }} />
+          </Box>
+        </>
+      )}
+
+      {error && !loading && (
+        <>
+          <BasicInfoNavbar />
+          <Box sx={{ py: 2, backgroundColor: 'white', minHeight: '100vh', px: 2 }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+            <Button variant="contained" onClick={fetchProfileData} sx={{ 
+              background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+              '&:hover': { background: 'linear-gradient(90deg, #5a1f6a 0%, #C43A7A 100%)' }
+            }}>
+              Retry
+            </Button>
+          </Box>
+        </>
+      )}
+
+      {!loading && !error && !profileData && (
+        <>
+          <BasicInfoNavbar />
+          <Box sx={{ py: 2, backgroundColor: 'white', minHeight: '100vh', px: 2 }}>
+            <Alert severity="info">
+              No profile data available
+            </Alert>
+          </Box>
+        </>
+      )}
+
+      {!loading && !error && profileData && (
+        <>
+          <BasicInfoNavbar />
       <Box sx={{ py: 2, backgroundColor: 'white', minHeight: '100vh' }}>
         {/* Main Profile Layout - Photo on Left, Basic Details on Right */}
         <Box sx={{ 
@@ -888,17 +1125,46 @@ const CompleteProfilePage = () => {
               </Box>
 
               <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', mt: 6 }}>
-                <Button variant="outlined" sx={{ border: '1px solid #DA498D', borderRadius: '8px', color: '#DA498D', fontFamily: 'Poppins', fontWeight: 600, fontSize: '16px', padding: '12px 32px', textTransform: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', '&:hover': { border: '1px solid #DA498D', backgroundColor: 'rgba(218, 73, 141, 0.04)' } }}>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => navigate('/preferences')}
+                  sx={{ border: '1px solid #DA498D', borderRadius: '8px', color: '#DA498D', fontFamily: 'Poppins', fontWeight: 600, fontSize: '16px', padding: '12px 32px', textTransform: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', '&:hover': { border: '1px solid #DA498D', backgroundColor: 'rgba(218, 73, 141, 0.04)' } }}
+                >
                   Back
                 </Button>
-                <Button variant="contained" sx={{ background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)', borderRadius: '8px', color: 'white', fontFamily: 'Poppins', fontWeight: 600, fontSize: '16px', padding: '12px 32px', textTransform: 'none', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', '&:hover': { background: 'linear-gradient(90deg, #5a1f6a 0%, #C43A7A 100%)', boxShadow: '0 6px 12px rgba(0,0,0,0.15)' } }}>
-                  Complete Profile
+                <Button 
+                  variant="contained" 
+                  onClick={handleCompleteProfile}
+                  disabled={isCompleting || !profileData}
+                  sx={{ 
+                    background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)', 
+                    borderRadius: '8px', 
+                    color: 'white', 
+                    fontFamily: 'Poppins', 
+                    fontWeight: 600, 
+                    fontSize: '16px', 
+                    padding: '12px 32px', 
+                    textTransform: 'none', 
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)', 
+                    '&:hover': { 
+                      background: 'linear-gradient(90deg, #5a1f6a 0%, #C43A7A 100%)', 
+                      boxShadow: '0 6px 12px rgba(0,0,0,0.15)' 
+                    },
+                    '&:disabled': {
+                      background: '#cccccc',
+                      cursor: 'not-allowed'
+                    }
+                  }}
+                >
+                  {isCompleting ? 'Completing...' : 'Complete Profile'}
                 </Button>
               </Box>
             </Box>
           </Box>
         </Box>
       </Box>
+        </>
+      )}
     </>
   );
 };
