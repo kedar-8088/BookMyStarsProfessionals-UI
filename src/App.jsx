@@ -14,6 +14,9 @@ const theme = createTheme({
     secondary: {
       main: '#DA498D',
     },
+    background: {
+      default: '#ffffff',
+    },
   },
   breakpoints: {
     values: {

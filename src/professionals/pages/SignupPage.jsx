@@ -18,6 +18,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { registerProfessional, generateOtp } from '../../API/authApi';
 import loginRegisterImage from '../../assets/images/login&register.png';
+import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 
 const GradientAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
@@ -268,7 +269,23 @@ const SignupPage = () => {
               component="div" 
               sx={{ fontWeight: 600, color: 'white' }}
             >
-              LOGO
+              {/* LOGO text replaced by BookMyStars image */}
+              <Box
+                component="img"
+                src={BookMyStarsLogo}
+                alt="BookMyStars Logo"
+                sx={{
+                  height: { xs: 40, sm: 48, md: 56 },
+                  width: 'auto',
+                  maxHeight: 56,
+                  maxWidth: 180,
+                  display: 'block',
+                  objectFit: 'contain',
+                  backgroundColor: '#fff', // White background
+                  borderRadius: '6px',    // Rounded corners
+                  p: 0.5,                 // Padding
+                }}
+              />
             </Typography>
           </motion.div>
           
@@ -294,9 +311,9 @@ const SignupPage = () => {
                 >
                   Features
                 </Button>
-                <Button color="inherit" sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}>
+                {/* <Button color="inherit" sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}>
                   Dummy text
-                </Button>
+                </Button> */}
               </Box>
             </motion.div>
           )}

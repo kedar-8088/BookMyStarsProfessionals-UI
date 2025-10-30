@@ -11,6 +11,7 @@ import Divider from '@mui/material/Divider';
 import { useNavigate } from 'react-router-dom';
 import { sessionManager } from '../../API/authApi';
 import { Person as PersonIcon, AccountCircle as AccountIcon, ExitToApp as LogoutIcon, Menu as MenuIcon } from '@mui/icons-material';
+import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 
 const ProfileNavBar = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -35,7 +36,23 @@ const ProfileNavBar = () => {
     <AppBar position="static" sx={{ background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
-          LOGO
+          {/* LOGO text replaced by BookMyStars image */}
+          <Box
+            component="img"
+            src={BookMyStarsLogo}
+            alt="BookMyStars Logo"
+            sx={{
+              height: { xs: 40, sm: 48, md: 56 },
+              width: 'auto',
+              maxHeight: 56,
+              maxWidth: 180,
+              display: 'block',
+              objectFit: 'contain',
+              backgroundColor: '#fff', // White background
+              borderRadius: '6px',    // Rounded corners
+              p: 0.5,                 // Padding
+            }}
+          />
         </Typography>
 
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>

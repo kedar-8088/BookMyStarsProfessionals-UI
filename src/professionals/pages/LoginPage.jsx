@@ -31,6 +31,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LoginIcon from '@mui/icons-material/Login';
 import SecurityIcon from '@mui/icons-material/Security';
 import loginRegisterImage from '../../assets/images/login&register.png';
+import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 import { loginProfessional, sessionManager } from '../../API/authApi';
 
 const GradientAppBar = styled(AppBar)(({ theme }) => ({
@@ -158,12 +159,15 @@ const LoginPage = () => {
         }
         
         // Extract user data from the API response
+        console.log('🔍 Raw user data from API:', userData);
+        console.log('🔍 All user data keys:', userData ? Object.keys(userData) : 'No user data');
+        
         const userInfo = {
           professionalsId: userData?.professionalsId,
           userName: userData?.userName,
-          email: userData?.email || '',
-          mobileNumber: userData?.mobileNumber,
-          phoneNumber: userData?.mobileNumber
+          email: userData?.email || userData?.userEmail || '',
+          mobileNumber: userData?.mobileNumber || userData?.phoneNumber,
+          phoneNumber: userData?.phoneNumber || userData?.mobileNumber
         };
         
         console.log('Login response user data:', userData);
@@ -320,7 +324,23 @@ const LoginPage = () => {
               component="div" 
               sx={{ fontWeight: 600, color: 'white' }}
             >
-              LOGO
+              {/* LOGO text replaced by BookMyStars image */}
+              <Box
+                component="img"
+                src={BookMyStarsLogo}
+                alt="BookMyStars Logo"
+                sx={{
+                  height: { xs: 40, sm: 48, md: 56 },
+                  width: 'auto',
+                  maxHeight: 56,
+                  maxWidth: 180,
+                  display: 'block',
+                  objectFit: 'contain',
+                  backgroundColor: '#fff', // White background
+                  borderRadius: '6px',    // Optional: rounded corners
+                  p: 0.5,                 // Optional: padding inside
+                }}
+              />
             </Typography>
           </motion.div>
           
@@ -346,9 +366,9 @@ const LoginPage = () => {
                 >
                   Features
                 </Button>
-                <Button color="inherit" sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}>
+                {/* <Button color="inherit" sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}>
                   Dummy text
-                </Button>
+                </Button> */}
               </Box>
             </motion.div>
           )}

@@ -121,6 +121,16 @@ const BasicInfoPage = () => {
   // Validation errors state
   const [validationErrors, setValidationErrors] = useState([]);
 
+  // Helper function to clean phone number
+  const cleanPhoneNumber = (phoneNumber) => {
+    if (!phoneNumber) return '';
+    // Remove "Professionals" text if it exists
+    if (phoneNumber.toLowerCase() === 'professionals' || phoneNumber.toLowerCase().includes('professionals')) {
+      return '';
+    }
+    return phoneNumber;
+  };
+
   // SweetAlert helper functions
   const showSuccessAlert = (title, text) => {
     Swal.fire({
@@ -267,10 +277,11 @@ const BasicInfoPage = () => {
         // Load existing basic info if available
         if (initResult.hasExistingProfile && profileFlowManager.profileData.basicInfo) {
           const existingData = profileFlowManager.profileData.basicInfo;
+          
           setFormData({
             fullName: existingData.fullName || '',
             email: existingData.email || '',
-            phoneNo: existingData.phoneNo || '',
+            phoneNo: cleanPhoneNumber(existingData.phoneNo),
             category: existingData.category?.categoryId || '',
             maritalStatus: existingData.maritalStatus?.maritalStatusId || '',
             state: existingData.state?.stateId || '',
@@ -288,10 +299,11 @@ const BasicInfoPage = () => {
           const loadResult = await profileFlowManager.loadExistingFormData('basicInfo');
           if (loadResult.success && loadResult.hasExistingData) {
             const existingData = loadResult.data;
+            
             setFormData({
               fullName: existingData.fullName || '',
               email: existingData.email || '',
-              phoneNo: existingData.phoneNo || '',
+              phoneNo: cleanPhoneNumber(existingData.phoneNo),
               category: existingData.category?.categoryId || '',
               maritalStatus: existingData.maritalStatus?.maritalStatusId || '',
               state: existingData.state?.stateId || '',
@@ -302,12 +314,22 @@ const BasicInfoPage = () => {
           } else {
             // Auto-fill from user session
             const session = sessionManager.getUserSession();
+            console.log('🔍 Debugging session data for auto-fill:', session);
             if (session && session.user) {
+              console.log('🔍 Session user object:', session.user);
+              console.log('🔍 Available user fields:', Object.keys(session.user));
+              console.log('🔍 Email value:', session.user.email);
+              console.log('🔍 Mobile number value:', session.user.mobileNumber);
+              console.log('🔍 Phone number value:', session.user.phoneNumber);
+              
+              // Try to get phone number from multiple possible fields
+              const phoneNumber = session.user.mobileNumber || session.user.phoneNumber || session.user.phone || '';
+              
               setFormData(prev => ({
                 ...prev,
                 fullName: session.user.userName || '',
                 email: session.user.email || '',
-                phoneNo: session.user.mobileNumber || ''
+                phoneNo: cleanPhoneNumber(phoneNumber)
               }));
             }
           }
@@ -457,7 +479,7 @@ const BasicInfoPage = () => {
   };
 
   return (
-    <>
+    <Box sx={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
       <style>
         {`
           .swal2-popup-custom {
@@ -626,7 +648,7 @@ const BasicInfoPage = () => {
       {/* Basic Info Form Section */}
       <Box sx={{ 
         py: { xs: 3, sm: 5, md: 7, lg: 8 }, 
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#ffffff',
         minHeight: '100vh'
       }}>
         <Container 
@@ -672,28 +694,7 @@ const BasicInfoPage = () => {
             />
           </motion.div>
 
-          {/* Form Fields */}
-          <Box sx={{ 
-            maxWidth: { xs: '100%', sm: 500, md: 600, lg: 700 }, 
-            mx: 'auto', 
-            px: { xs: 1, sm: 2, md: 3 },
-            width: '100%'
-          }}>
-            {/* Step Indicator */}
-            <motion.div
-              ref={stepIndicatorRef}
-              initial={{ opacity: 0 }}
-              animate={stepIndicatorInView ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-            >
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                mb: { xs: 3, sm: 4, md: 5 },
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: { xs: 2, sm: 0 }
-              }}>
-                <Typography
+          <Typography
                   sx={{
                     fontFamily: 'Poppins',
                     fontWeight: 600,
@@ -702,89 +703,113 @@ const BasicInfoPage = () => {
                     letterSpacing: '0%',
                     color: '#69247C',
                     mr: { xs: 0, sm: 3, md: 5 },
-                    mb: { xs: 1, sm: 0 }
+                    mb: { xs: 1, sm: 0 },
+                    textAlign: 'center'
                   }}
                 >
                   Step 1 of 5
                 </Typography>
+                <br></br>
 
-                {/* Progress Circles */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: { xs: 1, sm: 2 },
-                  flexWrap: 'wrap',
-                  justifyContent: { xs: 'center', sm: 'flex-start' }
-                }}>
-                  <Box
-                    sx={{
-                      width: { xs: 16, sm: 18, md: 20 },
-                      height: { xs: 16, sm: 18, md: 20 },
-                      borderRadius: '50%',
-                      background: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%)',
-                      border: '1px solid #D9D9D9'
-                    }}
-                  />
-                  <Box sx={{ 
-                    width: { xs: 15, sm: 18, md: 20 }, 
-                    height: '1px', 
-                    border: '1px solid #D9D9D9' 
-                  }} />
-                  <Box
-                    sx={{
-                      width: { xs: 16, sm: 18, md: 20 },
-                      height: { xs: 16, sm: 18, md: 20 },
-                      borderRadius: '50%',
-                      backgroundColor: 'white',
-                      border: '1px solid #D9D9D9'
-                    }}
-                  />
-                  <Box sx={{ 
-                    width: { xs: 15, sm: 18, md: 20 }, 
-                    height: '1px', 
-                    border: '1px solid #D9D9D9' 
-                  }} />
-                  <Box
-                    sx={{
-                      width: { xs: 16, sm: 18, md: 20 },
-                      height: { xs: 16, sm: 18, md: 20 },
-                      borderRadius: '50%',
-                      backgroundColor: 'white',
-                      border: '1px solid #D9D9D9'
-                    }}
-                  />
-                  <Box sx={{ 
-                    width: { xs: 15, sm: 18, md: 20 }, 
-                    height: '1px', 
-                    border: '1px solid #D9D9D9' 
-                  }} />
-                  <Box
-                    sx={{
-                      width: { xs: 16, sm: 18, md: 20 },
-                      height: { xs: 16, sm: 18, md: 20 },
-                      borderRadius: '50%',
-                      backgroundColor: 'white',
-                      border: '1px solid #D9D9D9'
-                    }}
-                  />
-                  <Box sx={{ 
-                    width: { xs: 15, sm: 18, md: 20 }, 
-                    height: '1px', 
-                    border: '1px solid #D9D9D9' 
-                  }} />
-                  <Box
-                    sx={{
-                      width: { xs: 16, sm: 18, md: 20 },
-                      height: { xs: 16, sm: 18, md: 20 },
-                      borderRadius: '50%',
-                      backgroundColor: 'white',
-                      border: '1px solid #D9D9D9'
-                    }}
-                  />
+                {/* Progress Indicator - Ellipses Connected with Lines */}
+                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                    {/* Step 1 - Active */}
+                    <Box
+                      sx={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        background: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)',
+                        border: '2px solid #69247C'
+                      }}
+                    />
+                    {/* Connecting Line 1 */}
+                    <Box
+                      sx={{
+                        width: 60,
+                        height: 3,
+                        backgroundColor: '#D9D9D9',
+                        margin: '0 6px'
+                      }}
+                    />
+                    {/* Step 2 - Inactive */}
+                    <Box
+                      sx={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        border: '2px solid #D9D9D9',
+                        backgroundColor: 'white'
+                      }}
+                    />
+                    {/* Connecting Line 2 */}
+                    <Box
+                      sx={{
+                        width: 60,
+                        height: 3,
+                        backgroundColor: '#D9D9D9',
+                        margin: '0 6px'
+                      }}
+                    />
+                    {/* Step 3 - Inactive */}
+                    <Box
+                      sx={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        border: '2px solid #D9D9D9',
+                        backgroundColor: 'white'
+                      }}
+                    />
+                    {/* Connecting Line 3 */}
+                    <Box
+                      sx={{
+                        width: 60,
+                        height: 3,
+                        backgroundColor: '#D9D9D9',
+                        margin: '0 6px'
+                      }}
+                    />
+                    {/* Step 4 - Inactive */}
+                    <Box
+                      sx={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        border: '2px solid #D9D9D9',
+                        backgroundColor: 'white'
+                      }}
+                    />
+                    {/* Connecting Line 4 */}
+                    <Box
+                      sx={{
+                        width: 60,
+                        height: 3,
+                        backgroundColor: '#D9D9D9',
+                        margin: '0 6px'
+                      }}
+                    />
+                    {/* Step 5 - Inactive */}
+                    <Box
+                      sx={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        border: '2px solid #D9D9D9',
+                        backgroundColor: 'white'
+                      }}
+                    />
+                  </Box>
                 </Box>
-              </Box>
-            </motion.div>
-            
+
+          {/* Form Fields */}
+          <Box sx={{ 
+            maxWidth: { xs: '100%', sm: 500, md: 600, lg: 700 }, 
+            mx: 'auto', 
+            px: { xs: 1, sm: 2, md: 3 },
+            width: '100%'
+          }}>
             {/* Upload Profile Photo Section */}
             <motion.div
               ref={uploadSectionRef}
@@ -1043,7 +1068,7 @@ const BasicInfoPage = () => {
                   <TextField
                     value={formData.phoneNo}
                     onChange={(e) => handleFormDataChange('phoneNo', e.target.value)}
-                    placeholder="987-124-547"
+                    placeholder="Auto filled from Sign up"
                     sx={{
                       flex: 1,
                       '& .MuiOutlinedInput-root': {
@@ -1525,7 +1550,7 @@ const BasicInfoPage = () => {
         </Container>
       </Box>
 
-    </>
+    </Box>
   );
 };
 

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Box, Button, IconButton, useMediaQuery, useTheme, Menu, MenuItem } from '@mui/material';
 import { KeyboardArrowDown, Menu as MenuIcon, Logout as LogoutIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate, useScroll } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { sessionManager } from '../../API/authApi';
+import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 
 const GradientAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
@@ -20,6 +21,20 @@ const LandingHeader = () => {
   const [mobileMenuAnchor, setMobileMenuAnchor] = React.useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 100], [1, 0.5]);
+  const [isBlinking, setIsBlinking] = useState(false);
+
+  // Trigger blink effect on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsBlinking(true);
+      setTimeout(() => setIsBlinking(false), 500);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -84,20 +99,53 @@ const LandingHeader = () => {
   };
 
   return (
-    <GradientAppBar position="static">
+    <GradientAppBar position="static" style={{ opacity }}>
       <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, sm: 3 } }}>
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          animate={{ 
+            opacity: isBlinking ? 0.3 : 1, 
+            x: 0,
+            scale: isBlinking ? 0.95 : 1
+          }}
+          transition={{ 
+            duration: isBlinking ? 0.1 : 0.6, 
+            ease: "easeOut" 
+          }}
+          whileHover={{ 
+            scale: 1.1,
+            rotate: [0, -5, 5, 0],
+            transition: { duration: 0.3 }
+          }}
         >
           <Typography 
             variant={isMobile ? "h6" : "h5"} 
             component="div" 
             sx={{ fontWeight: 600, color: 'white' }}
           >
-            LOGO
+            {/* LOGO text replaced by BookMyStars image */}
+            <Box
+              component="img"
+              src={BookMyStarsLogo}
+              alt="BookMyStars Logo"
+              sx={{
+                height: { xs: 40, sm: 48, md: 56 },
+                width: 'auto',
+                maxHeight: 56,
+                maxWidth: 180,
+                display: 'block',
+                objectFit: 'contain',
+                backgroundColor: '#fff', // White background
+                borderRadius: '6px',    // Rounded corners
+                p: 0.5,                 // Padding
+                cursor: 'pointer',
+                transition: 'transform 0.3s ease, boxShadow 0.3s ease',
+                '&:hover': {
+                  boxShadow: '0 8px 24px rgba(255,255,255,0.4)',
+                }
+              }}
+            />
           </Typography>
         </motion.div>
         
@@ -105,50 +153,113 @@ const LandingHeader = () => {
         {!isMobile && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+            animate={{ 
+              opacity: isBlinking ? 0.3 : 1, 
+              x: 0,
+              scale: isBlinking ? 0.95 : 1
+            }}
+            transition={{ 
+              duration: isBlinking ? 0.1 : 0.6, 
+              delay: 0.2, 
+              ease: "easeOut" 
+            }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Button 
-                color="inherit" 
-                sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
-                onClick={() => navigate('/')}
+              <motion.div
+                whileHover={{ scale: 1.1, y: -2 }}
+                transition={{ duration: 0.2 }}
               >
-                Home
-              </Button>
-              <Button 
-                color="inherit" 
-                sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
-                onClick={() => navigate('/features')}
+                <Button 
+                  color="inherit" 
+                  sx={{ 
+                    color: 'white', 
+                    fontWeight: 400, 
+                    fontSize: '14px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: '-100%',
+                      width: '100%',
+                      height: '100%',
+                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                      transition: 'left 0.5s'
+                    },
+                    '&:hover::before': {
+                      left: '100%'
+                    }
+                  }}
+                  onClick={() => navigate('/')}
+                >
+                  Home
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.1, y: -2 }}
+                transition={{ duration: 0.2 }}
               >
-                Features
-              </Button>
+                <Button 
+                  color="inherit" 
+                  sx={{ 
+                    color: 'white', 
+                    fontWeight: 400, 
+                    fontSize: '14px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: '-100%',
+                      width: '100%',
+                      height: '100%',
+                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                      transition: 'left 0.5s'
+                    },
+                    '&:hover::before': {
+                      left: '100%'
+                    }
+                  }}
+                  onClick={() => navigate('/features')}
+                >
+                  Features
+                </Button>
+              </motion.div>
               
-              <Button
-                color="inherit"
-                onClick={handleClick}
-                endIcon={<KeyboardArrowDown />}
-                sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
+              <motion.div
+                whileHover={{ scale: 1.1, y: -2 }}
+                transition={{ duration: 0.2 }}
               >
-                Hire Talent
-              </Button>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                <MenuItem onClick={handleClose}>Browse Talent</MenuItem>
-                <MenuItem onClick={handleClose}>Post a Job</MenuItem>
-              </Menu>
-
-              <Button
-                color="inherit"
-                onClick={handleClick2}
-                endIcon={<KeyboardArrowDown />}
-                sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
-              >
-                Find Work
-              </Button>
+                <Button
+                  color="inherit"
+                  onClick={handleClick2}
+                  endIcon={<KeyboardArrowDown />}
+                  sx={{ 
+                    color: 'white', 
+                    fontWeight: 400, 
+                    fontSize: '14px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: '-100%',
+                      width: '100%',
+                      height: '100%',
+                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                      transition: 'left 0.5s'
+                    },
+                    '&:hover::before': {
+                      left: '100%'
+                    }
+                  }}
+                >
+                  Find Work
+                </Button>
+              </motion.div>
               <Menu
                 anchorEl={anchorEl2}
                 open={Boolean(anchorEl2)}
@@ -158,78 +269,149 @@ const LandingHeader = () => {
                 <MenuItem onClick={handleClose2}>Create Profile</MenuItem>
               </Menu>
 
-              <Button color="inherit" sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}>
-                About us
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.1, y: -2 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Button 
+                  color="inherit" 
+                  sx={{ 
+                    color: 'white', 
+                    fontWeight: 400, 
+                    fontSize: '14px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: '-100%',
+                      width: '100%',
+                      height: '100%',
+                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                      transition: 'left 0.5s'
+                    },
+                    '&:hover::before': {
+                      left: '100%'
+                    }
+                  }}
+                >
+                  About us
+                </Button>
+              </motion.div>
               
               {/* Login/Logout Section */}
               {isLoggedIn ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 2 }}>
-                  <Typography sx={{ color: 'white', fontSize: '14px', fontWeight: 500 }}>
-                    Welcome, {userData?.userName || 'User'}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    onClick={handleLogoutClick}
-                    startIcon={<LogoutIcon />}
-                    sx={{
-                      backgroundColor: 'white',
-                      color: '#69247C',
-                      fontWeight: 500,
-                      fontSize: '14px',
-                      px: 3,
-                      py: 1,
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      '&:hover': {
-                        backgroundColor: '#f5f5f5',
-                      },
+                  <motion.div
+                    animate={{ 
+                      opacity: isBlinking ? 0.3 : 1,
+                      scale: isBlinking ? 0.95 : 1
                     }}
+                    transition={{ duration: 0.1 }}
                   >
-                    Logout
-                  </Button>
+                    <Typography sx={{ color: 'white', fontSize: '14px', fontWeight: 500 }}>
+                      Welcome, {userData?.userName || 'User'}
+                    </Typography>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    animate={{ 
+                      opacity: isBlinking ? 0.3 : 1,
+                      scale: isBlinking ? 0.95 : 1
+                    }}
+                    transition={{ duration: 0.1 }}
+                  >
+                    <Button
+                      variant="contained"
+                      onClick={handleLogoutClick}
+                      startIcon={<LogoutIcon />}
+                      sx={{
+                        backgroundColor: 'white',
+                        color: '#69247C',
+                        fontWeight: 500,
+                        fontSize: '14px',
+                        px: 3,
+                        py: 1,
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                        '&:hover': {
+                          backgroundColor: '#f5f5f5',
+                          boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
+                        },
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </motion.div>
                 </Box>
               ) : (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 2 }}>
-                  <Button
-                    variant="contained"
-                    onClick={handleLoginClick}
-                    sx={{
-                      backgroundColor: 'white',
-                      color: '#69247C',
-                      fontWeight: 500,
-                      fontSize: '14px',
-                      px: 3,
-                      py: 1,
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      '&:hover': {
-                        backgroundColor: '#f5f5f5',
-                      },
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    animate={{ 
+                      opacity: isBlinking ? 0.3 : 1,
+                      scale: isBlinking ? 0.95 : 1
                     }}
+                    transition={{ duration: 0.1 }}
                   >
-                    Login
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => navigate('/signup')}
-                    sx={{
-                      borderColor: 'white',
-                      color: 'white',
-                      fontWeight: 500,
-                      fontSize: '14px',
-                      px: 3,
-                      py: 1,
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      '&:hover': {
+                    <Button
+                      variant="contained"
+                      onClick={handleLoginClick}
+                      sx={{
+                        backgroundColor: 'white',
+                        color: '#69247C',
+                        fontWeight: 500,
+                        fontSize: '14px',
+                        px: 3,
+                        py: 1,
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                        '&:hover': {
+                          backgroundColor: '#f5f5f5',
+                          boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
+                        },
+                      }}
+                    >
+                      Login
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    animate={{ 
+                      opacity: isBlinking ? 0.3 : 1,
+                      scale: isBlinking ? 0.95 : 1
+                    }}
+                    transition={{ duration: 0.1 }}
+                  >
+                    <Button
+                      variant="outlined"
+                      onClick={() => navigate('/signup')}
+                      sx={{
                         borderColor: 'white',
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      },
-                    }}
-                  >
-                    Sign Up
-                  </Button>
+                        color: 'white',
+                        fontWeight: 500,
+                        fontSize: '14px',
+                        px: 3,
+                        py: 1,
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        borderWidth: 2,
+                        '&:hover': {
+                          borderColor: 'white',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          borderWidth: 2,
+                        },
+                      }}
+                    >
+                      Sign Up
+                    </Button>
+                  </motion.div>
                 </Box>
               )}
             </Box>
@@ -239,13 +421,28 @@ const LandingHeader = () => {
 
         {/* Mobile Menu Button */}
         {isMobile && (
-          <IconButton
-            color="inherit"
-            onClick={handleMobileMenuOpen}
-            sx={{ color: 'white' }}
+          <motion.div
+            animate={{ 
+              opacity: isBlinking ? 0.3 : 1,
+              scale: isBlinking ? 0.95 : 1
+            }}
+            transition={{ duration: 0.1 }}
           >
-            <MenuIcon />
-          </IconButton>
+            <IconButton
+              color="inherit"
+              onClick={handleMobileMenuOpen}
+              sx={{ 
+                color: 'white',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'rotate(90deg)',
+                }
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </motion.div>
         )}
 
         {/* Mobile Menu */}
@@ -254,22 +451,56 @@ const LandingHeader = () => {
           open={Boolean(mobileMenuAnchor)}
           onClose={handleMobileMenuClose}
           sx={{ display: { xs: 'block', md: 'none' } }}
+          TransitionComponent={motion.div}
+          TransitionProps={{
+            initial: { opacity: 0, scale: 0.8, y: -20 },
+            animate: { opacity: 1, scale: 1, y: 0 },
+            exit: { opacity: 0, scale: 0.8, y: -20 },
+            transition: { duration: 0.3 }
+          }}
         >
-          <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/'); }}>Home</MenuItem>
-          <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/features'); }}>Features</MenuItem>
-          <MenuItem onClick={handleMobileMenuClose}>Hire Talent</MenuItem>
-          <MenuItem onClick={handleMobileMenuClose}>Find Work</MenuItem>
-          <MenuItem onClick={handleMobileMenuClose}>About us</MenuItem>
+          <motion.div
+            whileHover={{ x: 5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/'); }}>Home</MenuItem>
+          </motion.div>
+          <motion.div
+            whileHover={{ x: 5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/features'); }}>Features</MenuItem>
+          </motion.div>
+          <motion.div
+            whileHover={{ x: 5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <MenuItem onClick={handleMobileMenuClose}>Find Work</MenuItem>
+          </motion.div>
+          <motion.div
+            whileHover={{ x: 5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <MenuItem onClick={handleMobileMenuClose}>About us</MenuItem>
+          </motion.div>
           {isLoggedIn ? [
-            <MenuItem key="welcome" onClick={handleMobileMenuClose}>
-              Welcome, {userData?.userName || 'User'}
-            </MenuItem>,
-            <MenuItem key="logout" onClick={() => { handleMobileMenuClose(); handleLogoutClick(); }}>
-              Logout
-            </MenuItem>
+            <motion.div key="welcome" whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+              <MenuItem onClick={handleMobileMenuClose}>
+                Welcome, {userData?.userName || 'User'}
+              </MenuItem>
+            </motion.div>,
+            <motion.div key="logout" whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+              <MenuItem onClick={() => { handleMobileMenuClose(); handleLogoutClick(); }}>
+                Logout
+              </MenuItem>
+            </motion.div>
           ] : [
-            <MenuItem key="login" onClick={() => { handleMobileMenuClose(); handleLoginClick(); }}>Login</MenuItem>,
-            <MenuItem key="signup" onClick={() => { handleMobileMenuClose(); navigate('/signup'); }}>Sign Up</MenuItem>
+            <motion.div key="login" whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+              <MenuItem onClick={() => { handleMobileMenuClose(); handleLoginClick(); }}>Login</MenuItem>
+            </motion.div>,
+            <motion.div key="signup" whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+              <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/signup'); }}>Sign Up</MenuItem>
+            </motion.div>
           ]}
         </Menu>
       </Toolbar>
