@@ -3,7 +3,6 @@ import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Al
 import { useNavigate } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import PrintIcon from '@mui/icons-material/Print';
-import EditIcon from '@mui/icons-material/Edit';
 import { Person as PersonIcon, Phone as PhoneIcon, Work as WorkIcon, CalendarToday as CalendarTodayIcon, Favorite as FavoriteIcon, Email as EmailIcon, LocationOn as LocationOnIcon } from '@mui/icons-material';
 import menImage from '../../assets/images/Men.jpg';
 import { getProfessionalsProfileById } from '../../API/professionalsProfileApi';
@@ -132,10 +131,6 @@ const ViewProfilePage = () => {
     window.print();
   };
 
-  // Handle Edit button click - navigate to complete profile page for editing
-  const handleEdit = () => {
-    navigate('/complete-profile');
-  };
 
   return (
     <>
@@ -201,32 +196,6 @@ const ViewProfilePage = () => {
         <>
           <BasicInfoNavbar />
           <Box className="print-content" sx={{ py: 2, backgroundColor: 'white', minHeight: '100vh' }}>
-            {/* Edit Button - Top Right */}
-            <Box className="no-print" sx={{ display: 'flex', justifyContent: 'flex-end', pr: 4, mb: 2 }}>
-              <Button 
-                variant="outlined" 
-                onClick={handleEdit}
-                startIcon={<EditIcon />}
-                sx={{ 
-                  border: '1px solid #DA498D', 
-                  borderRadius: '8px', 
-                  color: '#DA498D', 
-                  fontFamily: 'Poppins', 
-                  fontWeight: 600, 
-                  fontSize: '16px', 
-                  padding: '12px 32px', 
-                  textTransform: 'none', 
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)', 
-                  '&:hover': { 
-                    border: '1px solid #DA498D', 
-                    backgroundColor: 'rgba(218, 73, 141, 0.04)' 
-                  }
-                }}
-              >
-                Edit Profile
-              </Button>
-            </Box>
-
             {/* Main Profile Layout - Photo on Left, Basic Details on Right */}
             <Box sx={{ 
               display: 'flex', 

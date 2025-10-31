@@ -20,6 +20,8 @@ const getAuthHeaders = () => {
 };
 
 // Save or Update Style Profile
+// Request format: { styleProfileId: 0, professionalsId, gender: { genderId }, height, weight, skinColor: { skinColorId }, eyeColor: { eyeColorId }, hairColor: { hairColorId }, bodyType: { bodyTypeId }, chest, waist, bust, hips, shoeSize: { shoeSizeId }, allergies }
+// Response format: { code: 1000, status: "SUCCESS", message: "Activity success.", data: { styleProfileId, professionalsId, ... }, error, exception }
 export const saveOrUpdateStyleProfile = async (styleProfileData) => {
   try {
     console.log('💾 Saving style profile:', styleProfileData);
@@ -32,25 +34,48 @@ export const saveOrUpdateStyleProfile = async (styleProfileData) => {
       data: styleProfileData
     });
 
-    console.log('✅ Style profile saved successfully:', response.data);
-    return {
-      success: true,
-      data: response.data,
-      message: response.data.message || 'Style profile saved successfully'
-    };
+    // Check if response indicates success or failure
+    // Response structure: { code: 1000, status: "SUCCESS", message, data: {...}, error, exception }
+    const responseData = response.data;
+    const isSuccess = (responseData.code === 1000 || responseData.code === 200) && 
+                      responseData.status === 'SUCCESS';
+    
+    if (isSuccess) {
+      console.log('✅ Style profile saved successfully:', responseData);
+      return {
+        success: true,
+        data: responseData,
+        message: responseData.message || 'Style profile saved successfully',
+        code: responseData.code,
+        status: responseData.status
+      };
+    } else {
+      // Backend returned an error response (e.g., code: 500, status: 'FAILED')
+      console.error('❌ Style profile save failed:', responseData);
+      return {
+        success: false,
+        error: responseData.error || responseData.message || 'Failed to save style profile',
+        data: responseData,
+        code: responseData.code,
+        status: responseData.status
+      };
+    }
   } catch (error) {
     console.error('❌ Error saving style profile:', error);
     
     if (error.response) {
+      const responseData = error.response.data || {};
       return {
         success: false,
-        error: error.response.data?.message || 'Failed to save style profile',
-        data: error.response.data
+        error: responseData.error || responseData.message || error.message || 'Failed to save style profile',
+        data: responseData,
+        code: responseData.code,
+        status: responseData.status
       };
     } else {
       return {
         success: false,
-        error: 'Network error occurred while saving style profile'
+        error: error.message || 'Network error occurred while saving style profile'
       };
     }
   }

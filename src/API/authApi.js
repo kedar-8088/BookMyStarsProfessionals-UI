@@ -4,8 +4,19 @@ import { BaseUrl } from '../BaseUrl';
 const ENDPOINTS = {
   REGISTER: '/professionals/v1/register',
   LOGIN: '/professionals/v1/login',
-  GENERATE_OTP: '/professionals/v1/professionals/generateOtp',
-  RESET_PASSWORD: '/professionals/v1/professionals/resetPassword'
+  GENERATE_OTP: '/professionals/v1/generateOtp',
+  RESET_PASSWORD: '/professionals/v1/resetPassword',
+  VERIFY_OTP: '/professionals/v1/verifyOtp',
+  VERIFY_OTP_BY_SERVICE: '/professionals/v1/verifyOtpByService',
+  VERIFY_OTP_BY_EMAIL: '/professionals/v1/verifyOtpByEmail',
+  CHECK_VERIFICATION: '/professionals/v1/checkVerification',
+  CHECK_VERIFICATION_BY_EMAIL: '/professionals/v1/checkVerificationByEmail',
+  FORGOT_PASSWORD: '/professionals/v1/forgotPassword',
+  FORGOT_PASSWORD_WITH_ID: '/professionals/v1/forgotPasswordWithId',
+  RESET_PASSWORD_WITH_OTP: '/professionals/v1/resetPasswordWithOtp',
+  RESET_PASSWORD_WITH_OTP_BY_SERVICE: '/professionals/v1/resetPasswordWithOtpByService',
+  RESET_PASSWORD_WITH_OTP_BY_EMAIL: '/professionals/v1/resetPasswordWithOtpByEmail',
+  RESEND_OTP: '/professionals/v1/resendOtp'
 };
 
 // Helper function to make API calls
@@ -69,7 +80,6 @@ export const registerProfessional = async (userData) => {
   const registerData = {
     email: userData.email,
     lastName: userData.lastName,
-    otp: userData.otp || '123456', // Default OTP for now
     password: userData.password,
     phoneNumber: userData.phoneNumber,
     username: userData.username
@@ -88,16 +98,16 @@ export const loginProfessional = async (credentials) => {
   return await apiCall(ENDPOINTS.LOGIN, 'POST', loginData);
 };
 
-// Generate OTP
-export const generateOtp = async (phoneNumber) => {
+// Generate OTP (for SMS via mobile number)
+export const generateOtp = async (mobileNumber) => {
   const otpData = {
-    mobileNumber: phoneNumber
+    mobileNumber: mobileNumber
   };
 
   return await apiCall(ENDPOINTS.GENERATE_OTP, 'POST', otpData);
 };
 
-// Reset password
+// Reset password (legacy method using phone number)
 export const resetPassword = async (phoneNumber, newPassword) => {
   const params = new URLSearchParams({
     phoneNumber: phoneNumber,
@@ -105,6 +115,107 @@ export const resetPassword = async (phoneNumber, newPassword) => {
   });
 
   return await apiCall(`${ENDPOINTS.RESET_PASSWORD}?${params}`, 'PUT');
+};
+
+// Verify OTP by professional ID
+export const verifyOtp = async (professionalId, otp) => {
+  const otpData = {
+    professionalId: professionalId,
+    otp: otp
+  };
+
+  return await apiCall(ENDPOINTS.VERIFY_OTP, 'POST', otpData);
+};
+
+// Verify OTP by professional ID (using ProfessionalsService)
+export const verifyOtpByService = async (professionalId, otp) => {
+  const otpData = {
+    professionalId: professionalId,
+    otp: otp
+  };
+
+  return await apiCall(ENDPOINTS.VERIFY_OTP_BY_SERVICE, 'POST', otpData);
+};
+
+// Verify OTP by email
+export const verifyOtpByEmail = async (email, otp) => {
+  const otpData = {
+    email: email,
+    otp: otp
+  };
+
+  return await apiCall(ENDPOINTS.VERIFY_OTP_BY_EMAIL, 'POST', otpData);
+};
+
+// Check verification status by professional ID
+export const checkVerification = async (professionalId) => {
+  return await apiCall(`${ENDPOINTS.CHECK_VERIFICATION}/${professionalId}`, 'GET');
+};
+
+// Check verification status by email
+export const checkVerificationByEmail = async (email) => {
+  const params = new URLSearchParams({ email: email });
+  return await apiCall(`${ENDPOINTS.CHECK_VERIFICATION_BY_EMAIL}?${params}`, 'GET');
+};
+
+// Forgot password (send OTP to email)
+export const forgotPassword = async (email) => {
+  const requestData = {
+    email: email
+  };
+
+  return await apiCall(ENDPOINTS.FORGOT_PASSWORD, 'POST', requestData);
+};
+
+// Forgot password with ID (send OTP and return professional ID)
+export const forgotPasswordWithId = async (email) => {
+  const requestData = {
+    email: email
+  };
+
+  return await apiCall(ENDPOINTS.FORGOT_PASSWORD_WITH_ID, 'POST', requestData);
+};
+
+// Reset password with OTP (using professional ID)
+export const resetPasswordWithOtp = async (professionalId, password, otp) => {
+  const requestData = {
+    professionalId: professionalId,
+    password: password,
+    otp: otp
+  };
+
+  return await apiCall(ENDPOINTS.RESET_PASSWORD_WITH_OTP, 'POST', requestData);
+};
+
+// Reset password with OTP by service (using professional ID)
+export const resetPasswordWithOtpByService = async (professionalId, password, otp) => {
+  const requestData = {
+    professionalId: professionalId,
+    password: password,
+    otp: otp
+  };
+
+  return await apiCall(ENDPOINTS.RESET_PASSWORD_WITH_OTP_BY_SERVICE, 'POST', requestData);
+};
+
+// Reset password with OTP by email
+export const resetPasswordWithOtpByEmail = async (email, password, otp) => {
+  const requestData = {
+    email: email,
+    password: password,
+    otp: otp
+  };
+
+  return await apiCall(ENDPOINTS.RESET_PASSWORD_WITH_OTP_BY_EMAIL, 'POST', requestData);
+};
+
+// Resend OTP to professional's email
+export const resendOtp = async (email) => {
+  const requestData = {
+    email: email
+  };
+
+  return await apiCall(ENDPOINTS.RESEND_OTP, 'POST', requestData);
 };
 
 // Session management functions

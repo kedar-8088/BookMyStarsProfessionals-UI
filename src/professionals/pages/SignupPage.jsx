@@ -16,7 +16,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SecurityIcon from '@mui/icons-material/Security';
 import PhoneIcon from '@mui/icons-material/Phone';
-import { registerProfessional, generateOtp } from '../../API/authApi';
+import { registerProfessional } from '../../API/authApi';
 import loginRegisterImage from '../../assets/images/login&register.png';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 
@@ -38,8 +38,7 @@ const SignupPage = () => {
     email: '',
     phoneNumber: '',
     username: '',
-    password: '',
-    otp: ''
+    password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [userType, setUserType] = useState('talent');
@@ -131,7 +130,6 @@ const SignupPage = () => {
       const registerData = {
         email: formData.email,
         lastName: formData.lastName,
-        otp: formData.otp || '123456', // Default OTP for now
         password: formData.password,
         phoneNumber: formData.phoneNumber,
         username: formData.username
@@ -139,14 +137,96 @@ const SignupPage = () => {
 
       const response = await registerProfessional(registerData);
 
-      if (response.success && response.data.status === 'SUCCESS') {
-        showSuccessAlert('Registration Successful!', 'Your account has been created. Redirecting to login...');
+      // Backend returns ClientResponseBean with status code and message
+      if (response.success) {
+        // Success - OTP sent to email
+        showSuccessAlert(
+          'Registration Successful!', 
+          'Your account has been created and an OTP has been sent to your email. Please verify your email to complete registration.'
+        );
         setTimeout(() => {
-          navigate('/login');
-        }, 2500);
+          navigate('/otp-verification', { 
+            state: { 
+              email: formData.email,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              phoneNumber: formData.phoneNumber,
+              username: formData.username,
+              password: formData.password
+            } 
+          });
+        }, 2000);
       } else {
-        const errorMessage = response.data.error || response.data.message || 'Registration failed';
-        showErrorAlert('Registration Failed', errorMessage);
+        // Debug: Log response to understand structure
+        console.log('Registration failed response:', response);
+        
+        // Extract error message from various possible locations in response
+        const errorMessage = 
+          response.data?.error || 
+          response.data?.message || 
+          response.data?.data?.message ||
+          response.data?.data?.error ||
+          (typeof response.data === 'string' ? response.data : '');
+        
+        const errorMessageLower = errorMessage.toLowerCase();
+        const statusCode = response.status || response.data?.code || response.data?.status;
+        
+        console.log('Error message:', errorMessage, 'Status code:', statusCode);
+        
+        // Check if user is already registered (multiple patterns)
+        // Check error message patterns first, then status codes
+        const hasDuplicateMessage = 
+          errorMessageLower.includes('already registered') ||
+          errorMessageLower.includes('user already exists') ||
+          errorMessageLower.includes('email already') ||
+          errorMessageLower.includes('username already') ||
+          errorMessageLower.includes('already exists') ||
+          errorMessageLower.includes('duplicate');
+        
+        const isAlreadyRegistered = 
+          hasDuplicateMessage ||
+          statusCode === 409 || // Conflict status code
+          (statusCode === 400 && hasDuplicateMessage); // 400 with duplicate message
+        
+        console.log('Is already registered?', isAlreadyRegistered);
+        
+        if (isAlreadyRegistered) {
+          // User already registered - show popup and go to OTP page
+          Swal.fire({
+            icon: 'info',
+            title: 'User Already Registered',
+            text: 'This email is already registered. Redirecting to verification page...',
+            confirmButtonColor: '#69247C',
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            customClass: {
+              popup: 'swal2-popup-custom',
+              title: 'swal2-title-custom',
+              content: 'swal2-content-custom',
+              confirmButton: 'swal2-confirm-custom'
+            }
+          });
+          
+          // Navigate to OTP verification page after a short delay
+          setTimeout(() => {
+            navigate('/otp-verification', { 
+              state: { 
+                email: formData.email,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phoneNumber: formData.phoneNumber,
+                username: formData.username,
+                password: formData.password
+              } 
+            });
+          }, 2200); // Slightly longer than timer to ensure navigation happens
+        } else {
+          // Other registration errors
+          showErrorAlert('Registration Failed', errorMessage || 'Registration failed. Please try again.');
+        }
       }
     } catch (error) {
       console.error('Registration error:', error);

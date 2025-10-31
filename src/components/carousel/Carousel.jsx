@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, IconButton, Grid } from '@mui/material';
+import { Box, Typography, IconButton, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { createOrUpdateProfessionalsProfile } from '../../API/professionalsProfileApi';
-import { sessionManager } from '../../API/authApi';
 import carouselImage from '../../assets/images/carousel.png';
 
 const CarouselContainer = styled(Box)(({ theme }) => ({
@@ -122,8 +119,6 @@ const carouselData = [
 
 const Carousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isCreatingProfile, setIsCreatingProfile] = useState(false);
-  const navigate = useNavigate();
 
   // Auto-play functionality
   useEffect(() => {
@@ -146,56 +141,6 @@ const Carousel = () => {
 
   const goToSlide = (index) => {
     setCurrentSlide(index);
-  };
-
-  const handleButtonClick = async (buttonText) => {
-    if (buttonText === "Create Your Profile") {
-      await handleCreateProfile();
-    }
-    // Add other button navigation logic here if needed
-  };
-
-  const handleCreateProfile = async () => {
-    try {
-      setIsCreatingProfile(true);
-      
-      // Get professionals ID from session
-      const professionalsId = sessionManager.getProfessionalsId();
-      
-      if (!professionalsId) {
-        console.error('No professionals ID found in session');
-        // Still navigate to basic info page
-        navigate('/basic-info');
-        return;
-      }
-
-      // Check if profile already exists
-      const existingProfileId = sessionManager.getProfessionalsProfileId();
-      if (existingProfileId) {
-        console.log('Profile already exists, navigating to basic info');
-        navigate('/basic-info');
-        return;
-      }
-
-      // Create professionals profile
-      const response = await createOrUpdateProfessionalsProfile(professionalsId);
-      
-      if (response.success) {
-        console.log('Professionals profile created successfully:', response.data);
-        // Navigate to basic info page
-        navigate('/basic-info');
-      } else {
-        console.error('Failed to create profile:', response.error);
-        // Still navigate to basic info page even if profile creation fails
-        navigate('/basic-info');
-      }
-    } catch (error) {
-      console.error('Error creating profile:', error);
-      // Navigate to basic info page even if there's an error
-      navigate('/basic-info');
-    } finally {
-      setIsCreatingProfile(false);
-    }
   };
 
   return (
@@ -265,41 +210,6 @@ const Carousel = () => {
                             >
                               {slide.subtitle}
                             </Typography>
-
-                            <Button
-                              variant="contained"
-                              onClick={() => handleButtonClick(slide.buttonText)}
-                              disabled={isCreatingProfile && slide.buttonText === "Create Your Profile"}
-                              sx={{
-                                backgroundColor: 'white',
-                                color: '#69247C',
-                                fontWeight: 600,
-                                fontSize: { xs: '14px', md: '16px', lg: '18px', xl: '20px' },
-                                px: { xs: 3, md: 4, lg: 5, xl: 6 },
-                                py: { xs: 1.5, md: 2, lg: 2.5, xl: 3 },
-                                borderRadius: 3,
-                                textTransform: 'none',
-                                border: '2px solid transparent',
-                                minWidth: { xs: '180px', md: '220px', lg: '260px', xl: '300px' },
-                                '&:hover': {
-                                  backgroundColor: 'transparent',
-                                  color: 'white',
-                                  border: '2px solid white',
-                                  transform: 'translateY(-3px)',
-                                  boxShadow: '0 12px 35px rgba(255, 255, 255, 0.25)',
-                                },
-                                '&:disabled': {
-                                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                                  color: '#69247C',
-                                  cursor: 'not-allowed',
-                                },
-                                transition: 'all 0.3s ease',
-                              }}
-                            >
-                              {isCreatingProfile && slide.buttonText === "Create Your Profile" 
-                                ? "Creating Profile..." 
-                                : slide.buttonText}
-                            </Button>
                           </ContentBox>
                         </Box>
                       ))}

@@ -749,57 +749,35 @@ const CompleteProfilePage = () => {
             </Box>
           </Box>
 
-          {/* Skills Section */}
+          {/* Languages Section */}
           <Box sx={{ mt: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
-                Skills
+                Languages
               </Typography>
-              <IconButton size="small" onClick={handleEditEducation}>
+              <IconButton size="small" onClick={handleEditShowcase}>
                 <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
               </IconButton>
             </Box>
-            
-            <Box sx={{ borderBottom: '1px solid #DA498D', mb: 3 }} />
 
-            {/* Rate Your Skills Section */}
-            <Box sx={{ mb: '32px' }}>
-              <Grid container spacing={2}>
-                {profileData.professionalSkills?.map((skill, index) => (
-                  <Grid size={{ xs: 6 }} key={skill.id}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF' }}>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', color: '#444444', flex: 1 }}>
-                        {skill.skillName}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mx: 2 }}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Box key={star} sx={{ p: 0.25, cursor: 'pointer' }}>
-                            <Typography sx={{ fontSize: '20px', color: star <= skill.rating ? '#FFD700' : '#D9D9D9', lineHeight: 1 }}>
-                              {star <= skill.rating ? '★' : '☆'}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton sx={{ p: 0.5, color: '#DA498D' }}>
-                          <Box sx={{ width: '16px', height: '16px', borderRadius: '50%', border: '1px solid #DA498D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Typography sx={{ color: '#DA498D', fontSize: '10px', fontWeight: 'bold' }}>×</Typography>
-                          </Box>
-                        </IconButton>
-                      </Box>
+            <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: 3, backgroundColor: 'white' }}>
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                {profileData.showcase?.languages?.map((language, index) => (
+                  <Box key={language.languageId} sx={{ background: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)', borderRadius: '20px', px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                      <Typography sx={{ color: '#DA498D', fontSize: '12px', fontWeight: 'bold' }}>×</Typography>
                     </Box>
-                  </Grid>
+                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: 'white' }}>
+                      {language.languageName}
+                    </Typography>
+                  </Box>
                 ))}
-                {(!profileData.professionalSkills || profileData.professionalSkills.length === 0) && (
-                  <Grid size={12}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF' }}>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', color: '#666666' }}>
-                        No skills added yet
-                      </Typography>
-                    </Box>
-                  </Grid>
+                {(!profileData.showcase?.languages || profileData.showcase.languages.length === 0) && (
+                  <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: '14px' }}>
+                    No languages added
+                  </Typography>
                 )}
-              </Grid>
+              </Box>
             </Box>
           </Box>
 
@@ -895,38 +873,70 @@ const CompleteProfilePage = () => {
               </Box>
             </Box>
 
-            {/* Languages Section */}
+            {/* Skills Section */}
             <Box sx={{ mt: 4 }}>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#333333', mb: 2 }}>
-                Languages
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                  Skills
+                </Typography>
+                <IconButton size="small" onClick={handleEditEducation}>
+                  <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
+                </IconButton>
+              </Box>
+              
+              <Box sx={{ borderBottom: '1px solid #DA498D', mb: 3 }} />
 
-              <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: 3, backgroundColor: 'white' }}>
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  {profileData.showcase?.languages?.map((language, index) => (
-                    <Box key={language.languageId} sx={{ background: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)', borderRadius: '20px', px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box sx={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                        <Typography sx={{ color: '#DA498D', fontSize: '12px', fontWeight: 'bold' }}>×</Typography>
+              {/* Rate Your Skills Section */}
+              <Box sx={{ mb: '32px' }}>
+                <Grid container spacing={2}>
+                  {profileData.professionalSkills?.map((skill, index) => (
+                    <Grid size={{ xs: 6 }} key={skill.id}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', color: '#444444', flex: 1 }}>
+                          {skill.skillName}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mx: 2 }}>
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Box key={star} sx={{ p: 0.25, cursor: 'pointer' }}>
+                              <Typography sx={{ fontSize: '20px', color: star <= skill.rating ? '#FFD700' : '#D9D9D9', lineHeight: 1 }}>
+                                {star <= skill.rating ? '★' : '☆'}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <IconButton sx={{ p: 0.5, color: '#DA498D' }}>
+                            <Box sx={{ width: '16px', height: '16px', borderRadius: '50%', border: '1px solid #DA498D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Typography sx={{ color: '#DA498D', fontSize: '10px', fontWeight: 'bold' }}>×</Typography>
+                            </Box>
+                          </IconButton>
+                        </Box>
                       </Box>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: 'white' }}>
-                        {language.languageName}
-                      </Typography>
-                    </Box>
+                    </Grid>
                   ))}
-                  {(!profileData.showcase?.languages || profileData.showcase.languages.length === 0) && (
-                    <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: '14px' }}>
-                      No languages added
-                    </Typography>
+                  {(!profileData.professionalSkills || profileData.professionalSkills.length === 0) && (
+                    <Grid size={12}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', color: '#666666' }}>
+                          No skills added yet
+                        </Typography>
+                      </Box>
+                    </Grid>
                   )}
-                </Box>
+                </Grid>
               </Box>
             </Box>
 
             {/* Certifications Section */}
             <Box sx={{ mt: 4 }}>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#333333', mb: 2 }}>
-                Certifications
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                  Certifications
+                </Typography>
+                <IconButton size="small" onClick={handleEditEducation}>
+                  <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
+                </IconButton>
+              </Box>
 
               <Box sx={{ borderBottom: '1px solid #DA498D', mb: 3 }} />
 
@@ -1156,7 +1166,7 @@ const CompleteProfilePage = () => {
                     }
                   }}
                 >
-                  {isCompleting ? 'Completing...' : 'Complete Profile'}
+                  {isCompleting ? 'Completing...' : 'DONE'}
                 </Button>
               </Box>
             </Box>

@@ -109,9 +109,11 @@ const apiCall = async (endpoint, method = 'GET', data = null, isFormData = false
 };
 
 // Save or update basic information (new unified endpoint)
+// Request format: { fullName, email, phoneNo, age, dateOfBirth, profileHeadline, category: { categoryId }, city: { cityId }, state: { stateId }, maritalStatus: { maritalStatusId } }
+// Response format: { code: 200, status: "SUCCESS", message, data: { id, fullName, email, phoneNo, city: {...}, state: {...}, category: {...}, maritalStatus: {...}, ... }, error, exception }
 export const saveOrUpdateBasicInfo = async (basicInfoData) => {
   console.log('📝 Saving/Updating Basic Info:');
-  console.log('  Data being sent:', basicInfoData);
+  console.log('  Raw data received:', basicInfoData);
   console.log('  Endpoint:', ENDPOINTS.SAVE_OR_UPDATE);
   
   const result = await apiCall(ENDPOINTS.SAVE_OR_UPDATE, 'POST', basicInfoData);
@@ -119,8 +121,31 @@ export const saveOrUpdateBasicInfo = async (basicInfoData) => {
   console.log('📝 Basic Info Save/Update Result:');
   console.log('  Success:', result.success);
   console.log('  Status:', result.status);
-  console.log('  Data:', result.data);
+  console.log('  Response data:', result.data);
   
+  // Handle response structure: { code, status, message, data, error, exception }
+  if (result.success && result.data) {
+    // Check if response follows the expected structure
+    if (result.data.code === 200 && result.data.status === 'SUCCESS') {
+      return {
+        success: true,
+        data: result.data.data || result.data,
+        message: result.data.message || 'Basic information saved successfully',
+        code: result.data.code,
+        status: result.data.status
+      };
+    } else if (result.data.code && result.data.code !== 200) {
+      return {
+        success: false,
+        data: result.data.data || null,
+        error: result.data.error || result.data.message || 'Failed to save basic information',
+        code: result.data.code,
+        status: result.data.status || 'ERROR'
+      };
+    }
+  }
+  
+  // Return result as-is for backward compatibility
   return result;
 };
 
@@ -326,6 +351,7 @@ export const validateBasicInfoData = (data) => {
 };
 
 // Helper function to format basic info data for API
+// Expected request format: { fullName, email, phoneNo, age, dateOfBirth, profileHeadline, category: { categoryId }, city: { cityId }, state: { stateId }, maritalStatus: { maritalStatusId } }
 export const formatBasicInfoData = (data) => {
   console.log('🔧 Formatting Basic Info Data:');
   console.log('  Input data:', data);
@@ -337,28 +363,50 @@ export const formatBasicInfoData = (data) => {
   // Helper function to extract ID from object or use value directly
   const extractId = (value) => {
     if (!value) return null;
-    if (typeof value === 'object' && value.id) return value.id;
-    if (typeof value === 'object' && value.categoryId) return value.categoryId;
-    if (typeof value === 'object' && value.cityId) return value.cityId;
-    if (typeof value === 'object' && value.stateId) return value.stateId;
-    if (typeof value === 'object' && value.maritalStatusId) return value.maritalStatusId;
-    return value;
+    // Handle nested object with ID fields
+    if (typeof value === 'object') {
+      if (value.categoryId !== undefined && value.categoryId !== null) return value.categoryId;
+      if (value.cityId !== undefined && value.cityId !== null) return value.cityId;
+      if (value.stateId !== undefined && value.stateId !== null) return value.stateId;
+      if (value.maritalStatusId !== undefined && value.maritalStatusId !== null) return value.maritalStatusId;
+      if (value.id !== undefined && value.id !== null) return value.id;
+    }
+    // Handle direct ID value (number or string)
+    if (typeof value === 'number' || (typeof value === 'string' && value.trim() !== '')) {
+      return typeof value === 'string' ? parseInt(value, 10) || value : value;
+    }
+    return null;
   };
   
-  // Format data according to new API structure with nested objects
+  // Format data according to API structure with nested objects
+  // Request format: { fullName, email, phoneNo, age, dateOfBirth, profileHeadline, category: { categoryId }, city: { cityId }, state: { stateId }, maritalStatus: { maritalStatusId } }
   const formattedData = {
-    fullName: data.fullName?.trim(),
-    email: data.email?.trim().toLowerCase(),
-    phoneNo: data.phoneNo?.replace(/\D/g, ''), // Remove non-digits
+    fullName: data.fullName?.trim() || null,
+    email: data.email?.trim().toLowerCase() || null,
+    phoneNo: data.phoneNo?.trim() || null, // Keep phone number as-is (may include + or -)
+    age: data.age ? (typeof data.age === 'string' ? parseInt(data.age, 10) : parseInt(data.age)) : null,
+    dateOfBirth: data.dateOfBirth || null,
+    profileHeadline: data.profileHeadline?.trim() || null,
+    // Nested objects with ID only
+    category: data.category ? { categoryId: extractId(data.category) } : null,
     city: data.city ? { cityId: extractId(data.city) } : null,
     state: data.state ? { stateId: extractId(data.state) } : null,
-    category: data.category ? { categoryId: extractId(data.category) } : null,
-    maritalStatus: data.maritalStatus ? { maritalStatusId: extractId(data.maritalStatus) } : null,
-    dateOfBirth: data.dateOfBirth || null,
-    age: data.age ? parseInt(data.age) : null,
-    profileHeadline: data.profileHeadline || null,
-    profileImage: data.profileImage || null // This will be handled separately for file uploads
+    maritalStatus: data.maritalStatus ? { maritalStatusId: extractId(data.maritalStatus) } : null
   };
+  
+  // Remove null values for nested objects (API might not accept null objects)
+  if (formattedData.category && !formattedData.category.categoryId) {
+    formattedData.category = null;
+  }
+  if (formattedData.city && !formattedData.city.cityId) {
+    formattedData.city = null;
+  }
+  if (formattedData.state && !formattedData.state.stateId) {
+    formattedData.state = null;
+  }
+  if (formattedData.maritalStatus && !formattedData.maritalStatus.maritalStatusId) {
+    formattedData.maritalStatus = null;
+  }
   
   console.log('  Formatted data:', formattedData);
   console.log('  Category ID:', formattedData.category?.categoryId, 'Type:', typeof formattedData.category?.categoryId);

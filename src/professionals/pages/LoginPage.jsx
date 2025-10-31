@@ -141,44 +141,41 @@ const LoginPage = () => {
       
       console.log('Full login response:', response);
 
-      // Check if the API response indicates success (both HTTP success and API success)
-      const isApiSuccess = response.success && response.data && 
-        (response.data.token || response.data.user);
-      
-      if (isApiSuccess) {
+      // Backend returns LoginResponse with: token, user object containing professionalsId, userName
+      // Response structure: { token, user: { professionalsId, userName, mobileNumber } }
+      if (response.success && response.data && response.data.token) {
         console.log('Login response structure:', response);
         
         // Extract token and user data from the API response
-        const token = response.data?.token;
-        const userData = response.data?.user;
+        const token = response.data.token;
+        const userData = response.data.user || response.data; // Fallback if user is not nested
+        const professionalsId = userData.professionalsId || response.data.professionalsId;
+        const username = userData.userName || userData.username || response.data.username;
+        
+        console.log('Token:', token);
+        console.log('User data:', userData);
+        console.log('Professionals ID:', professionalsId);
+        console.log('Username:', username);
         
         if (!token) {
-          console.error('No token found in login response:', response);
+          console.error('Missing token in login response:', response);
           showErrorAlert('Authentication Error', 'Login successful but no authentication token received. Please try again.');
           return;
         }
         
-        // Extract user data from the API response
-        console.log('🔍 Raw user data from API:', userData);
-        console.log('🔍 All user data keys:', userData ? Object.keys(userData) : 'No user data');
-        
-        const userInfo = {
-          professionalsId: userData?.professionalsId,
-          userName: userData?.userName,
-          email: userData?.email || userData?.userEmail || '',
-          mobileNumber: userData?.mobileNumber || userData?.phoneNumber,
-          phoneNumber: userData?.phoneNumber || userData?.mobileNumber
-        };
-        
-        console.log('Login response user data:', userData);
-        console.log('Extracted user info:', userInfo);
-        
-        // Validate that we have the required data
-        if (!userInfo.professionalsId) {
-          console.error('No professionalsId found in login response');
+        if (!professionalsId) {
+          console.error('Missing professionalsId in login response:', response);
           showErrorAlert('Authentication Error', 'Login successful but missing user ID. Please try again.');
           return;
         }
+        
+        // Construct user info for session
+        const userInfo = {
+          professionalsId: professionalsId,
+          userName: username || userData.userName || ''
+        };
+        
+        console.log('Extracted user info:', userInfo);
         
         sessionManager.setUserSession(userInfo, token);
         
@@ -195,8 +192,12 @@ const LoginPage = () => {
           errorMessage = response.data.error;
         } else if (response.data?.message) {
           errorMessage = response.data.message;
-        } else if (response.data?.code === 401) {
-          errorMessage = 'Invalid username or password. Please check your credentials.';
+        } else if (response.status === 401 || response.status === 403) {
+          if (response.data?.message?.includes('verified')) {
+            errorMessage = 'Account not verified. Please verify your email first.';
+          } else {
+            errorMessage = 'Invalid username or password. Please check your credentials.';
+          }
         } else if (response.data?.status === 'FAILED') {
           errorMessage = 'Authentication failed. Please try again.';
         }

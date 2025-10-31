@@ -10,12 +10,17 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import { useNavigate } from 'react-router-dom';
 import { sessionManager } from '../../API/authApi';
-import { Person as PersonIcon, AccountCircle as AccountIcon, ExitToApp as LogoutIcon, Menu as MenuIcon } from '@mui/icons-material';
+import { Person as PersonIcon, AccountCircle as AccountIcon, ExitToApp as LogoutIcon, Menu as MenuIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 
 const ProfileNavBar = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const navigate = useNavigate();
+
+  // Get user data from session
+  const session = sessionManager.getUserSession();
+  const user = session?.user || null;
+  const userName = user?.userName || null;
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -57,7 +62,6 @@ const ProfileNavBar = () => {
 
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
           <Button color="inherit" onClick={() => navigate('/')}>Home</Button>
-          <Button color="inherit">Settings</Button>
         </Box>
 
         <IconButton onClick={handleMenuOpen} sx={{ ml: 2, color: 'white' }}>
@@ -128,10 +132,37 @@ const ProfileNavBar = () => {
               justifyContent: 'center',
               color: 'white'
             }}>
+              <VisibilityIcon sx={{ fontSize: 16 }} />
+            </Box>
+            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+              View Profile
+            </Typography>
+          </MenuItem>
+          
+          <MenuItem 
+            onClick={() => { handleMenuClose(); navigate('/update-profile'); }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+              color: '#333333',
+              fontWeight: 500
+            }}
+          >
+            <Box sx={{ 
+              width: 24, 
+              height: 24, 
+              borderRadius: '50%', 
+              background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white'
+            }}>
               <PersonIcon sx={{ fontSize: 16 }} />
             </Box>
             <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
-              Profile
+              {userName ? `Update Profile - ${userName}` : 'Update Profile'}
             </Typography>
           </MenuItem>
           

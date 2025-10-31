@@ -197,16 +197,25 @@ export const getCityById = async (id) => {
 };
 
 // Get All Cities
+// Returns cities with structure: { cityId, cityName, stateId, stateName, stateCode, countryId, countryName, countryCode, ... }
 export const getAllCities = async () => {
   try {
     const headers = getAuthHeaders();
-    return await axios({
-      method: 'get',
+    const response = await axios({
+      method: 'GET',
       url: `${BaseUrl}/city/v1/getAll`,
       headers: headers
     });
+    
+    // Response structure: { code: 200, status: "SUCCESS", message, data: [...], error, exception }
+    // The response.data already contains the backend response structure
+    return response;
   } catch (error) {
     console.error('Error getting all cities:', error);
+    // Return error response in same format for consistency
+    if (error.response) {
+      return error.response;
+    }
     throw error;
   }
 };
@@ -215,13 +224,21 @@ export const getAllCities = async () => {
 export const getCitiesByStateId = async (stateId) => {
   try {
     const headers = getAuthHeaders();
-    return await axios({
+    const response = await axios({
       method: 'GET',
-      url: `${BaseUrl}/v1/city/state/${stateId}`,
+      url: `${BaseUrl}/city/v1/state/${stateId}`,
       headers: headers
     });
+    
+    // Response structure: { code: 200, status: "SUCCESS", message, data: [...], error, exception }
+    // The response.data already contains the backend response structure
+    return response;
   } catch (error) {
     console.error('Error getting cities by state ID:', error);
+    // Return error response in same format for consistency
+    if (error.response) {
+      return error.response;
+    }
     throw error;
   }
 };

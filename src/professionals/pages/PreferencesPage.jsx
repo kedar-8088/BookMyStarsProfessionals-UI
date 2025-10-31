@@ -11,6 +11,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { saveOrUpdatePreferences, getPreferencesByProfile, formatPreferencesData } from '../../API/preferencesApi';
 import { sessionManager } from '../../API/authApi';
 import profileFlowManager from '../../utils/profileFlowManager';
+import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
 
 const CarouselContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
@@ -182,10 +183,39 @@ const PreferencesPage = () => {
         return;
       }
 
-      // Get professionalsProfileId from session data
-      const sessionData = sessionManager.getUserSession();
-      const professionalsProfileId = sessionData?.professionalsProfileId;
+      // Initialize profile flow manager
+      const initResult = await profileFlowManager.initialize();
       
+      // Get professionalsProfileId from session or profile flow manager
+      let professionalsProfileId = sessionManager.getProfessionalsProfileId();
+      
+      if (!professionalsProfileId && initResult.profileId) {
+        professionalsProfileId = initResult.profileId;
+        // Save to session if we got it from init result
+        if (professionalsProfileId) {
+          sessionManager.setProfessionalsProfileId(professionalsProfileId);
+        }
+      }
+
+      // If still no profile ID, try to create one
+      if (!professionalsProfileId) {
+        if (professionalsId) {
+          console.log('🔄 Creating professionals profile...');
+          const createResult = await saveOrUpdateProfessionalsProfileByProfessionalsId(professionalsId, {});
+          if (createResult.success) {
+            // Check multiple possible locations for the profile ID
+            professionalsProfileId = createResult.data?.professionalsProfileId || 
+                                    createResult.data?.data?.professionalsProfileId ||
+                                    createResult.professionalsProfileId;
+            if (professionalsProfileId) {
+              console.log('✅ Profile created with ID:', professionalsProfileId);
+              // The API function should save it, but ensure it's saved
+              sessionManager.setProfessionalsProfileId(professionalsProfileId);
+            }
+          }
+        }
+      }
+
       if (!professionalsProfileId) {
         console.log('No professionalsProfileId found in session');
         return;
@@ -319,12 +349,39 @@ const PreferencesPage = () => {
         return;
       }
 
-      // Get professionalsProfileId from session data
-      const sessionData = sessionManager.getUserSession();
-      const professionalsProfileId = sessionData?.professionalsProfileId;
+      // Initialize profile flow manager to get profile ID
+      const initResult = await profileFlowManager.initialize();
+      
+      // Get professionalsProfileId from session or profile flow manager
+      let professionalsProfileId = sessionManager.getProfessionalsProfileId();
+      
+      if (!professionalsProfileId && initResult.profileId) {
+        professionalsProfileId = initResult.profileId;
+        // Save to session if we got it from init result
+        if (professionalsProfileId) {
+          sessionManager.setProfessionalsProfileId(professionalsProfileId);
+        }
+      }
+
+      // If still no profile ID, try to create one
+      if (!professionalsProfileId) {
+        console.log('🔄 Creating professionals profile...');
+        const createResult = await saveOrUpdateProfessionalsProfileByProfessionalsId(professionalsId, {});
+        if (createResult.success) {
+          // Check multiple possible locations for the profile ID
+          professionalsProfileId = createResult.data?.professionalsProfileId || 
+                                  createResult.data?.data?.professionalsProfileId ||
+                                  createResult.professionalsProfileId;
+          if (professionalsProfileId) {
+            console.log('✅ Profile created with ID:', professionalsProfileId);
+            // The API function should save it, but ensure it's saved
+            sessionManager.setProfessionalsProfileId(professionalsProfileId);
+          }
+        }
+      }
       
       if (!professionalsProfileId) {
-        showErrorAlert('Profile Error', 'Profile information is incomplete');
+        showErrorAlert('Profile Error', 'Unable to initialize your profile. Please ensure you have completed the basic info step.');
         navigate('/basic-info');
         return;
       }

@@ -137,16 +137,25 @@ export const getStateByCode = async (stateCode) => {
 };
 
 // Get All States
+// Returns states with structure: { stateId, stateName, stateCode, stateDescription, isActive, countryId, countryName, countryCode, ... }
 export const getAllStates = async () => {
   try {
     const headers = getAuthHeaders();
-    return await axios({
-      method: 'get',
+    const response = await axios({
+      method: 'GET',
       url: `${BaseUrl}/state/v1/getAll`,
       headers: headers
     });
+    
+    // Response structure: { code: 200, status: "SUCCESS", message, data: [...], error, exception }
+    // The response.data already contains the backend response structure
+    return response;
   } catch (error) {
     console.error('Error getting all states:', error);
+    // Return error response in same format for consistency
+    if (error.response) {
+      return error.response;
+    }
     throw error;
   }
 };

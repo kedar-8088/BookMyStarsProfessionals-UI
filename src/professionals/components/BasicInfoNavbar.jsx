@@ -74,9 +74,9 @@ const BasicInfoNavbar = () => {
                 <Button 
                   color="inherit" 
                   sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate('/dashboard')}
                 >
-                  Home
+                  Dashboard
                 </Button>
                 <Button 
                   color="inherit" 
@@ -107,7 +107,7 @@ const BasicInfoNavbar = () => {
             onClose={handleMobileMenuClose}
             sx={{ display: { xs: 'block', md: 'none' } }}
           >
-            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/'); }}>Home</MenuItem>
+            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/dashboard'); }}>Dashboard</MenuItem>
             <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/features'); }}>Features</MenuItem>
           </Menu>
         </Toolbar>

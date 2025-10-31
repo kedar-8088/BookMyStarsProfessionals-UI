@@ -26,6 +26,8 @@ import { sessionManager } from '../../API/authApi';
 import { API_CONFIG } from '../../config/apiConfig';
 import { BaseUrl } from '../../BaseUrl';
 import Swal from 'sweetalert2';
+import profileFlowManager from '../../utils/profileFlowManager';
+import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
 import { 
   createShowcase,
   createShowcaseWithFiles, 
@@ -394,10 +396,36 @@ const ShowcasePage = () => {
   // Fetch professionalsProfileId from session and languages from API
   useEffect(() => {
     const initializeData = async () => {
-      // Fetch professionalsProfileId from session
       try {
-        const professionalsProfileId = sessionManager.getProfessionalsProfileId();
+        // Check if user is logged in
+        if (!sessionManager.isLoggedIn()) {
+          navigate('/login');
+          return;
+        }
+
+        // Initialize profile flow manager
+        const initResult = await profileFlowManager.initialize();
         
+        // Get profile ID from session or profile flow manager
+        let professionalsProfileId = sessionManager.getProfessionalsProfileId();
+        
+        if (!professionalsProfileId && initResult.profileId) {
+          professionalsProfileId = initResult.profileId;
+        }
+
+        // If still no profile ID, try to create one
+        if (!professionalsProfileId) {
+          const professionalsId = sessionManager.getProfessionalsId();
+          if (professionalsId) {
+            console.log('🔄 Creating professionals profile...');
+            const createResult = await saveOrUpdateProfessionalsProfileByProfessionalsId(professionalsId, {});
+            if (createResult.success && createResult.data?.professionalsProfileId) {
+              professionalsProfileId = createResult.data.professionalsProfileId;
+              console.log('✅ Profile created with ID:', professionalsProfileId);
+            }
+          }
+        }
+
         if (professionalsProfileId) {
           setShowcaseData(prev => ({
             ...prev,
@@ -407,10 +435,12 @@ const ShowcasePage = () => {
           // Load existing showcase data
           await loadExistingShowcase(professionalsProfileId);
         } else {
-          setSubmitError('User session not found. Please login again.');
+          console.error('❌ Could not get or create profile ID');
+          setSubmitError('Unable to initialize your profile. Please ensure you have completed the basic info step.');
         }
       } catch (error) {
-        setSubmitError('Error loading user session. Please login again.');
+        console.error('Error initializing showcase:', error);
+        setSubmitError('Error loading user session. Please try refreshing the page or logging in again.');
       }
 
       // Fetch languages from API
@@ -533,7 +563,13 @@ const ShowcasePage = () => {
     try {
       // Check if professionalsProfileId is available
       if (!showcaseData.professionalsProfileId) {
-        throw new Error('User session not found. Please login again.');
+        // Try to get profile ID from session
+        const profileId = sessionManager.getProfessionalsProfileId();
+        if (profileId) {
+          setShowcaseData(prev => ({ ...prev, professionalsProfileId: profileId }));
+        } else {
+          throw new Error('Unable to find your profile. Please ensure you have completed the basic info step or try refreshing the page.');
+        }
       }
 
       // Prepare final data with proper validation

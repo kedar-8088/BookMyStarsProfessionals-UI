@@ -120,44 +120,130 @@ class ProfileFlowManager {
         };
       }
 
-      // NEW: Use simplified approach - just pass the professionalsId
-      console.log('Creating profile using simplified approach for professionalsId:', this.currentProfessionalId);
-      
-      let response = await createProfessionalsProfileByProfessionalsId(this.currentProfessionalId);
-      
-      console.log('Profile creation response:', response);
-      
-      // Check if profile was actually created (professionalsProfileId > 0)
-      if (response.success && response.data.professionalsProfileId && response.data.professionalsProfileId > 0) {
-        this.currentProfileId = response.data.professionalsProfileId;
-        return {
-          success: true,
-          profileId: this.currentProfileId,
-          isNew: true
-        };
+      // First, check if profile already exists
+      console.log('Checking for existing profile for professionalsId:', this.currentProfessionalId);
+      try {
+        const existingProfileResponse = await getProfessionalsProfileByProfessional(this.currentProfessionalId);
+        console.log('Existing profile check response:', existingProfileResponse);
+        
+        if (existingProfileResponse.success) {
+          // Try to extract profileId from different possible locations
+          const existingProfileId = 
+            existingProfileResponse.data?.data?.professionalsProfileId ||
+            existingProfileResponse.data?.professionalsProfileId ||
+            (existingProfileResponse.data?.code === 1000 ? existingProfileResponse.data?.data?.professionalsProfileId : null);
+          
+          if (existingProfileId && existingProfileId > 0) {
+            this.currentProfileId = existingProfileId;
+            sessionManager.setProfessionalsProfileId(existingProfileId);
+            console.log('✅ Found existing profile with ID:', existingProfileId);
+            return {
+              success: true,
+              profileId: this.currentProfileId,
+              isNew: false
+            };
+          }
+        }
+      } catch (checkError) {
+        console.log('Error checking for existing profile (will try to create):', checkError);
       }
+
+      // If no existing profile found, try to create one
+      console.log('No existing profile found, creating new profile for professionalsId:', this.currentProfessionalId);
       
-      // If create fails or returns 0 profile ID, try save-or-update (flexible approach)
-      console.log('Create failed or returned 0 profile ID, trying save-or-update...');
-      response = await saveOrUpdateProfessionalsProfileByProfessionalsId(this.currentProfessionalId);
+      // Try save-or-update first (more flexible, handles create or update)
+      let response = await saveOrUpdateProfessionalsProfileByProfessionalsId(this.currentProfessionalId, {});
       console.log('Save-or-update response:', response);
       
-      if (response.success && response.data.professionalsProfileId && response.data.professionalsProfileId > 0) {
-        this.currentProfileId = response.data.professionalsProfileId;
-        return {
-          success: true,
-          profileId: this.currentProfileId,
-          isNew: true
-        };
-      } else {
-        console.error('Profile creation failed:', response);
-        throw new Error(response.data.message || response.data.error || 'Failed to create profile');
+      if (response.success) {
+        // Try to extract profileId from different possible locations
+        const profileId = 
+          response.data?.data?.professionalsProfileId ||
+          response.data?.professionalsProfileId ||
+          (response.data?.code === 1000 ? response.data?.data?.professionalsProfileId : null);
+        
+        if (profileId && profileId > 0) {
+          this.currentProfileId = profileId;
+          sessionManager.setProfessionalsProfileId(profileId);
+          console.log('✅ Profile created/updated via save-or-update with ID:', profileId);
+          return {
+            success: true,
+            profileId: this.currentProfileId,
+            isNew: true
+          };
+        }
       }
-    } catch (error) {
-      console.error('Profile creation failed:', error);
+      
+      // If save-or-update fails, try create endpoint
+      if (!response.success || !response.data?.data?.professionalsProfileId) {
+        console.log('Save-or-update failed, trying create endpoint...');
+        response = await createProfessionalsProfileByProfessionalsId(this.currentProfessionalId, {});
+        console.log('Create response:', response);
+        
+        if (response.success) {
+          const profileId = 
+            response.data?.data?.professionalsProfileId ||
+            response.data?.professionalsProfileId ||
+            (response.data?.code === 1000 ? response.data?.data?.professionalsProfileId : null);
+          
+          if (profileId && profileId > 0) {
+            this.currentProfileId = profileId;
+            sessionManager.setProfessionalsProfileId(profileId);
+            console.log('✅ Profile created successfully with ID:', profileId);
+            return {
+              success: true,
+              profileId: this.currentProfileId,
+              isNew: true
+            };
+          }
+        }
+      }
+      
+      // If all methods fail, try checking one more time for existing profile (in case it was created between checks)
+      console.log('Both methods returned unsuccessful, checking for profile one more time...');
+      try {
+        const finalCheckResponse = await getProfessionalsProfileByProfessional(this.currentProfessionalId);
+        if (finalCheckResponse.success) {
+          const finalProfileId = 
+            finalCheckResponse.data?.data?.professionalsProfileId ||
+            finalCheckResponse.data?.professionalsProfileId ||
+            (finalCheckResponse.data?.code === 1000 ? finalCheckResponse.data?.data?.professionalsProfileId : null);
+          
+          if (finalProfileId && finalProfileId > 0) {
+            this.currentProfileId = finalProfileId;
+            sessionManager.setProfessionalsProfileId(finalProfileId);
+            console.log('✅ Profile found on final check with ID:', finalProfileId);
+            return {
+              success: true,
+              profileId: this.currentProfileId,
+              isNew: false
+            };
+          }
+        }
+      } catch (finalError) {
+        console.error('Final profile check failed:', finalError);
+      }
+      
+      // All methods failed
+      console.error('Profile creation/retrieval failed - all methods exhausted');
+      console.error('Last response:', response);
+      
+      // Return a more helpful error message
+      const errorMessage = 
+        response?.error || 
+        response?.data?.message || 
+        response?.data?.error || 
+        'Failed to create or retrieve profile. Please try again or contact support.';
+      
       return {
         success: false,
-        error: error.message
+        error: errorMessage
+      };
+    } catch (error) {
+      console.error('Profile creation failed with exception:', error);
+      return {
+        success: false,
+        error: error.message || 'An unexpected error occurred while creating the profile'
       };
     }
   }
@@ -175,10 +261,19 @@ class ProfileFlowManager {
         };
       }
 
+      // Try to create/get profile, but don't block basic info save if it fails
+      // The backend might be able to handle basic info without an existing profile
       if (!this.currentProfileId) {
+        console.log('⚠️ No profile ID found, attempting to create/get profile...');
         const profileResult = await this.createOrGetProfile();
         if (!profileResult.success) {
-          throw new Error(profileResult.error);
+          console.warn('⚠️ Profile creation/get failed, but continuing with basic info save:', profileResult.error);
+          console.warn('  The backend may create the profile automatically when saving basic info.');
+          // Don't throw error - allow basic info to be saved anyway
+          // We'll try to link it after saving if profile gets created
+        } else {
+          console.log('✅ Profile created/retrieved successfully:', profileResult.profileId);
+          this.currentProfileId = profileResult.profileId;
         }
       }
 
@@ -220,14 +315,17 @@ class ProfileFlowManager {
       console.log('  Save-or-update response:', response);
       
       // Check for success - handle the new response format
-      const isSuccess = response.success && response.data.code === 200;
+      // Updated response structure: { success: true, data: {...}, message: "...", code: 200, status: "SUCCESS" }
+      const isSuccess = response.success && response.code === 200;
       
       if (isSuccess) {
-        const basicInfoId = response.data.data?.id;
+        // Response.data now contains the actual basic info data (already extracted from response.data.data)
+        const basicInfoId = response.data?.id || response.data?.basicInfoId;
         console.log('  Basic info ID:', basicInfoId);
         
         if (!basicInfoId) {
           console.error('  No basic info ID found in response');
+          console.error('  Response data:', response.data);
           throw new Error('Basic info saved but no ID returned');
         }
         
@@ -239,8 +337,8 @@ class ProfileFlowManager {
             if (uploadResponse.success) {
               console.log('✅ Profile image uploaded successfully');
               // Update the basic info data with file information
-              response.data.data = {
-                ...response.data.data,
+              response.data = {
+                ...response.data,
                 ...uploadResponse.data
               };
             } else {
@@ -251,28 +349,52 @@ class ProfileFlowManager {
           }
         }
         
-        // Link basic info to professional profile
-        try {
-          const linkResponse = await this.linkBasicInfo(basicInfoId);
-          if (!linkResponse.success) {
-            console.warn('Basic info saved but linking failed:', linkResponse.error);
+        // Try to ensure we have a profile before linking
+        // If profile creation failed earlier, try again now that basic info is saved
+        if (!this.currentProfileId) {
+          console.log('⚠️ No profile ID yet, attempting to create/get profile after basic info save...');
+          const profileRetryResult = await this.createOrGetProfile();
+          if (profileRetryResult.success) {
+            console.log('✅ Profile created/retrieved after basic info save:', profileRetryResult.profileId);
+            this.currentProfileId = profileRetryResult.profileId;
+          } else {
+            console.warn('⚠️ Profile still not available, basic info will be saved without profile link');
+            console.warn('  User can continue and profile can be created/linked later');
           }
-        } catch (linkError) {
-          console.warn('Basic info saved but linking failed:', linkError);
+        }
+        
+        // Link basic info to professional profile if we have a profile ID
+        if (this.currentProfileId) {
+          try {
+            console.log('🔗 Linking basic info to profile:', this.currentProfileId);
+            const linkResponse = await this.linkBasicInfo(basicInfoId);
+            if (!linkResponse.success) {
+              console.warn('⚠️ Basic info saved but linking failed:', linkResponse.error);
+              console.warn('  This is not critical - basic info is saved and can be linked later');
+            } else {
+              console.log('✅ Basic info linked to profile successfully');
+            }
+          } catch (linkError) {
+            console.warn('⚠️ Basic info saved but linking failed:', linkError);
+            console.warn('  This is not critical - basic info is saved and can be linked later');
+          }
+        } else {
+          console.warn('⚠️ No profile ID available, skipping link. Basic info is saved successfully.');
+          console.warn('  Profile can be created and linked later when accessing other sections');
         }
         
         // Update profile data
-        this.profileData.basicInfo = response.data.data;
+        this.profileData.basicInfo = response.data;
         return {
           success: true,
           basicInfoId: basicInfoId,
-          data: response.data.data,
-          message: response.data.message || 'Basic information saved successfully!'
+          data: response.data,
+          message: response.message || 'Basic information saved successfully!'
         };
       } else {
         // Handle specific error cases
-        if (response.status === 409) {
-          if (response.data.message && response.data.message.includes('already exists')) {
+        if (response.status === 409 || response.code === 409) {
+          if (response.error && response.error.includes('already exists')) {
             return {
               success: false,
               error: 'A profile with this email or phone number already exists. This might be your existing profile. Please check if you already have a basic info profile or contact support.',
@@ -281,7 +403,7 @@ class ProfileFlowManager {
           }
         }
         
-        throw new Error(response.data.message || response.data.error || 'Failed to save basic info');
+        throw new Error(response.error || response.message || 'Failed to save basic info');
       }
 
     } catch (error) {
@@ -346,10 +468,19 @@ class ProfileFlowManager {
         };
       }
 
+      // Try to create/get profile, but don't block physical details save if it fails
+      // The backend might be able to handle physical details without an existing profile
       if (!this.currentProfileId) {
+        console.log('⚠️ No profile ID found, attempting to create/get profile...');
         const profileResult = await this.createOrGetProfile();
         if (!profileResult.success) {
-          throw new Error(profileResult.error);
+          console.warn('⚠️ Profile creation/get failed, but continuing with physical details save:', profileResult.error);
+          console.warn('  The backend may create the profile automatically when saving physical details.');
+          // Don't throw error - allow physical details to be saved anyway
+          // We'll try to link it after saving if profile gets created
+        } else {
+          console.log('✅ Profile created/retrieved successfully:', profileResult.profileId);
+          this.currentProfileId = profileResult.profileId;
         }
       }
 
@@ -402,20 +533,42 @@ class ProfileFlowManager {
         
         if (!styleProfileId) {
           console.error('  No style profile ID found in response');
+          console.error('  Response data:', response.data);
           throw new Error('Style profile saved but no ID returned');
         }
         
-        // Link style profile to professional profile
-        try {
-          console.log('🔗 Linking style profile to professional profile');
-          const linkResponse = await linkStyleProfileAPI(this.currentProfileId, styleProfileId);
-          if (linkResponse.success) {
-            console.log('✅ Style profile linked successfully');
+        // Try to ensure we have a profile before linking
+        // If profile creation failed earlier, try again now that physical details are saved
+        if (!this.currentProfileId) {
+          console.log('⚠️ No profile ID yet, attempting to create/get profile after physical details save...');
+          const profileRetryResult = await this.createOrGetProfile();
+          if (profileRetryResult.success) {
+            console.log('✅ Profile created/retrieved after physical details save:', profileRetryResult.profileId);
+            this.currentProfileId = profileRetryResult.profileId;
           } else {
-            console.warn('Style profile saved but linking failed:', linkResponse.error);
+            console.warn('⚠️ Profile still not available, physical details will be saved without profile link');
+            console.warn('  User can continue and profile can be created/linked later');
           }
-        } catch (linkError) {
-          console.warn('Style profile saved but linking failed:', linkError);
+        }
+        
+        // Link style profile to professional profile if we have a profile ID
+        if (this.currentProfileId) {
+          try {
+            console.log('🔗 Linking style profile to professional profile:', this.currentProfileId);
+            const linkResponse = await linkStyleProfileAPI(this.currentProfileId, styleProfileId);
+            if (linkResponse.success) {
+              console.log('✅ Style profile linked successfully');
+            } else {
+              console.warn('⚠️ Style profile saved but linking failed:', linkResponse.error);
+              console.warn('  This is not critical - physical details are saved and can be linked later');
+            }
+          } catch (linkError) {
+            console.warn('⚠️ Style profile saved but linking failed:', linkError);
+            console.warn('  This is not critical - physical details are saved and can be linked later');
+          }
+        } else {
+          console.warn('⚠️ No profile ID available, skipping link. Physical details are saved successfully.');
+          console.warn('  Profile can be created and linked later when accessing other sections');
         }
         
         // Update profile data
