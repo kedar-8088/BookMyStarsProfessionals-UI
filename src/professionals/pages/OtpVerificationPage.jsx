@@ -203,7 +203,19 @@ const OtpVerificationPage = () => {
           }, 2000);
         }
       } else {
-        const errorMessage = response.data?.error || response.data?.message || 'OTP verification failed';
+        // Show detailed error message, especially for connection errors
+        let errorMessage = response.data?.error || response.data?.message || 'OTP verification failed';
+        
+        // If it's a connection error, show the full details
+        if (response.data?.connectionRefused) {
+          errorMessage = response.data.error || errorMessage;
+          console.error('Connection Error Details:', {
+            url: response.data.url,
+            details: response.data.details,
+            fullError: response.data
+          });
+        }
+        
         showErrorAlert('Verification Failed', errorMessage);
       }
     } catch (error) {

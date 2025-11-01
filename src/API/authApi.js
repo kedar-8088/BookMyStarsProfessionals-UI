@@ -67,10 +67,29 @@ const apiCall = async (endpoint, method = 'GET', data = null) => {
     };
   } catch (error) {
     console.error('API call failed:', error);
+    
+    // Provide specific error messages for different error types
+    let errorMessage = 'Network error occurred';
+    
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      // Connection refused, server not running, or network issue
+      errorMessage = `Cannot connect to backend server. Please ensure:
+        - Backend server is running on ${BaseUrl}
+        - Check if the server is accessible
+        - Verify the BaseUrl in BaseUrl.js matches your backend configuration`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
     return {
       success: false,
-      data: { error: 'Network error occurred' },
-      status: 500
+      data: { 
+        error: errorMessage,
+        details: error.message,
+        url: `${BaseUrl}${endpoint}`,
+        connectionRefused: error.message === 'Failed to fetch' || error.name === 'TypeError'
+      },
+      status: 0 // 0 indicates no response received
     };
   }
 };
