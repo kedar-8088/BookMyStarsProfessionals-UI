@@ -262,14 +262,12 @@ const PhysicalDetailsPage = () => {
   // Intersection Observer refs
   const showcaseRef = useRef(null);
   const formTitleRef = useRef(null);
-  const stepIndicatorRef = useRef(null);
   const formFieldsRef = useRef(null);
   const nextButtonRef = useRef(null);
 
   // Intersection Observer hooks
   const showcaseInView = useInView(showcaseRef, { once: true, margin: "-50px" });
   const formTitleInView = useInView(formTitleRef, { once: true, margin: "-50px" });
-  const stepIndicatorInView = useInView(stepIndicatorRef, { once: true, margin: "-50px" });
   const formFieldsInView = useInView(formFieldsRef, { once: true, margin: "-50px" });
   const nextButtonInView = useInView(nextButtonRef, { once: true, margin: "-50px" });
 
@@ -853,13 +851,13 @@ const PhysicalDetailsPage = () => {
             transition={{ duration: 0.4, delay: 0.1 }}
           >
             {/* Main Title */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: { xs: 1.5, sm: 2 }, px: { xs: 2, sm: 0 } }}>
               <Typography
                 variant="h3"
                 sx={{
                   fontFamily: 'Poppins',
                   fontWeight: 600,
-                  fontSize: '36px',
+                  fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
                   color: '#DA498D',
                   textAlign: 'center'
                 }}
@@ -873,10 +871,11 @@ const PhysicalDetailsPage = () => {
               variant="body1"
               sx={{
                 fontFamily: 'Poppins',
-                fontSize: '16px',
+                fontSize: { xs: '14px', sm: '16px' },
                 color: '#666666',
                 textAlign: 'center',
-                mb: 2
+                mb: { xs: 1.5, sm: 2 },
+                px: { xs: 2, sm: 3, md: 0 }
               }}
             >
               * These details help casting directors and brands match you to the right opportunities.
@@ -885,7 +884,7 @@ const PhysicalDetailsPage = () => {
 <Divider sx={{ mb: 4 , color: '#69247C',borderWidth: '1px',borderColor: '#69247C'}} />
      
      {/* Back Button and Step indicator */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: { xs: 'flex-start', sm: 'space-between' }, mb: 2, px: { xs: 2, sm: 0 } }}>
               {/* Back Button */}
               <Button
                 onClick={() => navigate('/basic-info')}
@@ -895,7 +894,7 @@ const PhysicalDetailsPage = () => {
                   color: '#69247C',
                   fontFamily: 'Poppins',
                   fontWeight: 400,
-                  fontSize: '16px',
+                  fontSize: { xs: '14px', sm: '16px' },
                   textTransform: 'none',
                   '&:hover': {
                     backgroundColor: 'transparent',
@@ -906,120 +905,8 @@ const PhysicalDetailsPage = () => {
                 ← Back
               </Button>
 
-              {/* Step indicator */}
-              <Typography
-                sx={{
-                  fontFamily: 'Poppins',
-                  fontWeight: 600,
-                  fontSize: '24px',
-                  color: '#69247C'
-                }}
-              >
-                Step 2 of 5
-              </Typography>
-              
               {/* Empty space for balance */}
-              <Box sx={{ width: 60 }} />
-            </Box>
-
-            {/* Progress Indicator - Ellipses Connected with Lines */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                {/* Step 1 - Completed */}
-                <Box
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: '50%',
-                    background: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)',
-                    border: '2px solid #69247C'
-                  }}
-                />
-                
-                {/* Connecting Line 1 */}
-                <Box
-                  sx={{
-                    width: 60,
-                    height: 3,
-                    backgroundColor: '#D9D9D9',
-                    margin: '0 6px'
-                  }}
-                />
-                
-                {/* Step 2 - Completed */}
-                <Box
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: '50%',
-                    background: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)',
-                    border: '2px solid #69247C'
-                  }}
-                />
-                
-                {/* Connecting Line 2 */}
-                <Box
-                  sx={{
-                    width: 60,
-                    height: 3,
-                    backgroundColor: '#D9D9D9',
-                    margin: '0 6px'
-                  }}
-                />
-                
-                {/* Step 3 - Inactive */}
-                <Box
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: '50%',
-                    border: '2px solid #D9D9D9',
-                    backgroundColor: 'white'
-                  }}
-                />
-                
-                {/* Connecting Line 3 */}
-                <Box
-                  sx={{
-                    width: 60,
-                    height: 3,
-                    backgroundColor: '#D9D9D9',
-                    margin: '0 6px'
-                  }}
-                />
-                
-                {/* Step 4 - Inactive */}
-                <Box
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: '50%',
-                    border: '2px solid #D9D9D9',
-                    backgroundColor: 'white'
-                  }}
-                />
-                
-                {/* Connecting Line 4 */}
-                <Box
-                  sx={{
-                    width: 60,
-                    height: 3,
-                    backgroundColor: '#D9D9D9',
-                    margin: '0 6px'
-                  }}
-                />
-                
-                {/* Step 5 - Inactive */}
-                <Box
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: '50%',
-                    border: '2px solid #D9D9D9',
-                    backgroundColor: 'white'
-                  }}
-                />
-              </Box>
+              <Box sx={{ width: { xs: 0, sm: 60 } }} />
             </Box>
           </motion.div>
 
@@ -1032,9 +919,9 @@ const PhysicalDetailsPage = () => {
           >
             {/* Basics Section */}
             {/* Title and Description - Outside the box */}
-            <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <SectionTitle sx={{ textAlign: 'center' }}>Basics*</SectionTitle>
-              <Typography sx={{ color: '#666666', mb: 2, fontStyle: 'italic', textAlign: 'center' }}>
+            <Box sx={{ textAlign: 'center', mb: { xs: 1.5, sm: 2 }, px: { xs: 2, sm: 0 } }}>
+              <SectionTitle sx={{ textAlign: 'center', fontSize: { xs: '18px', sm: '20px', md: '24px' } }}>Basics*</SectionTitle>
+              <Typography sx={{ color: '#666666', mb: 2, fontStyle: 'italic', textAlign: 'center', fontSize: { xs: '12px', sm: '14px' } }}>
                 Lorem ipsum Lorem ipsum Lorem ipsum
               </Typography>
             </Box>
@@ -1044,17 +931,17 @@ const PhysicalDetailsPage = () => {
               <Box sx={{ textAlign: 'center' }}>
                 
                 {/* Three Column Layout - Gender, Height, Weight */}
-                <Box sx={{ display: 'flex', gap: 4 }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 3, sm: 4 } }}>
                   {/* Gender Column */}
-                  <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500 }}>
+                  <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' }, width: { xs: '100%', md: 'auto' } }}>
+                    <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500, fontSize: { xs: '14px', sm: '16px' } }}>
                       Gender
                       {loadingGenders && (
                         <CircularProgress size={16} sx={{ ml: 1, color: '#DA498D' }} />
                       )}
                     </Typography>
                     <FormControl component="fieldset">
-                      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'row', gap: { xs: 1.5, sm: 2 } }}>
                         <FormControlLabel
                           control={
                             <Radio
@@ -1075,7 +962,7 @@ const PhysicalDetailsPage = () => {
                             '& .MuiFormControlLabel-label': {
                               fontFamily: 'Poppins',
                               fontWeight: 400,
-                              fontSize: '16px',
+                              fontSize: { xs: '14px', sm: '16px' },
                               color: '#444444',
                             },
                           }}
@@ -1100,7 +987,7 @@ const PhysicalDetailsPage = () => {
                             '& .MuiFormControlLabel-label': {
                               fontFamily: 'Poppins',
                               fontWeight: 400,
-                              fontSize: '16px',
+                              fontSize: { xs: '14px', sm: '16px' },
                               color: '#444444',
                             },
                           }}
@@ -1111,10 +998,10 @@ const PhysicalDetailsPage = () => {
                   </Box>
                   
                   {/* Height Column */}
-                  <Box sx={{ flex: 1 }}>
-                    <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500 }}>Height</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box sx={{ flex: 1 }}>
+                  <Box sx={{ flex: 1, width: { xs: '100%', md: 'auto' } }}>
+                    <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500, fontSize: { xs: '14px', sm: '16px' } }}>Height</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+                      <Box sx={{ flex: 1, width: { xs: '100%', sm: 'auto' } }}>
                         <CustomSlider
                           value={heightValue}
                           onChange={handleHeightChange}
@@ -1127,17 +1014,17 @@ const PhysicalDetailsPage = () => {
                       <TextField
                         value={`${heightValue} cm`}
                         size="small"
-                        sx={{ width: 100 }}
+                        sx={{ width: { xs: '100%', sm: 100 } }}
                         InputProps={{ readOnly: true }}
                       />
                     </Box>
                   </Box>
                   
                   {/* Weight Column */}
-                  <Box sx={{ flex: 1 }}>
-                    <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500 }}>Weight</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box sx={{ flex: 1 }}>
+                  <Box sx={{ flex: 1, width: { xs: '100%', md: 'auto' } }}>
+                    <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500, fontSize: { xs: '14px', sm: '16px' } }}>Weight</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+                      <Box sx={{ flex: 1, width: { xs: '100%', sm: 'auto' } }}>
                         <CustomSlider
                           value={weightValue}
                           onChange={handleWeightChange}
@@ -1150,7 +1037,7 @@ const PhysicalDetailsPage = () => {
                       <TextField
                         value={`${weightValue} kg`}
                         size="small"
-                        sx={{ width: 100 }}
+                        sx={{ width: { xs: '100%', sm: 100 } }}
                         InputProps={{ readOnly: true }}
                       />
                     </Box>
@@ -1161,9 +1048,9 @@ const PhysicalDetailsPage = () => {
 
             {/* Appearance Section */}
             {/* Title and Description - Outside the box */}
-            <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <SectionTitle sx={{ textAlign: 'center' }}>Appearance*</SectionTitle>
-              <Typography sx={{ color: '#666666', mb: 2, textAlign: 'center' }}>
+            <Box sx={{ textAlign: 'center', mb: { xs: 1.5, sm: 2 }, px: { xs: 2, sm: 0 } }}>
+              <SectionTitle sx={{ textAlign: 'center', fontSize: { xs: '18px', sm: '20px', md: '24px' } }}>Appearance*</SectionTitle>
+              <Typography sx={{ color: '#666666', mb: 2, textAlign: 'center', fontSize: { xs: '12px', sm: '14px' } }}>
                 Show your unique look - from skin tone to eye color.
               </Typography>
             </Box>
@@ -1173,14 +1060,14 @@ const PhysicalDetailsPage = () => {
               <Box sx={{ textAlign: 'center' }}>
                 
                 {/* Three Column Layout for Appearance */}
-                <Box sx={{ display: 'flex', gap: 6 }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: { xs: 3, sm: 4, lg: 6 } }}>
                   {/* Skin Color Column */}
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ border: '2px dashed #E0E0E0', borderRadius: '12px', p: 3, textAlign: 'center' }}>
-                      <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500 }}>
+                  <Box sx={{ flex: 1, width: { xs: '100%', lg: 'auto' } }}>
+                    <Box sx={{ border: '2px dashed #E0E0E0', borderRadius: '12px', p: { xs: 2, sm: 3 }, textAlign: 'center' }}>
+                      <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500, fontSize: { xs: '14px', sm: '16px' } }}>
                         Skin Color: <span style={{ color: '#DA498D' }}>{selectedSkinColor || 'Select'}</span>
                       </Typography>
-                      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mb: 3 }}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' }, gap: { xs: 1.5, sm: 2 }, mb: 3 }}>
                         {skinColors.map((skinColor) => (
                           <Box key={skinColor.skinColorId} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <ColorSwatch
@@ -1189,28 +1076,28 @@ const PhysicalDetailsPage = () => {
                               onClick={() => handleSkinColorSelect(skinColor.skinColorName)}
                             >
                               {selectedSkinColor === skinColor.skinColorName && (
-                                <Box sx={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>✓</Box>
+                                <Box sx={{ color: 'white', fontSize: { xs: '14px', sm: '16px' }, fontWeight: 'bold' }}>✓</Box>
                               )}
                             </ColorSwatch>
-                            <Typography sx={{ fontSize: '12px', mt: 1, textAlign: 'center' }}>
+                            <Typography sx={{ fontSize: { xs: '11px', sm: '12px' }, mt: 1, textAlign: 'center' }}>
                               {skinColor.skinColorName}
                             </Typography>
                           </Box>
                         ))}
                       </Box>
-                      <Typography sx={{ color: '#666666', fontSize: '14px', textAlign: 'center' }}>
+                      <Typography sx={{ color: '#666666', fontSize: { xs: '12px', sm: '14px' }, textAlign: 'center' }}>
                         Pick the swatch that best matches your natural skin tone.
                       </Typography>
                     </Box>
                   </Box>
 
                   {/* Hair Color Column */}
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ border: '2px dashed #E0E0E0', borderRadius: '12px', p: 3, textAlign: 'center' }}>
-                      <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500 }}>
+                  <Box sx={{ flex: 1, width: { xs: '100%', lg: 'auto' } }}>
+                    <Box sx={{ border: '2px dashed #E0E0E0', borderRadius: '12px', p: { xs: 2, sm: 3 }, textAlign: 'center' }}>
+                      <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500, fontSize: { xs: '14px', sm: '16px' } }}>
                         Hair Color: <span style={{ color: '#DA498D' }}>{selectedHairColor || 'Select'}</span>
                       </Typography>
-                      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 3 }}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(2, 1fr)' }, gap: { xs: 1.5, sm: 2 }, mb: 3 }}>
                         {hairColors.map((hairColor) => (
                           <Box key={hairColor.hairColorId} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <ColorSwatch
@@ -1219,28 +1106,28 @@ const PhysicalDetailsPage = () => {
                               onClick={() => handleHairColorSelect(hairColor.hairColorName)}
                             >
                               {selectedHairColor === hairColor.hairColorName && (
-                                <Box sx={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>✓</Box>
+                                <Box sx={{ color: 'white', fontSize: { xs: '14px', sm: '16px' }, fontWeight: 'bold' }}>✓</Box>
                               )}
                             </ColorSwatch>
-                            <Typography sx={{ fontSize: '12px', mt: 1, textAlign: 'center' }}>
+                            <Typography sx={{ fontSize: { xs: '11px', sm: '12px' }, mt: 1, textAlign: 'center' }}>
                               {hairColor.hairColorName}
                             </Typography>
                           </Box>
                         ))}
                       </Box>
-                      <Typography sx={{ color: '#666666', fontSize: '14px', textAlign: 'center' }}>
+                      <Typography sx={{ color: '#666666', fontSize: { xs: '12px', sm: '14px' }, textAlign: 'center' }}>
                         Select your natural texture (helps stylists prepare).
                       </Typography>
                     </Box>
                   </Box>
 
                   {/* Eye Color Column */}
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ border: '2px dashed #E0E0E0', borderRadius: '12px', p: 3, textAlign: 'center' }}>
-                      <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500 }}>
+                  <Box sx={{ flex: 1, width: { xs: '100%', lg: 'auto' } }}>
+                    <Box sx={{ border: '2px dashed #E0E0E0', borderRadius: '12px', p: { xs: 2, sm: 3 }, textAlign: 'center' }}>
+                      <Typography sx={{ color: '#444444', mb: 2, fontWeight: 500, fontSize: { xs: '14px', sm: '16px' } }}>
                         Eye Color: <span style={{ color: '#DA498D' }}>{selectedEyeColor || 'Select'}</span>
                       </Typography>
-                      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 3 }}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(2, 1fr)' }, gap: { xs: 1.5, sm: 2 }, mb: 3 }}>
                         {eyeColors.map((eyeColor) => (
                           <Box key={eyeColor.eyeColorId} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <ColorSwatch
@@ -1249,16 +1136,16 @@ const PhysicalDetailsPage = () => {
                               onClick={() => handleEyeColorSelect(eyeColor.eyeColorName)}
                             >
                               {selectedEyeColor === eyeColor.eyeColorName && (
-                                <Box sx={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>✓</Box>
+                                <Box sx={{ color: 'white', fontSize: { xs: '14px', sm: '16px' }, fontWeight: 'bold' }}>✓</Box>
                               )}
                             </ColorSwatch>
-                            <Typography sx={{ fontSize: '12px', mt: 1, textAlign: 'center' }}>
+                            <Typography sx={{ fontSize: { xs: '11px', sm: '12px' }, mt: 1, textAlign: 'center' }}>
                               {eyeColor.eyeColorName}
                             </Typography>
                           </Box>
                         ))}
                       </Box>
-                      <Typography sx={{ color: '#666666', fontSize: '14px', textAlign: 'center' }}>
+                      <Typography sx={{ color: '#666666', fontSize: { xs: '12px', sm: '14px' }, textAlign: 'center' }}>
                         Select your natural texture (helps stylists prepare).
                       </Typography>
                     </Box>
@@ -1269,9 +1156,9 @@ const PhysicalDetailsPage = () => {
 
             {/* Measurements Section */}
             {/* Title and Description - Outside the box */}
-            <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <SectionTitle sx={{ textAlign: 'center' }}>Measurements*</SectionTitle>
-              <Typography sx={{ color: '#666666', mb: 2, fontStyle: 'italic', textAlign: 'center' }}>
+            <Box sx={{ textAlign: 'center', mb: { xs: 1.5, sm: 2 }, px: { xs: 2, sm: 0 } }}>
+              <SectionTitle sx={{ textAlign: 'center', fontSize: { xs: '18px', sm: '20px', md: '24px' } }}>Measurements*</SectionTitle>
+              <Typography sx={{ color: '#666666', mb: 2, fontStyle: 'italic', textAlign: 'center', fontSize: { xs: '12px', sm: '14px' } }}>
                 Lorem ipsum Lorem ipsum
               </Typography>
             </Box>
@@ -1281,22 +1168,24 @@ const PhysicalDetailsPage = () => {
               <Box sx={{ textAlign: 'center' }}>
                 
                 {/* Measurement Fields Grid - Left Side */}
-                <Box sx={{ display: 'flex', gap: 4 }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 3, sm: 4 } }}>
                   {/* Left Column - Chest, Waist, Shoe Size, Body Type */}
-                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3, flex: 1 }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: { xs: 2, sm: 3 }, flex: 1, width: { xs: '100%', md: 'auto' } }}>
                     <TextField
                       label="Chest"
                       placeholder="Blue"
                       value={formData.chest}
                       onChange={(e) => handleFormDataChange('chest', e.target.value)}
+                      fullWidth
                     />
                     <TextField
                       label="Waist"
                       placeholder="Black"
                       value={formData.waist}
                       onChange={(e) => handleFormDataChange('waist', e.target.value)}
+                      fullWidth
                     />
-                    <FormControl>
+                    <FormControl fullWidth>
                       <InputLabel>Shoe size</InputLabel>
                       <Select
                         value={formData.shoeSize}
@@ -1311,7 +1200,7 @@ const PhysicalDetailsPage = () => {
                         ))}
                       </Select>
                     </FormControl>
-                    <FormControl>
+                    <FormControl fullWidth>
                       <InputLabel>Body Type</InputLabel>
                       <Select
                         value={formData.bodyType}
@@ -1329,7 +1218,7 @@ const PhysicalDetailsPage = () => {
                   </Box>
                   
                   {/* Right Column - Allergies spanning both rows */}
-                  <Box sx={{ flex: 1 }}>
+                  <Box sx={{ flex: 1, width: { xs: '100%', md: 'auto' } }}>
                     <TextField
                       label="Allergies"
                       placeholder="Dust"
@@ -1338,7 +1227,7 @@ const PhysicalDetailsPage = () => {
                       fullWidth
                       multiline
                       rows={4}
-                      sx={{ height: '100%' }}
+                      sx={{ height: { xs: 'auto', md: '100%' }, minHeight: { xs: '120px', md: 'auto' } }}
                     />
                   </Box>
                 </Box>
@@ -1379,13 +1268,15 @@ const PhysicalDetailsPage = () => {
         >
           <Box sx={{ 
             display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' },
             justifyContent: 'space-between', 
             alignItems: 'center',
-            mt: 4, 
-            mb: 4,
+            gap: { xs: 2, sm: 0 },
+            mt: { xs: 3, sm: 4 }, 
+            mb: { xs: 3, sm: 4 },
             maxWidth: 1200,
             mx: 'auto',
-            px: 3
+            px: { xs: 2, sm: 3 }
           }}>
              {/* Back Button */}
              <Button
@@ -1395,25 +1286,16 @@ const PhysicalDetailsPage = () => {
                     color: '#69247C',
                     fontFamily: 'Poppins',
                     fontWeight: 500,
-                    fontSize: '16px',
+                    fontSize: { xs: '14px', sm: '16px' },
                     textTransform: 'none',
-                    px: '32px',
-                    py: '12px',
+                    px: { xs: '24px', sm: '32px' },
+                    py: { xs: '10px', sm: '12px' },
                     borderRadius: '8px',
                     border: '2px solid #69247C',
+                    width: { xs: '100%', sm: 'auto' },
                     '&:hover': {
                       background: '#69247C',
                       color: '#FFFFFF'
-                    },
-                    '@media (max-width: 768px)': {
-                      px: '24px',
-                      py: '10px',
-                      fontSize: '14px'
-                    },
-                    '@media (max-width: 480px)': {
-                      px: '20px',
-                      py: '8px',
-                      fontSize: '12px'
                     }
                   }}
                 >
@@ -1428,23 +1310,14 @@ const PhysicalDetailsPage = () => {
                     color: '#FFFFFF',
                     fontFamily: 'Poppins',
                     fontWeight: 500,
-                    fontSize: '16px',
+                    fontSize: { xs: '14px', sm: '16px' },
                     textTransform: 'none',
-                    px: '32px',
-                    py: '12px',
+                    px: { xs: '24px', sm: '32px' },
+                    py: { xs: '10px', sm: '12px' },
                     borderRadius: '8px',
+                    width: { xs: '100%', sm: 'auto' },
                     '&:hover': {
                       background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
-                    },
-                    '@media (max-width: 768px)': {
-                      fontSize: '14px',
-                      px: '24px',
-                      py: '10px'
-                    },
-                    '@media (max-width: 480px)': {
-                      fontSize: '12px',
-                      px: '20px',
-                      py: '8px'
                     }
                   }}
                 >

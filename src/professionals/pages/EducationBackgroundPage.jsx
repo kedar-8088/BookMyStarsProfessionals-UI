@@ -1312,134 +1312,6 @@ const EducationBackgroundPage = () => {
                   ← Back
                 </Button>
 
-                {/* Centered - Step 4 of 5 */}
-                <Typography
-                  sx={{
-                    fontFamily: 'Poppins',
-                    fontWeight: 600,
-                    fontSize: '28px',
-                    lineHeight: '140%',
-                    letterSpacing: '0%',
-                    color: '#69247C',
-                    '@media (max-width: 992px)': {
-                      fontSize: '24px'
-                    },
-                    '@media (max-width: 768px)': {
-                      fontSize: '20px',
-                      textAlign: 'center',
-                      width: '100%'
-                    },
-                    '@media (max-width: 480px)': {
-                      fontSize: '18px'
-                    }
-                  }}
-                >
-                  Step 4 of 5
-                </Typography>
-
-              </Box>
-
-              {/* Progress Indicator - Above Education Section */}
-              <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                  {/* Step 1 - Completed */}
-                  <Box
-                    sx={{
-                      width: 27,
-                      height: 28,
-                      borderRadius: '50%',
-                      background: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%)',
-                      border: '1px solid #8A8A8A',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      width: 128,
-                      height: 1,
-                      border: '1px solid #D9D9D9',
-                      backgroundColor: '#D9D9D9'
-                    }}
-                  />
-                  {/* Step 2 - Completed */}
-                  <Box
-                    sx={{
-                      width: 27,
-                      height: 28,
-                      borderRadius: '50%',
-                      background: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%)',
-                      border: '1px solid #8A8A8A',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      width: 128,
-                      height: 1,
-                      border: '1px solid #D9D9D9',
-                      backgroundColor: '#D9D9D9'
-                    }}
-                  />
-                  {/* Step 3 - Completed */}
-                  <Box
-                    sx={{
-                      width: 27,
-                      height: 28,
-                      borderRadius: '50%',
-                      background: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%)',
-                      border: '1px solid #8A8A8A',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      width: 128,
-                      height: 1,
-                      border: '1px solid #D9D9D9',
-                      backgroundColor: '#D9D9D9'
-                    }}
-                  />
-                  {/* Step 4 - Current */}
-                  <Box
-                    sx={{
-                      width: 27,
-                      height: 28,
-                      borderRadius: '50%',
-                      background: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%)',
-                      border: '1px solid #8A8A8A',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      width: 128,
-                      height: 1,
-                      border: '1px solid #D9D9D9',
-                      backgroundColor: '#D9D9D9'
-                    }}
-                  />
-                  {/* Step 5 - Inactive */}
-                  <Box
-                    sx={{
-                      width: 27,
-                      height: 28,
-                      borderRadius: '50%',
-                      border: '1px solid #D9D9D9',
-                      backgroundColor: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  />
-                </Box>
               </Box>
 
               {/* Present Work / Experience Section */}
@@ -3199,34 +3071,19 @@ const EducationBackgroundPage = () => {
 
                 {/* Skills Container */}
                   <Box sx={{
-                    width: '842px',
-                    minHeight: '500px',
+                    width: { xs: '100%', md: '842px' },
+                    maxWidth: '842px',
+                    minHeight: { xs: 'auto', md: '500px' },
                     backgroundColor: '#FFFFFF',
                     borderRadius: '10px',
                     boxShadow: '0px 0px 4px 0px #F2B6C6',
-                    padding: '24px',
+                    padding: { xs: 2, sm: 3, md: '24px' },
                     margin: '0 auto',
-                    position: 'relative',
-                    '@media (max-width: 1200px)': {
-                      width: '100%',
-                      maxWidth: '842px'
-                    },
-                    '@media (max-width: 768px)': {
-                      padding: '20px'
-                    },
-                    '@media (max-width: 480px)': {
-                      padding: '16px'
-                    }
+                    position: 'relative'
                   }}>
                 {/* Search Bar */}
                 <Box sx={{ 
-                  mb: '24px',
-                  '@media (max-width: 768px)': {
-                    mb: '20px'
-                  },
-                  '@media (max-width: 480px)': {
-                    mb: '16px'
-                  }
+                  mb: { xs: 2, sm: 2.5, md: '24px' }
                 }}>
                   <TextField
                     fullWidth
@@ -3234,10 +3091,10 @@ const EducationBackgroundPage = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     sx={{
-                      width: '333px',
-                      height: '43px',
+                      width: { xs: '100%', sm: '100%', md: '333px' },
+                      height: { xs: '40px', sm: '42px', md: '43px' },
                       '& .MuiOutlinedInput-root': {
-                        height: '43px',
+                        height: { xs: '40px', sm: '42px', md: '43px' },
                         borderRadius: '8px',
                         backgroundColor: '#FFFFFF',
                         border: '1px solid #D9D9D9',
@@ -3250,19 +3107,6 @@ const EducationBackgroundPage = () => {
                         '&.Mui-focused fieldset': {
                           border: '1px solid #D9D9D9',
                         },
-                      },
-                      '@media (max-width: 768px)': {
-                        width: '100%',
-                        height: '40px',
-                        '& .MuiOutlinedInput-root': {
-                          height: '40px'
-                        }
-                      },
-                      '@media (max-width: 480px)': {
-                        height: '38px',
-                        '& .MuiOutlinedInput-root': {
-                          height: '38px'
-                        }
                       }
                     }}
                     InputProps={{
@@ -3271,13 +3115,7 @@ const EducationBackgroundPage = () => {
                           sx={{ 
                             color: '#8A8A8A', 
                             mr: 1,
-                            fontSize: '20px',
-                            '@media (max-width: 768px)': {
-                              fontSize: '18px'
-                            },
-                            '@media (max-width: 480px)': {
-                              fontSize: '16px'
-                            }
+                            fontSize: { xs: '18px', sm: '19px', md: '20px' }
                           }} 
                         />
                       ),
@@ -3290,17 +3128,9 @@ const EducationBackgroundPage = () => {
                   border: '1px solid #D9D9D9',
                   borderRadius: '8px',
                   backgroundColor: '#FFFFFF',
-                  mb: '24px',
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  '@media (max-width: 768px)': {
-                    mb: '20px',
-                    maxHeight: '180px'
-                  },
-                  '@media (max-width: 480px)': {
-                    mb: '16px',
-                    maxHeight: '160px'
-                  }
+                  mb: { xs: 2, sm: 2.5, md: '24px' },
+                  maxHeight: { xs: '160px', sm: '180px', md: '200px' },
+                  overflowY: 'auto'
                 }}>
                   {skillsLoading ? (
                     <Box sx={{ 
@@ -3348,14 +3178,8 @@ const EducationBackgroundPage = () => {
                           sx={{
                             fontFamily: 'Poppins',
                             fontWeight: 400,
-                            fontSize: '16px',
-                            color: selectedSkills.includes(skill.skillName) ? '#1976D2' : '#444444',
-                            '@media (max-width: 768px)': {
-                              fontSize: '14px'
-                            },
-                            '@media (max-width: 480px)': {
-                              fontSize: '12px'
-                            }
+                            fontSize: { xs: '14px', sm: '15px', md: '16px' },
+                            color: selectedSkills.includes(skill.skillName) ? '#1976D2' : '#444444'
                           }}
                         >
                           {skill.skillName}
@@ -3385,14 +3209,14 @@ const EducationBackgroundPage = () => {
                 </Box>
 
                 {/* Rate Your Skills Section */}
-                <Box sx={{ mb: '32px' }}>
+                <Box sx={{ mb: { xs: 3, sm: 3.5, md: '32px' } }}>
                   <Typography
                     sx={{
                       fontFamily: 'Poppins',
                       fontWeight: 600,
-                      fontSize: '18px',
+                      fontSize: { xs: '16px', sm: '17px', md: '18px' },
                       color: '#444444',
-                      mb: 2
+                      mb: { xs: 1.5, sm: 2 }
                     }}
                   >
                     Rate Your Skills
@@ -3402,9 +3226,10 @@ const EducationBackgroundPage = () => {
                     sx={{
                       fontFamily: 'Poppins',
                       fontWeight: 400,
-                      fontSize: '14px',
+                      fontSize: { xs: '12px', sm: '13px', md: '14px' },
                       color: '#666666',
-                      mb: 3
+                      mb: { xs: 2, sm: 2.5, md: 3 },
+                      lineHeight: { xs: 1.4, md: 1.5 }
                     }}
                   >
                     Beginner : 1-2 stars, Intermediate : 3-4 stars, Expert : 5 stars
@@ -3420,27 +3245,32 @@ const EducationBackgroundPage = () => {
                       {selectedSkills.map((skill) => (
                         <Box key={skill} sx={{ 
                           display: 'flex', 
-                          alignItems: 'center',
+                          flexDirection: { xs: 'column', sm: 'row' },
+                          alignItems: { xs: 'flex-start', sm: 'center' },
                           justifyContent: 'space-between',
-                          p: 2,
+                          p: { xs: 1.5, sm: 2 },
                           backgroundColor: '#F8F9FA',
                           borderRadius: '8px',
-                          border: '1px solid #E9ECEF'
+                          border: '1px solid #E9ECEF',
+                          gap: { xs: 2, sm: 1 }
                         }}>
                           {/* Skill Name */}
                           <Typography
                         sx={{
                           fontFamily: 'Poppins',
                           fontWeight: 500,
-                              fontSize: '16px',
-                              color: '#444444'
+                              fontSize: { xs: '14px', sm: '15px', md: '16px' },
+                              color: '#444444',
+                              flex: { xs: '1 1 auto', sm: '0 1 auto' },
+                              minWidth: 0,
+                              wordBreak: 'break-word'
                             }}
                           >
                             {skill}
                           </Typography>
                           
                           {/* Star Rating */}
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
                             {[1, 2, 3, 4, 5].map((star) => (
                               <IconButton
                                 key={star}
@@ -3448,16 +3278,16 @@ const EducationBackgroundPage = () => {
                                 sx={{ p: 0.25 }}
                               >
                                 {star <= (skillRatings[skill] || 1) ? (
-                                  <StarIcon sx={{ color: '#FFD700', fontSize: 20 }} />
+                                  <StarIcon sx={{ color: '#FFD700', fontSize: { xs: 18, sm: 19, md: 20 } }} />
                                 ) : (
-                                  <StarBorderIcon sx={{ color: '#D9D9D9', fontSize: 20 }} />
+                                  <StarBorderIcon sx={{ color: '#D9D9D9', fontSize: { xs: 18, sm: 19, md: 20 } }} />
                                 )}
                               </IconButton>
                             ))}
                           </Box>
                           
                           {/* Action Buttons */}
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1 }, flexShrink: 0, width: { xs: '100%', sm: 'auto' }, justifyContent: { xs: 'flex-end', sm: 'flex-start' } }}>
                             {/* Submit Button - Only show if not submitted */}
                             {!submittedSkills.has(skill) && (
                               <Button
@@ -3468,24 +3298,14 @@ const EducationBackgroundPage = () => {
                                   color: 'white',
                                   fontFamily: 'Poppins',
                                   fontWeight: 500,
-                                  fontSize: '12px',
+                                  fontSize: { xs: '11px', sm: '11px', md: '12px' },
                                   textTransform: 'none',
-                                  px: 2,
-                                  py: 1,
+                                  px: { xs: 1.5, sm: 1.8, md: 2 },
+                                  py: { xs: 0.75, sm: 0.9, md: 1 },
                                   borderRadius: '6px',
                                   minWidth: 'auto',
                                   '&:hover': {
                                     background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
-                                  },
-                                  '@media (max-width: 768px)': {
-                                    fontSize: '11px',
-                                    px: 1.5,
-                                    py: 0.8
-                                  },
-                                  '@media (max-width: 480px)': {
-                                    fontSize: '10px',
-                                    px: 1.2,
-                                    py: 0.6
                                   }
                                 }}
                               >
@@ -3498,9 +3318,9 @@ const EducationBackgroundPage = () => {
                               <Box sx={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 1,
-                                px: 2,
-                                py: 1,
+                                gap: { xs: 0.5, sm: 1 },
+                                px: { xs: 1.5, sm: 2 },
+                                py: { xs: 0.75, sm: 1 },
                                 backgroundColor: '#e8f5e8',
                                 borderRadius: '8px',
                                 border: '1px solid #4caf50'
@@ -3508,7 +3328,7 @@ const EducationBackgroundPage = () => {
                                 <Typography sx={{
                                   fontFamily: 'Poppins',
                                   fontWeight: 500,
-                                  fontSize: '12px',
+                                  fontSize: { xs: '11px', sm: '11px', md: '12px' },
                                   color: '#2e7d32'
                                 }}>
                                   ✓ Saved
@@ -3520,11 +3340,11 @@ const EducationBackgroundPage = () => {
                             <IconButton
                               onClick={() => handleSkillRemove(skill)}
                               sx={{ 
-                                p: 0.5,
+                                p: { xs: 0.4, sm: 0.5 },
                                 color: '#DA498D'
                               }}
                             >
-                              <CloseIcon sx={{ fontSize: 16 }} />
+                              <CloseIcon sx={{ fontSize: { xs: 14, sm: 15, md: 16 } }} />
                             </IconButton>
                           </Box>
                         </Box>

@@ -182,7 +182,6 @@ const BasicInfoPage = () => {
   // Intersection Observer refs
   const showcaseRef = useRef(null);
   const formTitleRef = useRef(null);
-  const stepIndicatorRef = useRef(null);
   const formFieldsRef = useRef(null);
   const uploadSectionRef = useRef(null);
   const nextButtonRef = useRef(null);
@@ -190,7 +189,6 @@ const BasicInfoPage = () => {
   // Intersection Observer hooks
   const showcaseInView = useInView(showcaseRef, { once: true, margin: "-50px" });
   const formTitleInView = useInView(formTitleRef, { once: true, margin: "-50px" });
-  const stepIndicatorInView = useInView(stepIndicatorRef, { once: true, margin: "-50px" });
   const formFieldsInView = useInView(formFieldsRef, { once: true, margin: "-50px" });
   const uploadSectionInView = useInView(uploadSectionRef, { once: true, margin: "-50px" });
   const nextButtonInView = useInView(nextButtonRef, { once: true, margin: "-50px" });
@@ -693,115 +691,6 @@ const BasicInfoPage = () => {
               }}
             />
           </motion.div>
-
-          <Typography
-                  sx={{
-                    fontFamily: 'Poppins',
-                    fontWeight: 600,
-                    fontSize: { xs: '20px', sm: '24px', md: '28px' },
-                    lineHeight: '140%',
-                    letterSpacing: '0%',
-                    color: '#69247C',
-                    mr: { xs: 0, sm: 3, md: 5 },
-                    mb: { xs: 1, sm: 0 },
-                    textAlign: 'center'
-                  }}
-                >
-                  Step 1 of 5
-                </Typography>
-                <br></br>
-
-                {/* Progress Indicator - Ellipses Connected with Lines */}
-                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                    {/* Step 1 - Active */}
-                    <Box
-                      sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '50%',
-                        background: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)',
-                        border: '2px solid #69247C'
-                      }}
-                    />
-                    {/* Connecting Line 1 */}
-                    <Box
-                      sx={{
-                        width: 60,
-                        height: 3,
-                        backgroundColor: '#D9D9D9',
-                        margin: '0 6px'
-                      }}
-                    />
-                    {/* Step 2 - Inactive */}
-                    <Box
-                      sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '50%',
-                        border: '2px solid #D9D9D9',
-                        backgroundColor: 'white'
-                      }}
-                    />
-                    {/* Connecting Line 2 */}
-                    <Box
-                      sx={{
-                        width: 60,
-                        height: 3,
-                        backgroundColor: '#D9D9D9',
-                        margin: '0 6px'
-                      }}
-                    />
-                    {/* Step 3 - Inactive */}
-                    <Box
-                      sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '50%',
-                        border: '2px solid #D9D9D9',
-                        backgroundColor: 'white'
-                      }}
-                    />
-                    {/* Connecting Line 3 */}
-                    <Box
-                      sx={{
-                        width: 60,
-                        height: 3,
-                        backgroundColor: '#D9D9D9',
-                        margin: '0 6px'
-                      }}
-                    />
-                    {/* Step 4 - Inactive */}
-                    <Box
-                      sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '50%',
-                        border: '2px solid #D9D9D9',
-                        backgroundColor: 'white'
-                      }}
-                    />
-                    {/* Connecting Line 4 */}
-                    <Box
-                      sx={{
-                        width: 60,
-                        height: 3,
-                        backgroundColor: '#D9D9D9',
-                        margin: '0 6px'
-                      }}
-                    />
-                    {/* Step 5 - Inactive */}
-                    <Box
-                      sx={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '50%',
-                        border: '2px solid #D9D9D9',
-                        backgroundColor: 'white'
-                      }}
-                    />
-                  </Box>
-                </Box>
 
           {/* Form Fields */}
           <Box sx={{ 

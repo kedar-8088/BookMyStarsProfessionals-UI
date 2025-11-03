@@ -833,23 +833,30 @@ const CompleteProfilePage = () => {
       {!loading && !error && profileData && (
         <>
           <BasicInfoNavbar />
-      <Box sx={{ py: 2, backgroundColor: 'white', minHeight: '100vh' }}>
+      <Box sx={{ py: { xs: 2, sm: 3, md: 4 }, backgroundColor: 'white', minHeight: '100vh', px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Main Profile Layout - Photo on Left, Basic Details on Right */}
         <Box sx={{ 
           display: 'flex', 
-          alignItems: 'flex-start', 
-          gap: 4, 
-          pr: { xs: 2, sm: 3, md: 4 },
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'center', md: 'flex-start' },
+          justifyContent: { xs: 'center', md: 'flex-start' },
+          gap: { xs: 3, sm: 4 }, 
           maxWidth: '1200px',
-          mx: 'auto'
+          mx: 'auto',
+          width: '100%'
         }}>
           {/* Left Side - Circular Profile Photo */}
           <Box sx={{ 
-            flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 0
+            order: { xs: 1, md: 1 },
+            flexShrink: 0, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center',
+            width: { xs: '100%', md: 'auto' }
           }}>
             <Box sx={{
-              width: { xs: '200px', sm: '250px', md: '300px' }, 
-              height: { xs: '200px', sm: '250px', md: '300px' },
+              width: { xs: '150px', sm: '200px', md: '250px', lg: '300px' }, 
+              height: { xs: '150px', sm: '200px', md: '250px', lg: '300px' },
               border: '4px solid #f0f0f0',  
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               borderRadius: '50%',
@@ -870,41 +877,47 @@ const CompleteProfilePage = () => {
           </Box>
 
           {/* Right Side - Basic Details */}
-          <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Box sx={{ 
+            order: { xs: 2, md: 2 },
+            flex: { xs: '0 0 auto', md: 1 }, 
+            minWidth: 0, 
+            width: { xs: '100%', md: 'auto' },
+            maxWidth: { xs: '100%', md: 'none' }
+          }}>
             {/* Basic Details Header */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: '100%', justifyContent: 'space-between' }}>
               <Typography sx={{
                 fontFamily: 'Poppins', fontWeight: 600,
-                fontSize: '22px', lineHeight: '140%',
+                fontSize: { xs: '18px', sm: '20px', md: '22px' }, lineHeight: '140%',
                 color: '#DA498D', flexGrow: 1
               }}>
                 Basic Details
               </Typography>
               <IconButton size="small" onClick={handleEditBasicInfo}>
-                <EditIcon sx={{ color: '#DA498D', fontSize: '20px' }} />
+                <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '18px', sm: '20px' } }} />
               </IconButton>
             </Box>
 
             {/* Divider Line */}
-            <Box sx={{ borderBottom: '2px solid #69247C', mb: 3 }} />
+            <Box sx={{ borderBottom: '2px solid #69247C', mb: 3, width: '100%' }} />
 
             {/* Name with Person Icon */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Box sx={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2 }}>
-                <PersonIcon sx={{ color: 'white', fontSize: '18px' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: '100%' }}>
+              <Box sx={{ width: { xs: '28px', sm: '32px' }, height: { xs: '28px', sm: '32px' }, borderRadius: '50%', background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: { xs: 1.5, sm: 2 }, flexShrink: 0 }}>
+                <PersonIcon sx={{ color: 'white', fontSize: { xs: '16px', sm: '18px' } }} />
               </Box>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#333333' }}>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#333333', wordBreak: 'break-word' }}>
                 {getFullName()}
               </Typography>
             </Box>
 
             {/* Description/Bio with Dropdown */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 3, width: '100%' }}>
               <Typography 
                 sx={{ 
                   fontFamily: 'Poppins', 
                   fontWeight: 400, 
-                  fontSize: '14px', 
+                  fontSize: { xs: '12px', sm: '14px' }, 
                   lineHeight: '140%', 
                   color: '#666666', 
                   flex: 1,
@@ -913,6 +926,7 @@ const CompleteProfilePage = () => {
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
+                  wordBreak: 'break-word'
                 }}
               >
                 {profileData.basicInfo?.profileHeadline || 'No description available'}
@@ -986,12 +1000,12 @@ const CompleteProfilePage = () => {
                 { icon: EmailIcon, text: profileData.basicInfo?.email || profileData.professionalsDto?.email || 'N/A' },
                 { icon: LocationOnIcon, text: `${profileData.basicInfo?.state?.stateName || ''}, ${profileData.basicInfo?.city?.cityName || ''}`.replace(/^,\s*|,\s*$/g, '') || 'N/A' }
               ].map((item, index) => (
-                <Grid size={{ xs: 6 }} key={index}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Box sx={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2 }}>
-                      <item.icon sx={{ color: 'white', fontSize: '16px' }} />
+                <Grid size={{ xs: 12, sm: 6 }} key={index}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1.5, sm: 2 } }}>
+                    <Box sx={{ width: { xs: '28px', sm: '32px' }, height: { xs: '28px', sm: '32px' }, borderRadius: '50%', background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: { xs: 1.5, sm: 2 }, flexShrink: 0 }}>
+                      <item.icon sx={{ color: 'white', fontSize: { xs: '14px', sm: '16px' } }} />
                     </Box>
-                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', lineHeight: '140%', color: '#333333' }}>
+                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, lineHeight: '140%', color: '#333333', wordBreak: 'break-word' }}>
                       {item.text}
                     </Typography>
                   </Box>
@@ -1003,55 +1017,54 @@ const CompleteProfilePage = () => {
 
         {/* Physical Details Section */}
         <Box sx={{ 
-          px: { xs: 2, sm: 3, md: 4 }, 
-          mt: 4,
+          mt: { xs: 3, sm: 4 },
           maxWidth: '1200px',
           mx: 'auto'
         }}>
           {/* Physical Details Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '22px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, px: { xs: 2, sm: 3, md: 4 } }}>
+            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
               Physical Details
             </Typography>
             <IconButton size="small" onClick={handleEditPhysicalDetails}>
-              <EditIcon sx={{ color: '#DA498D', fontSize: '20px' }} />
+              <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '18px', sm: '20px' } }} />
             </IconButton>
           </Box>
 
           {/* Divider Line */}
-          <Box sx={{ borderBottom: '2px solid #69247C', mb: 3 }} />
+          <Box sx={{ borderBottom: '2px solid #69247C', mb: 3, mx: { xs: 2, sm: 3, md: 4 } }} />
 
           {/* Two Boxes in Same Row */}
-          <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 2, sm: 3 }, mb: 3, px: { xs: 2, sm: 3, md: 4 } }}>
             {/* Left Box - Measurements and Attributes */}
-            <Box sx={{ flex: 1, border: '1px solid #DA498D', borderRadius: '8px', p: 2, backgroundColor: 'white' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, pb: 2, borderBottom: '1px solid #e0e0e0' }}>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333' }}>
+            <Box sx={{ flex: 1, border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 1.5, sm: 2 }, backgroundColor: 'white', width: { xs: '100%', md: 'auto' } }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: { xs: 'flex-start', sm: 'space-between' }, gap: { xs: 1, sm: 0 }, mb: 2, pb: 2, borderBottom: '1px solid #e0e0e0' }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: { xs: 1, sm: 0 } }}>
                   Body Type : <span style={{ color: '#666666' }}>{profileData.styleProfile?.bodyType?.bodyTypeName || 'N/A'}</span>
                 </Typography>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333' }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: { xs: 1, sm: 0 } }}>
                   Height : <span style={{ color: '#666666' }}>{profileData.styleProfile?.height ? `${profileData.styleProfile.height} cm` : 'N/A'}</span>
                 </Typography>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333' }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333' }}>
                   Weight : <span style={{ color: '#666666' }}>{profileData.styleProfile?.weight ? `${profileData.styleProfile.weight} kg` : 'N/A'}</span>
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333' }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: { xs: 'flex-start', sm: 'space-between' }, gap: { xs: 1, sm: 0 } }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: { xs: 1, sm: 0 } }}>
                   Shoe Size : <span style={{ color: '#666666' }}>{profileData.styleProfile?.shoeSize?.shoeSizeName || 'N/A'}</span>
                 </Typography>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333' }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: { xs: 1, sm: 0 } }}>
                   Chest : <span style={{ color: '#666666' }}>{profileData.styleProfile?.chest ? `${profileData.styleProfile.chest} inch` : 'N/A'}</span>
                 </Typography>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333' }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333' }}>
                   Waist : <span style={{ color: '#666666' }}>{profileData.styleProfile?.waist ? `${profileData.styleProfile.waist} inch` : 'N/A'}</span>
                 </Typography>
               </Box>
             </Box>
 
             {/* Right Box - Appearance Details */}
-            <Box sx={{ flex: 1, border: '1px solid #DA498D', borderRadius: '8px', p: 2, backgroundColor: 'white' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ flex: 1, border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 1.5, sm: 2 }, backgroundColor: 'white', width: { xs: '100%', md: 'auto' } }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: { xs: 'center', sm: 'space-between' }, alignItems: 'center', gap: { xs: 2, sm: 1 } }}>
                 {[
                   { 
                     color: profileData.styleProfile?.skinColor?.skinColorName === 'Deep' ? '#8B4513' : '#D2B48C', 
@@ -1073,11 +1086,11 @@ const CompleteProfilePage = () => {
                   }
                 ].map((item, index) => (
                   <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Box sx={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: item.color, border: `2px solid ${item.border}`, mb: 1 }} />
-                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333' }}>
+                    <Box sx={{ width: { xs: '35px', sm: '40px' }, height: { xs: '35px', sm: '40px' }, borderRadius: '50%', backgroundColor: item.color, border: `2px solid ${item.border}`, mb: 1 }} />
+                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', textAlign: 'center' }}>
                       {item.title}
                     </Typography>
-                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '12px', color: '#666666' }}>
+                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '10px', sm: '12px' }, color: '#666666', textAlign: 'center' }}>
                       {item.value}
                     </Typography>
                   </Box>
@@ -1087,17 +1100,17 @@ const CompleteProfilePage = () => {
           </Box>
 
           {/* Bottom Box - Allergies */}
-          <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: 2, backgroundColor: 'white', maxWidth: '50%' }}>
-            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333' }}>
+          <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 1.5, sm: 2 }, backgroundColor: 'white', maxWidth: { xs: '100%', md: '50%' }, mx: { xs: 2, sm: 3, md: 4 } }}>
+            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333' }}>
               Allergies : <span style={{ color: '#666666' }}>{profileData.styleProfile?.allergies || 'N/A'}</span>
             </Typography>
           </Box>
         </Box>
 
         {/* Build Your Portfolio Section */}
-        <Box sx={{ px: { xs: 2, sm: 3, md: 4 }, mt: 4, maxWidth: '1200px', mx: 'auto' }}>
+        <Box sx={{ mt: { xs: 3, sm: 4 }, maxWidth: '1200px', mx: 'auto', px: { xs: 2, sm: 3, md: 4 } }}>
           {/* Build Your Portfolio Header */}
-          <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '22px', lineHeight: '140%', color: '#DA498D', mb: 2 }}>
+          <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', mb: 2 }}>
             Build Your Portfolio
           </Typography>
 
@@ -1150,9 +1163,9 @@ const CompleteProfilePage = () => {
               
               return (
                 <>
-                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'flex', gap: { xs: 1.5, sm: 2 }, flexWrap: 'wrap' }}>
                     {displayedVideos.map((video, index) => (
-                      <Box key={video.id} sx={{ position: 'relative', width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa', overflow: 'hidden' }}>
+                      <Box key={video.id} sx={{ position: 'relative', width: { xs: '100%', sm: '180px', md: '200px' }, height: { xs: '200px', sm: '140px', md: '150px' }, border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa', overflow: 'hidden' }}>
                         <AuthVideo 
                           filePath={video.filePath}
                           thumbnailPath={video.thumbnailPath}
@@ -1188,8 +1201,8 @@ const CompleteProfilePage = () => {
                     ))}
                     
                     {videos.length === 0 && (
-                      <Box sx={{ width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa' }}>
-                        <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: '14px' }}>No videos uploaded</Typography>
+                      <Box sx={{ width: { xs: '100%', sm: '180px', md: '200px' }, height: { xs: '200px', sm: '140px', md: '150px' }, border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: { xs: '12px', sm: '14px' } }}>No videos uploaded</Typography>
                       </Box>
                     )}
                   </Box>
@@ -1243,9 +1256,9 @@ const CompleteProfilePage = () => {
               
               return (
                 <>
-                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'flex', gap: { xs: 1.5, sm: 2 }, flexWrap: 'wrap' }}>
                     {displayedPhotos.map((image, index) => (
-                      <Box key={image.id} sx={{ position: 'relative', width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa', overflow: 'hidden' }}>
+                      <Box key={image.id} sx={{ position: 'relative', width: { xs: '100%', sm: '180px', md: '200px' }, height: { xs: '200px', sm: '140px', md: '150px' }, border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa', overflow: 'hidden' }}>
                         <AuthImage 
                           filePath={image.filePath}
                           alt={`Photo ${index}`}
@@ -1277,8 +1290,8 @@ const CompleteProfilePage = () => {
                     ))}
                     
                     {photos.length === 0 && (
-                      <Box sx={{ width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa' }}>
-                        <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: '14px' }}>No photos uploaded</Typography>
+                      <Box sx={{ width: { xs: '100%', sm: '180px', md: '200px' }, height: { xs: '200px', sm: '140px', md: '150px' }, border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: { xs: '12px', sm: '14px' } }}>No photos uploaded</Typography>
                       </Box>
                     )}
                   </Box>
@@ -1301,7 +1314,7 @@ const CompleteProfilePage = () => {
               <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
 
               {/* Social Media Box */}
-              <Box sx={{ border: '1px solid', borderImage: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%) 1', borderRadius: '8px', p: 2, backgroundColor: 'white' }}>
+              <Box sx={{ border: '1px solid', borderImage: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%) 1', borderRadius: '8px', p: { xs: 1.5, sm: 2 }, backgroundColor: 'white' }}>
                 <Grid container spacing={2}>
                   {profileData.showcase?.socialPresence?.map((url, index) => {
                     const platform = url.includes('instagram') ? 'instagram' : 
@@ -1320,9 +1333,9 @@ const CompleteProfilePage = () => {
                     const config = platformConfig[platform];
                     
                     return (
-                      <Grid size={{ xs: 6 }} key={index}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <Box sx={{ width: '32px', height: '32px', borderRadius: config.borderRadius, background: config.color, display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2 }}>
+                      <Grid size={{ xs: 12, sm: 6 }} key={index}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1.5, sm: 2 } }}>
+                          <Box sx={{ width: { xs: '28px', sm: '32px' }, height: { xs: '28px', sm: '32px' }, borderRadius: config.borderRadius, background: config.color, display: 'flex', alignItems: 'center', justifyContent: 'center', mr: { xs: 1.5, sm: 2 }, flexShrink: 0 }}>
                             {config.icon === 'instagram' && (
                               <Box sx={{ width: '16px', height: '16px', border: '2px solid white', borderRadius: '4px', position: 'relative' }}>
                                 <Box sx={{ position: 'absolute', top: '2px', left: '2px', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'white' }} />
@@ -1344,7 +1357,7 @@ const CompleteProfilePage = () => {
                               </Box>
                             )}
                           </Box>
-                          <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333' }}>
+                          <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', wordBreak: 'break-word' }}>
                             {url}
                           </Typography>
                         </Box>
@@ -1373,14 +1386,14 @@ const CompleteProfilePage = () => {
               </IconButton>
             </Box>
 
-            <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: 3, backgroundColor: 'white' }}>
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white' }}>
+              <Box sx={{ display: 'flex', gap: { xs: 1.5, sm: 2 }, flexWrap: 'wrap' }}>
                 {profileData.showcase?.languages?.map((language, index) => (
-                  <Box key={language.languageId} sx={{ background: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)', borderRadius: '20px', px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                      <Typography sx={{ color: '#DA498D', fontSize: '12px', fontWeight: 'bold' }}>×</Typography>
+                  <Box key={language.languageId} sx={{ background: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)', borderRadius: '20px', px: { xs: 1.5, sm: 2 }, py: { xs: 0.75, sm: 1 }, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: { xs: '14px', sm: '16px' }, height: { xs: '14px', sm: '16px' }, borderRadius: '50%', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                      <Typography sx={{ color: '#DA498D', fontSize: { xs: '10px', sm: '12px' }, fontWeight: 'bold' }}>×</Typography>
                     </Box>
-                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: 'white' }}>
+                    <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: 'white' }}>
                       {language.languageName}
                     </Typography>
                   </Box>
@@ -1395,41 +1408,41 @@ const CompleteProfilePage = () => {
           </Box>
 
           {/* Educational Background Section */}
-          <Box sx={{ mt: 4 }}>
+          <Box sx={{ mt: { xs: 3, sm: 4 }, px: { xs: 2, sm: 3, md: 4 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '22px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                 Educational Background
               </Typography>
               <IconButton size="small" onClick={handleEditEducation}>
-                <EditIcon sx={{ color: '#DA498D', fontSize: '20px' }} />
+                <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '18px', sm: '20px' } }} />
               </IconButton>
             </Box>
 
             <Box sx={{ borderBottom: '2px solid #69247C', mb: 4 }} />
 
             {/* Work Experience Cards - Same Row */}
-            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 2, sm: 3 }, flexWrap: 'wrap' }}>
               {profileData.workExperiences?.map((experience, index) => (
-                <Box key={experience.id} sx={{ flex: 1, minWidth: '300px' }}>
-                  <Box sx={{ border: '1px solid', borderImage: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%) 1', borderRadius: '8px', p: 3, backgroundColor: 'white', position: 'relative' }}>
+                <Box key={experience.id} sx={{ flex: 1, minWidth: { xs: '100%', md: '300px' }, width: { xs: '100%', md: 'auto' } }}>
+                  <Box sx={{ border: '1px solid', borderImage: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%) 1', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white', position: 'relative' }}>
                     <IconButton size="small" onClick={handleEditEducation} sx={{ position: 'absolute', top: 8, right: 8, width: '24px', height: '24px', border: '1px solid #DA498D', borderRadius: '4px' }}>
                       <EditIcon sx={{ color: '#DA498D', fontSize: '14px' }} />
                     </IconButton>
-                    <Box sx={{ pr: 4 }}>
+                    <Box sx={{ pr: { xs: 3, sm: 4 } }}>
                       {[
                         { label: 'Category', value: experience.categoryName },
                         { label: 'Role', value: experience.roleTitle },
                         { label: 'Project Name', value: experience.projectName },
                         { label: 'Year', value: experience.year }
                       ].map((item, idx) => (
-                        <Typography key={idx} sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333', mb: idx === 3 ? 2 : 1 }}>
+                        <Typography key={idx} sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: idx === 3 ? 2 : 1 }}>
                           {item.label} : <span style={{ color: '#666666' }}>{item.value}</span>
                         </Typography>
                       ))}
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333', mb: 1 }}>
+                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: 1 }}>
                         Description :
                       </Typography>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '14px', color: '#666666', lineHeight: '140%' }}>
+                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '12px', sm: '14px' }, color: '#666666', lineHeight: '140%' }}>
                         {experience.description}
                       </Typography>
                     </Box>
@@ -1451,26 +1464,26 @@ const CompleteProfilePage = () => {
                 Education
               </Typography>
 
-              <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: 3, backgroundColor: 'white' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+              <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white' }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: { xs: 'flex-start', sm: 'space-between' }, flexWrap: 'wrap', gap: { xs: 2, sm: 2 } }}>
                   {profileData.educations?.map((education, index) => (
-                    <Box key={education.id} sx={{ flex: 1, minWidth: '200px' }}>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333', mb: 0.5 }}>
+                    <Box key={education.id} sx={{ flex: 1, minWidth: { xs: '100%', sm: '200px' }, width: { xs: '100%', sm: 'auto' } }}>
+                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: 0.5 }}>
                         Highest Qualification :
                       </Typography>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '14px', color: '#666666', mb: 1 }}>
+                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '12px', sm: '14px' }, color: '#666666', mb: 1 }}>
                         {education.highestQualification}
                       </Typography>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333', mb: 0.5 }}>
+                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: 0.5 }}>
                         Academy Name :
                       </Typography>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '14px', color: '#666666', mb: 1 }}>
+                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '12px', sm: '14px' }, color: '#666666', mb: 1 }}>
                         {education.academyName}
                       </Typography>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '14px', color: '#333333', mb: 0.5 }}>
+                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: 0.5 }}>
                         Passout Year :
                       </Typography>
-                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '14px', color: '#666666' }}>
+                      <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '12px', sm: '14px' }, color: '#666666' }}>
                         {education.passoutYear}
                       </Typography>
                     </Box>
@@ -1487,31 +1500,31 @@ const CompleteProfilePage = () => {
             </Box>
 
             {/* Skills Section */}
-            <Box sx={{ mt: 4 }}>
+            <Box sx={{ mt: { xs: 3, sm: 4 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Skills
                 </Typography>
                 <IconButton size="small" onClick={handleEditEducation}>
-                  <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
+                  <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '16px', sm: '18px' } }} />
                 </IconButton>
               </Box>
               
               <Box sx={{ borderBottom: '1px solid #DA498D', mb: 3 }} />
 
               {/* Rate Your Skills Section */}
-              <Box sx={{ mb: '32px' }}>
+              <Box sx={{ mb: { xs: '24px', sm: '32px' } }}>
                 <Grid container spacing={2}>
                   {profileData.professionalSkills?.map((skill, index) => (
-                    <Grid size={{ xs: 6 }} key={skill.id}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF' }}>
-                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', color: '#444444', flex: 1 }}>
+                    <Grid size={{ xs: 12, sm: 6 }} key={skill.id}>
+                      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', p: { xs: 1.5, sm: 2 }, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF', gap: { xs: 1, sm: 0 } }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '16px' }, color: '#444444', flex: 1, mb: { xs: 1, sm: 0 } }}>
                           {skill.skillName}
                         </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mx: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mx: { xs: 0, sm: 2 }, width: { xs: '100%', sm: 'auto' }, justifyContent: { xs: 'space-between', sm: 'flex-start' } }}>
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Box key={star} sx={{ p: 0.25, cursor: 'pointer' }}>
-                              <Typography sx={{ fontSize: '20px', color: star <= skill.rating ? '#FFD700' : '#D9D9D9', lineHeight: 1 }}>
+                              <Typography sx={{ fontSize: { xs: '16px', sm: '20px' }, color: star <= skill.rating ? '#FFD700' : '#D9D9D9', lineHeight: 1 }}>
                                 {star <= skill.rating ? '★' : '☆'}
                               </Typography>
                             </Box>
@@ -1541,27 +1554,27 @@ const CompleteProfilePage = () => {
             </Box>
 
             {/* Certifications Section */}
-            <Box sx={{ mt: 4 }}>
+            <Box sx={{ mt: { xs: 3, sm: 4 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Certifications
                 </Typography>
                 <IconButton size="small" onClick={handleEditEducation}>
-                  <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
+                  <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '16px', sm: '18px' } }} />
                 </IconButton>
               </Box>
 
               <Box sx={{ borderBottom: '1px solid #DA498D', mb: 3 }} />
 
-              <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: 3, backgroundColor: 'white' }}>
-                <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+              <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white' }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 2, sm: 3 }, flexWrap: 'wrap' }}>
                   {profileData.certifications?.map((cert, index) => (
-                    <Box key={cert.id} sx={{ flex: 1, minWidth: '300px', display: 'flex', gap: 2 }}>
-                      <Box sx={{ flexShrink: 0 }}>
+                    <Box key={cert.id} sx={{ flex: 1, minWidth: { xs: '100%', md: '300px' }, width: { xs: '100%', md: 'auto' }, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 2 } }}>
+                      <Box sx={{ flexShrink: 0, alignSelf: { xs: 'center', sm: 'flex-start' } }}>
                         {/* Certificate Frame */}
                         <Box sx={{ 
-                          width: '140px', 
-                          height: '200px', 
+                          width: { xs: '120px', sm: '140px' }, 
+                          height: { xs: '170px', sm: '200px' }, 
                           border: '2px solid #e0e0e0', 
                           borderRadius: '8px', 
                           backgroundColor: '#f8f9fa', 
@@ -1600,7 +1613,7 @@ const CompleteProfilePage = () => {
                           </Box>
                         </Box>
                       </Box>
-                      <Box sx={{ flex: 1 }}>
+                      <Box sx={{ flex: 1, width: { xs: '100%', sm: 'auto' } }}>
                         {[
                           { label: 'Certification Name', value: cert.certificationName },
                           { label: 'Issued By', value: cert.issuedBy },
@@ -1608,10 +1621,10 @@ const CompleteProfilePage = () => {
                           { label: 'Credential ID', value: cert.credentialId }
                         ].map((item, idx) => (
                           <Box key={idx} sx={{ mb: idx === 3 ? 0 : 1 }}>
-                            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '14px', color: '#333333', mb: 0.5 }}>
+                            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: 0.5 }}>
                               {item.label}:
                             </Typography>
-                            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '14px', color: '#666666' }}>
+                            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '12px', sm: '14px' }, color: '#666666' }}>
                               {item.value || 'N/A'}
                             </Typography>
                           </Box>
@@ -1631,25 +1644,25 @@ const CompleteProfilePage = () => {
             </Box>
 
             {/* Preferences Section */}
-            <Box sx={{ mt: 4 }}>
+            <Box sx={{ mt: { xs: 3, sm: 4 }, px: { xs: 2, sm: 3, md: 4 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '22px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Preferences
                 </Typography>
                 <IconButton size="small" onClick={handleEditPreferences}>
-                  <EditIcon sx={{ color: '#DA498D', fontSize: '20px' }} />
+                  <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '18px', sm: '20px' } }} />
                 </IconButton>
               </Box>
 
               <Box sx={{ borderBottom: '2px solid #69247C', mb: 4 }} />
 
-              <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                <Box sx={{ flex: 1, minWidth: '300px' }}>
-                  <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#333333', mb: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: { xs: 3, sm: 4 }, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: 1, minWidth: { xs: '100%', lg: '300px' }, width: { xs: '100%', lg: 'auto' } }}>
+                  <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#333333', mb: 2 }}>
                     Comfortable Attire
                   </Typography>
-                  <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: 3, backgroundColor: 'white' }}>
-                    <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                  <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white' }}>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 3 }, flexWrap: 'wrap' }}>
                       {[
                         { title: 'Mainstream Attires', items: [
                           { name: 'Casual Wear', selected: profileData.preferences?.casualWear },
@@ -1668,16 +1681,16 @@ const CompleteProfilePage = () => {
                           { name: 'Lingerie', selected: profileData.preferences?.lingerie }
                         ]}
                       ].map((column, colIndex) => (
-                        <Box key={colIndex} sx={{ flex: 1, minWidth: '150px' }}>
-                          <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '14px', color: '#333333', mb: 2 }}>
+                        <Box key={colIndex} sx={{ flex: 1, minWidth: { xs: '100%', sm: '150px' }, width: { xs: '100%', sm: 'auto' } }}>
+                          <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', mb: 2 }}>
                             {column.title}
                           </Typography>
                           {column.items.map((item, index) => (
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                              <Box sx={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: item.selected ? '#DA498D' : '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 1, cursor: 'pointer' }}>
-                                {item.selected && <Typography sx={{ color: 'white', fontSize: '10px', fontWeight: 'bold' }}>×</Typography>}
+                              <Box sx={{ width: { xs: '14px', sm: '16px' }, height: { xs: '14px', sm: '16px' }, borderRadius: '50%', backgroundColor: item.selected ? '#DA498D' : '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 1, cursor: 'pointer', flexShrink: 0 }}>
+                                {item.selected && <Typography sx={{ color: 'white', fontSize: { xs: '8px', sm: '10px' }, fontWeight: 'bold' }}>×</Typography>}
                               </Box>
-                              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '14px', color: '#333333' }}>
+                              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '12px', sm: '14px' }, color: '#333333' }}>
                                 {item.name}
                               </Typography>
                             </Box>
@@ -1688,11 +1701,11 @@ const CompleteProfilePage = () => {
                   </Box>
                 </Box>
 
-                <Box sx={{ flex: 1, minWidth: '300px' }}>
-                  <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#333333', mb: 2 }}>
+                <Box sx={{ flex: 1, minWidth: { xs: '100%', lg: '300px' }, width: { xs: '100%', lg: 'auto' } }}>
+                  <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#333333', mb: 2 }}>
                     Preferred Job Types
                   </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 0.75, sm: 1 } }}>
                     {[
                       { name: 'Modeling', selected: profileData.preferences?.modeling },
                       { name: 'Acting', selected: profileData.preferences?.acting },
@@ -1707,11 +1720,11 @@ const CompleteProfilePage = () => {
                       { name: 'Print', selected: profileData.preferences?.print },
                       { name: 'Digital', selected: profileData.preferences?.digital }
                     ].filter(item => item.selected).map((jobType, index) => (
-                      <Box key={index} sx={{ border: '1px solid #DA498D', borderRadius: '20px', px: 2, py: 1, backgroundColor: 'white', display: 'flex', alignItems: 'center', gap: 1, minWidth: '120px', justifyContent: 'center' }}>
-                        <Box sx={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#DA498D', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                          <Typography sx={{ color: 'white', fontSize: '10px', fontWeight: 'bold' }}>×</Typography>
+                      <Box key={index} sx={{ border: '1px solid #DA498D', borderRadius: '20px', px: { xs: 1.5, sm: 2 }, py: { xs: 0.75, sm: 1 }, backgroundColor: 'white', display: 'flex', alignItems: 'center', gap: 1, minWidth: { xs: '100px', sm: '120px' }, justifyContent: 'center', flex: { xs: '1 1 auto', sm: '0 0 auto' } }}>
+                        <Box sx={{ width: { xs: '14px', sm: '16px' }, height: { xs: '14px', sm: '16px' }, borderRadius: '50%', backgroundColor: '#DA498D', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                          <Typography sx={{ color: 'white', fontSize: { xs: '8px', sm: '10px' }, fontWeight: 'bold' }}>×</Typography>
                         </Box>
-                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '14px', color: '#333333' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '12px', sm: '14px' }, color: '#333333' }}>
                           {jobType.name}
                         </Typography>
                       </Box>
@@ -1727,31 +1740,43 @@ const CompleteProfilePage = () => {
             </Box>
 
             {/* Available From Section */}
-            <Box sx={{ mt: 4 }}>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#333333', mb: 2 }}>
+            <Box sx={{ mt: { xs: 3, sm: 4 } }}>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#333333', mb: 2 }}>
                 Available From
               </Typography>
 
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '16px', lineHeight: '140%', color: '#333333', mb: 2 }}>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '14px', sm: '16px' }, lineHeight: '140%', color: '#333333', mb: 2 }}>
                 {formatDate(profileData.preferences?.availableFromDate) || 'Not specified'}
               </Typography>
 
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-                <Box sx={{ width: '20px', height: '20px', border: '2px solid #1976d2', borderRadius: '4px', backgroundColor: profileData.preferences?.openForOutOfCountryShoots ? '#1976d2' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2 }}>
+                <Box sx={{ width: { xs: '18px', sm: '20px' }, height: { xs: '18px', sm: '20px' }, border: '2px solid #1976d2', borderRadius: '4px', backgroundColor: profileData.preferences?.openForOutOfCountryShoots ? '#1976d2' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2, flexShrink: 0 }}>
                   {profileData.preferences?.openForOutOfCountryShoots && (
-                    <Box sx={{ width: '8px', height: '12px', border: '2px solid white', borderTop: 'none', borderLeft: 'none', transform: 'rotate(45deg)', marginTop: '-2px' }} />
+                    <Box sx={{ width: { xs: '6px', sm: '8px' }, height: { xs: '10px', sm: '12px' }, border: '2px solid white', borderTop: 'none', borderLeft: 'none', transform: 'rotate(45deg)', marginTop: '-2px' }} />
                   )}
                 </Box>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '16px', lineHeight: '140%', color: '#333333' }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: { xs: '14px', sm: '16px' }, lineHeight: '140%', color: '#333333' }}>
                   Open for out of country shoots
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', mt: 6 }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 3 }, justifyContent: 'center', mt: { xs: 4, sm: 6 }, px: { xs: 2, sm: 0 } }}>
                 <Button 
                   variant="outlined" 
                   onClick={handleShareProfile}
-                  sx={{ border: '1px solid #DA498D', borderRadius: '8px', color: '#DA498D', fontFamily: 'Poppins', fontWeight: 600, fontSize: '16px', padding: '12px 32px', textTransform: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', '&:hover': { border: '1px solid #DA498D', backgroundColor: 'rgba(218, 73, 141, 0.04)' } }}
+                  sx={{ 
+                    border: '1px solid #DA498D', 
+                    borderRadius: '8px', 
+                    color: '#DA498D', 
+                    fontFamily: 'Poppins', 
+                    fontWeight: 600, 
+                    fontSize: { xs: '14px', sm: '16px' }, 
+                    padding: { xs: '10px 24px', sm: '12px 32px' }, 
+                    textTransform: 'none', 
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)', 
+                    width: { xs: '100%', sm: 'auto' },
+                    '&:hover': { border: '1px solid #DA498D', backgroundColor: 'rgba(218, 73, 141, 0.04)' } 
+                  }}
                 >
                   Share
                 </Button>
@@ -1765,10 +1790,11 @@ const CompleteProfilePage = () => {
                     color: 'white', 
                     fontFamily: 'Poppins', 
                     fontWeight: 600, 
-                    fontSize: '16px', 
-                    padding: '12px 32px', 
+                    fontSize: { xs: '14px', sm: '16px' }, 
+                    padding: { xs: '10px 24px', sm: '12px 32px' }, 
                     textTransform: 'none', 
                     boxShadow: '0 4px 8px rgba(0,0,0,0.1)', 
+                    width: { xs: '100%', sm: 'auto' },
                     '&:hover': { 
                       background: 'linear-gradient(90deg, #5a1f6a 0%, #C43A7A 100%)', 
                       boxShadow: '0 6px 12px rgba(0,0,0,0.15)' 
