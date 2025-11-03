@@ -316,7 +316,7 @@ class ProfileFlowManager {
       
       // Check for success - handle the new response format
       // Updated response structure: { success: true, data: {...}, message: "...", code: 200, status: "SUCCESS" }
-      const isSuccess = response.success && response.code === 200;
+      const isSuccess = response.success && (response.code === 200 || (response.code === undefined && response.status === 200));
       
       if (isSuccess) {
         // Response.data now contains the actual basic info data (already extracted from response.data.data)
@@ -392,18 +392,59 @@ class ProfileFlowManager {
           message: response.message || 'Basic information saved successfully!'
         };
       } else {
-        // Handle specific error cases
-        if (response.status === 409 || response.code === 409) {
-          if (response.error && response.error.includes('already exists')) {
-            return {
-              success: false,
-              error: 'A profile with this email or phone number already exists. This might be your existing profile. Please check if you already have a basic info profile or contact support.',
-              errorType: 'DUPLICATE_PROFILE'
-            };
+        // Handle specific error cases - check for duplicate errors regardless of status code
+        // Extract error message from multiple possible locations
+        const errorMessage = response.error || 
+                           response.message || 
+                           (response.data && typeof response.data === 'object' ? response.data.error || response.data.message : null) ||
+                           '';
+        const errorLower = errorMessage.toLowerCase();
+        const responseCode = response.code || (response.data && response.data.code) || response.status;
+        const responseStatus = response.status || (response.data && response.data.status);
+        
+        console.log('  Error details:', {
+          error: response.error,
+          message: response.message,
+          code: response.code,
+          responseCode: responseCode,
+          status: response.status,
+          responseStatus: responseStatus,
+          data: response.data,
+          errorMessage: errorMessage,
+          fullResponse: response
+        });
+        
+        // Check for duplicate phone number or email errors
+        if (errorLower.includes('already exists') || 
+            errorLower.includes('phone number already exists') || 
+            errorLower.includes('email already exists') ||
+            errorLower.includes('duplicate') ||
+            responseStatus === 409 || 
+            responseCode === 409 ||
+            (responseCode === 500 && errorLower.includes('phone')) ||
+            (responseCode === 500 && errorLower.includes('email')) ||
+            (response.status === 500 && errorLower.includes('phone')) ||
+            (response.status === 500 && errorLower.includes('email'))) {
+          
+          // Extract which field is duplicated
+          let duplicateField = 'information';
+          if (errorLower.includes('phone')) {
+            duplicateField = 'phone number';
+          } else if (errorLower.includes('email')) {
+            duplicateField = 'email';
           }
+          
+          return {
+            success: false,
+            error: `This ${duplicateField} is already registered. If this is your existing profile, you may need to update it instead. Please use a different ${duplicateField} or contact support if you believe this is an error.`,
+            errorType: 'DUPLICATE_PROFILE',
+            duplicateField: duplicateField
+          };
         }
         
-        throw new Error(response.error || response.message || 'Failed to save basic info');
+        // For other errors, extract a user-friendly message
+        const userFriendlyError = errorMessage || 'Failed to save basic info';
+        throw new Error(userFriendlyError);
       }
 
     } catch (error) {

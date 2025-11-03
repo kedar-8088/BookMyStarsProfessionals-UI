@@ -124,7 +124,7 @@ export const saveOrUpdateBasicInfo = async (basicInfoData) => {
   console.log('  Response data:', result.data);
   
   // Handle response structure: { code, status, message, data, error, exception }
-  if (result.success && result.data) {
+  if (result.data) {
     // Check if response follows the expected structure
     if (result.data.code === 200 && result.data.status === 'SUCCESS') {
       return {
@@ -135,11 +135,28 @@ export const saveOrUpdateBasicInfo = async (basicInfoData) => {
         status: result.data.status
       };
     } else if (result.data.code && result.data.code !== 200) {
+      // Handle error response - extract error details from nested structure
       return {
         success: false,
         data: result.data.data || null,
         error: result.data.error || result.data.message || 'Failed to save basic information',
+        message: result.data.message || result.data.error || 'Failed to save basic information',
         code: result.data.code,
+        status: result.data.status || 'ERROR'
+      };
+    }
+  }
+  
+  // Handle case where result.success is false but we still have data structure
+  if (!result.success && result.data) {
+    // Try to extract error from nested data structure
+    if (result.data.error || result.data.message || result.data.code) {
+      return {
+        success: false,
+        data: result.data.data || null,
+        error: result.data.error || result.data.message || 'Failed to save basic information',
+        message: result.data.message || result.data.error || 'Failed to save basic information',
+        code: result.data.code || result.status || 500,
         status: result.data.status || 'ERROR'
       };
     }

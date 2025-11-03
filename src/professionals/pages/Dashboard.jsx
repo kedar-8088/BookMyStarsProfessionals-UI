@@ -1,5 +1,19 @@
 import React from 'react';
-import { Box, Container, Typography, Button, Paper } from '@mui/material';
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Button, 
+  Paper, 
+  Grid, 
+  Card, 
+  CardContent, 
+  LinearProgress, 
+  CircularProgress,
+  Avatar,
+  Chip,
+  IconButton
+} from '@mui/material';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +23,18 @@ import { styled } from '@mui/material/styles';
 import carouselImage from '../../assets/images/carousel.png';
 import girlImage from '../../assets/images/hiringcard.png';
 import fullbodyImage from '../../assets/images/article3.png';
+import { getProfessionalsProfileById, getProfessionalsProfileByProfessional } from '../../API/professionalsProfileApi';
+import profileFlowManager from '../../utils/profileFlowManager';
+import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
+import { 
+  CheckCircle as CheckCircleIcon, 
+  Person as PersonIcon,
+  PhotoLibrary as PhotoLibraryIcon,
+  School as SchoolIcon,
+  Favorite as FavoriteIcon,
+  Visibility as VisibilityIcon,
+  TrendingUp as TrendingUpIcon
+} from '@mui/icons-material';
 
 const CarouselContainer = styled(Box)(({ theme }) => ({
   position: 'relative',

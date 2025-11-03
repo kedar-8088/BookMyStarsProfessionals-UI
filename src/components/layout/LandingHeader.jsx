@@ -451,13 +451,6 @@ const LandingHeader = () => {
           open={Boolean(mobileMenuAnchor)}
           onClose={handleMobileMenuClose}
           sx={{ display: { xs: 'block', md: 'none' } }}
-          TransitionComponent={motion.div}
-          TransitionProps={{
-            initial: { opacity: 0, scale: 0.8, y: -20 },
-            animate: { opacity: 1, scale: 1, y: 0 },
-            exit: { opacity: 0, scale: 0.8, y: -20 },
-            transition: { duration: 0.3 }
-          }}
         >
           <motion.div
             whileHover={{ x: 5 }}

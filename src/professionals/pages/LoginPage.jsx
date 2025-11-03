@@ -33,6 +33,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import loginRegisterImage from '../../assets/images/login&register.png';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 import { loginProfessional, sessionManager } from '../../API/authApi';
+import { getProfessionalsProfileByProfessional } from '../../API/professionalsProfileApi';
 
 const GradientAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
@@ -141,8 +142,8 @@ const LoginPage = () => {
       
       console.log('Full login response:', response);
 
-      // Backend returns LoginResponse with: token, user object containing professionalsId, userName
-      // Response structure: { token, user: { professionalsId, userName, mobileNumber } }
+      // Backend returns LoginResponse with: token, user object containing professionalsId, userName, mobileNumber, email
+      // Response structure: { token, user: { professionalsId, userName, mobileNumber, email } }
       if (response.success && response.data && response.data.token) {
         console.log('Login response structure:', response);
         
@@ -151,11 +152,15 @@ const LoginPage = () => {
         const userData = response.data.user || response.data; // Fallback if user is not nested
         const professionalsId = userData.professionalsId || response.data.professionalsId;
         const username = userData.userName || userData.username || response.data.username;
+        const mobileNumber = userData.mobileNumber || userData.phoneNumber || response.data.mobileNumber || response.data.phoneNumber;
+        const email = userData.email || response.data.email;
         
         console.log('Token:', token);
         console.log('User data:', userData);
         console.log('Professionals ID:', professionalsId);
         console.log('Username:', username);
+        console.log('Mobile Number:', mobileNumber);
+        console.log('Email:', email);
         
         if (!token) {
           console.error('Missing token in login response:', response);
@@ -169,15 +174,42 @@ const LoginPage = () => {
           return;
         }
         
-        // Construct user info for session
-        const userInfo = {
+        // Construct user info for session - include all available user data
+        let userInfo = {
           professionalsId: professionalsId,
-          userName: username || userData.userName || ''
+          userName: username || userData.userName || '',
+          mobileNumber: mobileNumber || '',
+          email: email || ''
         };
         
-        console.log('Extracted user info:', userInfo);
-        
+        // Save session first (needed for authenticated API calls)
         sessionManager.setUserSession(userInfo, token);
+        
+        // If email is not in login response, try to fetch it from profile
+        if (!userInfo.email) {
+          try {
+            console.log('Email not found in login response, fetching from profile...');
+            const profileResponse = await getProfessionalsProfileByProfessional(professionalsId);
+            
+            if (profileResponse.success && profileResponse.data?.code === 1000) {
+              const profileEmail = profileResponse.data?.data?.basicInfo?.email || 
+                                  profileResponse.data?.data?.email ||
+                                  profileResponse.data?.data?.professionalsDto?.email;
+              
+              if (profileEmail) {
+                userInfo.email = profileEmail;
+                console.log('Email fetched from profile:', profileEmail);
+                // Update session with email
+                sessionManager.setUserSession(userInfo, token);
+              }
+            }
+          } catch (profileError) {
+            console.warn('Could not fetch email from profile:', profileError);
+            // Continue without email - not critical
+          }
+        }
+        
+        console.log('Extracted user info:', userInfo);
         
         showSuccessAlert('Login Successful!', 'Welcome back! Redirecting to your dashboard...');
         setTimeout(() => {
