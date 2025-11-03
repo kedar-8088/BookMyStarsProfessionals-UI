@@ -644,9 +644,9 @@ const PhysicalDetailsPage = () => {
       const result = await profileFlowManager.savePhysicalDetails(formData);
       
       if (result.success) {
-        showSuccessAlert('Physical Details Saved!', 'Your physical details have been saved successfully! Redirecting to next step...');
+        showSuccessAlert('Physical Details Saved!', 'Your physical details have been saved successfully! Redirecting to complete profile...');
         setTimeout(() => {
-          navigate('/showcase');
+          navigate('/complete-profile');
         }, 2000);
       } else {
         if (result.errors && result.errors.length > 0) {
@@ -1389,7 +1389,7 @@ const PhysicalDetailsPage = () => {
           }}>
              {/* Back Button */}
              <Button
-                  onClick={() => navigate('/basic-info')}
+                  onClick={() => navigate('/complete-profile')}
                   sx={{
                     background: 'transparent',
                     color: '#69247C',

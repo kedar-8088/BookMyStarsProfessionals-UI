@@ -457,9 +457,9 @@ const BasicInfoPage = () => {
       const result = await profileFlowManager.saveBasicInfo(formData, uploadedPhoto?.file);
       
       if (result.success) {
-        showSuccessAlert('Profile Saved!', result.message || 'Basic information saved successfully! Redirecting to next step...');
+        showSuccessAlert('Profile Saved!', result.message || 'Basic information saved successfully! Redirecting to complete profile...');
         setTimeout(() => {
-          navigate('/physical-details');
+          navigate('/complete-profile');
         }, 2000);
       } else {
         if (result.errors && result.errors.length > 0) {

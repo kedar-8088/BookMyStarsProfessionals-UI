@@ -129,7 +129,7 @@ const ShowcasePage = () => {
     try {
       // Validate and submit showcase data
       await handleShowcaseSubmit();
-      navigate('/education-background');
+      navigate('/complete-profile');
     } catch (error) {
       console.error('Error submitting showcase:', error);
       // Don't navigate if there's an error
@@ -153,6 +153,7 @@ const ShowcasePage = () => {
 
   // Photo upload state
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
+  const [photoBoxCount, setPhotoBoxCount] = useState(1);
 
   const handlePhotoUpload = (category, event) => {
     const file = event.target.files[0];
@@ -172,6 +173,51 @@ const ShowcasePage = () => {
         mediaFiles: [...(prev.mediaFiles || []), file]
       }));
     }
+  };
+
+  // Handle general photo upload (for portfolio photos, not pose-specific)
+  const handleGeneralPhotoUpload = (event, photoIndex) => {
+    const file = event.target.files[0];
+    if (file) {
+      const category = `Photo ${photoIndex + 1}`;
+      // Check if photo already exists for this category
+      const existingPhotoIndex = uploadedPhotos.findIndex(photo => photo.category === category);
+      
+      const newPhoto = {
+        id: Date.now(),
+        name: file.name,
+        size: Math.round(file.size / 1024) + ' KB',
+        category: category,
+        file: file
+      };
+      
+      if (existingPhotoIndex >= 0) {
+        // Replace existing photo
+        const oldPhoto = uploadedPhotos[existingPhotoIndex];
+        setUploadedPhotos(prev => {
+          const updated = [...prev];
+          updated[existingPhotoIndex] = newPhoto;
+          return updated;
+        });
+        
+        // Update showcase data - remove old file and add new one
+        setShowcaseData(prev => ({
+          ...prev,
+          mediaFiles: prev.mediaFiles.filter(f => f !== oldPhoto.file).concat([file])
+        }));
+      } else {
+        // Add new photo
+        setUploadedPhotos(prev => [...prev, newPhoto]);
+        
+        // Update showcase data with media files
+        setShowcaseData(prev => ({
+          ...prev,
+          mediaFiles: [...(prev.mediaFiles || []), file]
+        }));
+      }
+    }
+    // Reset input to allow selecting the same file again
+    event.target.value = '';
   };
 
   const handlePhotoRemove = (photoId) => {
@@ -195,27 +241,87 @@ const ShowcasePage = () => {
     }
   };
 
+  // Function to add more photo upload boxes
+  const handleAddMorePhotoBox = () => {
+    setPhotoBoxCount(prev => prev + 1);
+  };
+
+  // Function to remove photo upload box
+  const handleRemovePhotoBox = (indexToRemove) => {
+    if (photoBoxCount > 1) {
+      const category = `Photo ${indexToRemove + 1}`;
+      // Remove photo if uploaded in that box
+      const photoToRemove = uploadedPhotos.find(p => p.category === category);
+      if (photoToRemove) {
+        handlePhotoRemove(photoToRemove.id);
+      }
+      
+      // Reorganize remaining photos before removing the box
+      // Shift categories for photos after the removed box
+      setUploadedPhotos(prev => {
+        return prev.map(photo => {
+          const photoNum = parseInt(photo.category.replace('Photo ', ''));
+          if (photoNum > indexToRemove + 1) {
+            return {
+              ...photo,
+              category: `Photo ${photoNum - 1}`
+            };
+          }
+          return photo;
+        });
+      });
+      
+      // Remove the box (decrease count)
+      setPhotoBoxCount(prev => prev - 1);
+    }
+  };
+
   // Videos upload state
   const [uploadedVideos, setUploadedVideos] = useState([]);
+  const [videoBoxCount, setVideoBoxCount] = useState(1);
 
-  const handleVideoUpload = (event) => {
+  const handleVideoUpload = (event, videoIndex) => {
     const file = event.target.files[0];
     if (file) {
+      const category = `Video ${videoIndex + 1}`;
+      // Check if video already exists for this category
+      const existingVideoIndex = uploadedVideos.findIndex(video => video.category === category);
+      
       const newVideo = {
         id: Date.now(),
         name: file.name,
         size: Math.round(file.size / 1024) + ' KB', // Convert to KB
-        category: `Video ${uploadedVideos.length + 1}`, // Assign category like videos
+        category: category,
         file: file
       };
-      setUploadedVideos(prev => [...prev, newVideo]);
       
-      // Update showcase data with media files
-      setShowcaseData(prev => ({
-        ...prev,
-        mediaFiles: [...(prev.mediaFiles || []), file]
-      }));
+      if (existingVideoIndex >= 0) {
+        // Replace existing video
+        const oldVideo = uploadedVideos[existingVideoIndex];
+        setUploadedVideos(prev => {
+          const updated = [...prev];
+          updated[existingVideoIndex] = newVideo;
+          return updated;
+        });
+        
+        // Update showcase data - remove old file and add new one
+        setShowcaseData(prev => ({
+          ...prev,
+          mediaFiles: prev.mediaFiles.filter(f => f !== oldVideo.file).concat([file])
+        }));
+      } else {
+        // Add new video
+        setUploadedVideos(prev => [...prev, newVideo]);
+        
+        // Update showcase data with media files
+        setShowcaseData(prev => ({
+          ...prev,
+          mediaFiles: [...(prev.mediaFiles || []), file]
+        }));
+      }
     }
+    // Reset input to allow selecting the same file again
+    event.target.value = '';
   };
 
   const handleVideoRemove = (videoId) => {
@@ -236,6 +342,41 @@ const ShowcasePage = () => {
     const videoToRemove = uploadedVideos.find(video => video.category === category);
     if (videoToRemove) {
       handleVideoRemove(videoToRemove.id);
+    }
+  };
+
+  // Function to add more video upload boxes
+  const handleAddMoreVideoBox = () => {
+    setVideoBoxCount(prev => prev + 1);
+  };
+
+  // Function to remove video upload box
+  const handleRemoveVideoBox = (indexToRemove) => {
+    if (videoBoxCount > 1) {
+      const category = `Video ${indexToRemove + 1}`;
+      // Remove video if uploaded in that box
+      const videoToRemove = uploadedVideos.find(v => v.category === category);
+      if (videoToRemove) {
+        handleVideoRemove(videoToRemove.id);
+      }
+      
+      // Reorganize remaining videos before removing the box
+      // Shift categories for videos after the removed box
+      setUploadedVideos(prev => {
+        return prev.map(video => {
+          const videoNum = parseInt(video.category.replace('Video ', ''));
+          if (videoNum > indexToRemove + 1) {
+            return {
+              ...video,
+              category: `Video ${videoNum - 1}`
+            };
+          }
+          return video;
+        });
+      });
+      
+      // Remove the box (decrease count)
+      setVideoBoxCount(prev => prev - 1);
     }
   };
 
@@ -921,7 +1062,7 @@ const ShowcasePage = () => {
               }}>
                 {/* Back Button */}
                 <Button
-                  onClick={() => navigate('/physical-details')}
+                  onClick={() => navigate('/complete-profile')}
                   sx={{
                     minWidth: 'auto',
                     padding: 0,
@@ -1138,6 +1279,7 @@ const ShowcasePage = () => {
               {/* Videos Section Container */}
               <Box sx={{
                 width: '1000px',
+                maxHeight: '302px',
                 height: '302px',
                 borderRadius: '10px',
                 background: '#FFFFFF',
@@ -1147,15 +1289,19 @@ const ShowcasePage = () => {
                 padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'center',
+                justifyContent: 'flex-start',
+                overflowY: 'auto',
+                overflowX: 'hidden',
                 '@media (max-width: 900px)': {
                   width: '90%',
-                  height: 'auto',
-                  minHeight: '302px'
+                  maxHeight: '302px',
+                  height: '302px'
                 },
                 '@media (max-width: 768px)': {
                   width: '95%',
-                  padding: '16px'
+                  padding: '16px',
+                  maxHeight: '280px',
+                  height: '280px'
                 }
               }}>
 
@@ -1166,6 +1312,7 @@ const ShowcasePage = () => {
                   gap: '24px',
                   justifyContent: 'center',
                   flexWrap: 'wrap',
+                  alignItems: 'flex-start',
                   '@media (max-width: 768px)': {
                     gap: '16px'
                   },
@@ -1173,509 +1320,261 @@ const ShowcasePage = () => {
                     gap: '12px'
                   }
                 }}>
-                  {/* Upload Box 1 */}
-                  <Box
+                  {/* Dynamic Video Upload Boxes */}
+                  {Array.from({ length: videoBoxCount }).map((_, index) => {
+                    const category = `Video ${index + 1}`;
+                    const video = uploadedVideos.find(v => v.category === category);
+                    
+                    return (
+                      <Box
+                        key={index}
+                        sx={{
+                          width: '200px',
+                          height: '200px',
+                          background: '#FFFFFF',
+                          border: '1px dashed',
+                          borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '16px',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          '@media (max-width: 768px)': {
+                            width: '180px',
+                            height: '180px',
+                            borderRadius: '6px',
+                            gap: '12px'
+                          },
+                          '@media (max-width: 480px)': {
+                            width: '150px',
+                            height: '150px',
+                            borderRadius: '6px',
+                            gap: '8px'
+                          }
+                        }}
+                      >
+                        {/* Check if video is uploaded */}
+                        {video ? (
+                          <>
+                            {/* Uploaded Video Preview */}
+                            <video
+                              src={URL.createObjectURL(video.file)}
+                              controls
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                objectFit: 'cover',
+                                borderRadius: '8px'
+                              }}
+                            />
+                            {/* Overlay for better visibility */}
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                top: 10,
+                                left: 10,
+                                right: 10,
+                                zIndex: 2,
+                                background: 'rgba(0, 0, 0, 0.6)',
+                                borderRadius: '4px',
+                                padding: '4px 8px'
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontFamily: 'Poppins',
+                                  fontWeight: 500,
+                                  fontSize: '12px',
+                                  color: 'white',
+                                  textAlign: 'center'
+                                }}
+                              >
+                                {category}
+                              </Typography>
+                            </Box>
+                          </>
+                        ) : (
+                          <>
+                            {/* Video Icon - Default */}
+                            <Box
+                              sx={{
+                                width: '53px',
+                                height: '59px',
+                                '@media (max-width: 768px)': {
+                                  width: '46px',
+                                  height: '52px'
+                                },
+                                '@media (max-width: 480px)': {
+                                  width: '40px',
+                                  height: '45px'
+                                },
+                                background: 'linear-gradient(42.07deg, #6ACAD8 11.27%, #AE6BAC 93.84%)',
+                                borderRadius: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '1px dashed',
+                                borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1'
+                              }}
+                            >
+                              <VideoLibraryIcon sx={{
+                                color: 'white',
+                                fontSize: '30px',
+                                '@media (max-width: 768px)': {
+                                  fontSize: '25px'
+                                },
+                                '@media (max-width: 480px)': {
+                                  fontSize: '20px'
+                                }
+                              }} />
+                            </Box>
+                          </>
+                        )}
+
+                        {/* Hidden File Input */}
+                        <input
+                          type="file"
+                          accept="video/mp4,video/avi,video/mov,video/wmv,video/flv,video/webm,video/mkv,video/3gp,video/quicktime"
+                          style={{ display: 'none' }}
+                          id={`video-upload-${index + 1}`}
+                          onChange={(e) => handleVideoUpload(e, index)}
+                        />
+
+                        {/* Upload/Change Button */}
+                        <Button
+                          component="label"
+                          htmlFor={`video-upload-${index + 1}`}
+                          sx={{
+                            background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+                            color: '#FFFFFF',
+                            fontFamily: 'Poppins',
+                            fontWeight: 500,
+                            fontSize: '16px',
+                            lineHeight: '140%',
+                            letterSpacing: '0%',
+                            textTransform: 'none',
+                            px: '24px',
+                            py: '8px',
+                            borderRadius: '4px',
+                            zIndex: 2,
+                            position: 'relative',
+                            '@media (max-width: 768px)': {
+                              fontSize: '14px',
+                              px: '20px',
+                              py: '6px'
+                            },
+                            '@media (max-width: 480px)': {
+                              fontSize: '12px',
+                              px: '16px',
+                              py: '4px'
+                            },
+                            '&:hover': {
+                              background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
+                            }
+                          }}
+                        >
+                          {video ? 'Change' : 'Upload'}
+                        </Button>
+
+                        {/* Remove Video Button - Show only when video is uploaded */}
+                        {video && (
+                          <IconButton
+                            onClick={() => handleCategoryVideoRemove(category)}
+                            sx={{
+                              position: 'absolute',
+                              top: 10,
+                              right: 10,
+                              zIndex: 3,
+                              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 1)'
+                              }
+                            }}
+                          >
+                            <CloseIcon sx={{ fontSize: 16, color: '#666' }} />
+                          </IconButton>
+                        )}
+
+                        {/* Remove Box Button - Show on all boxes when more than 1 box exists */}
+                        {videoBoxCount > 1 && (
+                          <IconButton
+                            onClick={() => handleRemoveVideoBox(index)}
+                            sx={{
+                              position: 'absolute',
+                              top: 10,
+                              left: 10,
+                              zIndex: 3,
+                              backgroundColor: 'rgba(218, 73, 141, 0.9)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(218, 73, 141, 1)'
+                              }
+                            }}
+                          >
+                            <CloseIcon sx={{ fontSize: 16, color: '#FFFFFF' }} />
+                          </IconButton>
+                        )}
+                      </Box>
+                    );
+                  })}
+                  
+                  {/* Add More Button */}
+                  <Button
+                    onClick={handleAddMoreVideoBox}
                     sx={{
                       width: '200px',
                       height: '200px',
                       background: '#FFFFFF',
                       border: '1px dashed',
-                      borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
+                      borderColor: '#DA498D',
                       borderRadius: '8px',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '16px',
-                      position: 'relative',
-                      overflow: 'hidden',
+                      gap: '8px',
+                      cursor: 'pointer',
                       '@media (max-width: 768px)': {
                         width: '180px',
-                        height: '180px',
-                        borderRadius: '6px',
-                        gap: '12px'
+                        height: '180px'
                       },
                       '@media (max-width: 480px)': {
                         width: '150px',
-                        height: '150px',
-                        borderRadius: '6px',
-                        gap: '8px'
+                        height: '150px'
+                      },
+                      '&:hover': {
+                        borderColor: '#69247C',
+                        backgroundColor: 'rgba(218, 73, 141, 0.05)'
                       }
                     }}
                   >
-                    {/* Check if video is uploaded */}
-                    {uploadedVideos.find(video => video.category === 'Video 1') ? (
-                      <>
-                        {/* Uploaded Video Preview */}
-                        <video
-                          src={URL.createObjectURL(uploadedVideos.find(video => video.category === 'Video 1').file)}
-                          controls
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            objectFit: 'cover',
-                            borderRadius: '8px'
-                          }}
-                        />
-                        {/* Overlay for better visibility */}
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            top: 10,
-                            left: 10,
-                            right: 10,
-                            zIndex: 2,
-                            background: 'rgba(0, 0, 0, 0.6)',
-                            borderRadius: '4px',
-                            padding: '4px 8px'
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: '12px',
-                              color: 'white',
-                              textAlign: 'center'
-                            }}
-                          >
-                            Video 1
-                          </Typography>
-                        </Box>
-                      </>
-                    ) : (
-                      <>
-                        {/* Video Icon - Default */}
-                        <Box
-                          sx={{
-                            width: '53px',
-                            height: '59px',
-                            '@media (max-width: 768px)': {
-                              width: '46px',
-                              height: '52px'
-                            },
-                            '@media (max-width: 480px)': {
-                              width: '40px',
-                              height: '45px'
-                            },
-                            background: 'linear-gradient(42.07deg, #6ACAD8 11.27%, #AE6BAC 93.84%)',
-                            borderRadius: '4px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '1px dashed',
-                            borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1'
-                          }}
-                        >
-                          <VideoLibraryIcon sx={{
-                            color: 'white',
-                            fontSize: '30px',
-                            '@media (max-width: 768px)': {
-                              fontSize: '25px'
-                            },
-                            '@media (max-width: 480px)': {
-                              fontSize: '20px'
-                            }
-                          }} />
-                        </Box>
-                      </>
-                    )}
-
-                    {/* Hidden File Input */}
-                    <input
-                      type="file"
-                      accept="video/mp4,video/avi,video/mov,video/wmv,video/flv,video/webm,video/mkv,video/3gp,video/quicktime"
-                      style={{ display: 'none' }}
-                      id="video-upload-1"
-                      onChange={handleVideoUpload}
-                    />
-
-                    {/* Upload/Change Button */}
-                    <Button
-                      component="label"
-                      htmlFor="video-upload-1"
-                      sx={{
-                        background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                        color: '#FFFFFF',
-                        fontFamily: 'Poppins',
-                        fontWeight: 500,
-                        fontSize: '16px',
-                        lineHeight: '140%',
-                        letterSpacing: '0%',
-                        textTransform: 'none',
-                        px: '24px',
-                        py: '8px',
-                        borderRadius: '4px',
-                        zIndex: 2,
-                        position: 'relative',
-                        '@media (max-width: 768px)': {
-                          fontSize: '14px',
-                          px: '20px',
-                          py: '6px'
-                        },
-                        '@media (max-width: 480px)': {
-                          fontSize: '12px',
-                          px: '16px',
-                          py: '4px'
-                        },
-                        '&:hover': {
-                          background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
-                        }
-                      }}
-                    >
-                      {uploadedVideos.find(video => video.category === 'Video 1') ? 'Change' : 'Upload'}
-                    </Button>
-
-                    {/* Remove Button - Show only when video is uploaded */}
-                    {uploadedVideos.find(video => video.category === 'Video 1') && (
-                      <IconButton
-                        onClick={() => handleCategoryVideoRemove('Video 1')}
-                        sx={{
-                          position: 'absolute',
-                          top: 10,
-                          right: 10,
-                          zIndex: 3,
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          '&:hover': {
-                            backgroundColor: 'rgba(255, 255, 255, 1)'
-                          }
-                        }}
-                      >
-                        <CloseIcon sx={{ fontSize: 16, color: '#666' }} />
-                      </IconButton>
-                    )}
-                  </Box>
-
-                  {/* Upload Box 2 */}
-                  <Box
-                    sx={{
-                      width: { xs: 150, sm: 180, md: 200 },
-                      height: { xs: 150, sm: 180, md: 200 },
-                      background: '#FFFFFF',
-                      border: '1px dashed',
-                      borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
-                      borderRadius: '8px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 2,
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {/* Check if video is uploaded */}
-                    {uploadedVideos.find(video => video.category === 'Video 2') ? (
-                      <>
-                        {/* Uploaded Video Preview */}
-                        <video
-                          src={URL.createObjectURL(uploadedVideos.find(video => video.category === 'Video 2').file)}
-                          controls
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            objectFit: 'cover',
-                            borderRadius: '8px'
-                          }}
-                        />
-                        {/* Overlay for better visibility */}
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            top: 10,
-                            left: 10,
-                            right: 10,
-                            zIndex: 2,
-                            background: 'rgba(0, 0, 0, 0.6)',
-                            borderRadius: '4px',
-                            padding: '4px 8px'
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: '12px',
-                              color: 'white',
-                              textAlign: 'center'
-                            }}
-                          >
-                            Video 2
-                          </Typography>
-                        </Box>
-                      </>
-                    ) : (
-                      <>
-                        {/* Video Icon - Default */}
-                        <Box
-                          sx={{
-                            width: '53px',
-                            height: '59px',
-                            '@media (max-width: 768px)': {
-                              width: '46px',
-                              height: '52px'
-                            },
-                            '@media (max-width: 480px)': {
-                              width: '40px',
-                              height: '45px'
-                            },
-                            background: 'linear-gradient(42.07deg, #6ACAD8 11.27%, #AE6BAC 93.84%)',
-                            borderRadius: '4px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '1px dashed',
-                            borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1'
-                          }}
-                        >
-                          <VideoLibraryIcon sx={{
-                            color: 'white',
-                            fontSize: '30px',
-                            '@media (max-width: 768px)': {
-                              fontSize: '25px'
-                            },
-                            '@media (max-width: 480px)': {
-                              fontSize: '20px'
-                            }
-                          }} />
-                        </Box>
-                      </>
-                    )}
-
-                    {/* Hidden File Input */}
-                    <input
-                      type="file"
-                      accept="video/mp4,video/avi,video/mov,video/wmv,video/flv,video/webm,video/mkv,video/3gp,video/quicktime"
-                      style={{ display: 'none' }}
-                      id="video-upload-2"
-                      onChange={handleVideoUpload}
-                    />
-
-                    {/* Upload/Change Button */}
-                    <Button
-                      component="label"
-                      htmlFor="video-upload-2"
-                      sx={{
-                        background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                        color: '#FFFFFF',
-                        fontFamily: 'Poppins',
-                        fontWeight: 500,
-                        fontSize: '16px',
-                        lineHeight: '140%',
-                        letterSpacing: '0%',
-                        textTransform: 'none',
-                        px: '24px',
-                        py: '8px',
-                        borderRadius: '4px',
-                        zIndex: 2,
-                        position: 'relative',
-                        '@media (max-width: 768px)': {
-                          fontSize: '14px',
-                          px: '20px',
-                          py: '6px'
-                        },
-                        '@media (max-width: 480px)': {
-                          fontSize: '12px',
-                          px: '16px',
-                          py: '4px'
-                        },
-                        '&:hover': {
-                          background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
-                        }
-                      }}
-                    >
-                      {uploadedVideos.find(video => video.category === 'Video 2') ? 'Change' : 'Upload'}
-                    </Button>
-
-                    {/* Remove Button - Show only when video is uploaded */}
-                    {uploadedVideos.find(video => video.category === 'Video 2') && (
-                      <IconButton
-                        onClick={() => handleCategoryVideoRemove('Video 2')}
-                        sx={{
-                          position: 'absolute',
-                          top: 10,
-                          right: 10,
-                          zIndex: 3,
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          '&:hover': {
-                            backgroundColor: 'rgba(255, 255, 255, 1)'
-                          }
-                        }}
-                      >
-                        <CloseIcon sx={{ fontSize: 16, color: '#666' }} />
-                      </IconButton>
-                    )}
-                  </Box>
-
-                  {/* Upload Box 3 */}
-                  <Box
-                    sx={{
-                      width: { xs: 150, sm: 180, md: 200 },
-                      height: { xs: 150, sm: 180, md: 200 },
-                      background: '#FFFFFF',
-                      border: '1px dashed',
-                      borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
-                      borderRadius: '8px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 2,
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {/* Check if video is uploaded */}
-                    {uploadedVideos.find(video => video.category === 'Video 3') ? (
-                      <>
-                        {/* Uploaded Video Preview */}
-                        <video
-                          src={URL.createObjectURL(uploadedVideos.find(video => video.category === 'Video 3').file)}
-                          controls
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            objectFit: 'cover',
-                            borderRadius: '8px'
-                          }}
-                        />
-                        {/* Overlay for better visibility */}
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            top: 10,
-                            left: 10,
-                            right: 10,
-                            zIndex: 2,
-                            background: 'rgba(0, 0, 0, 0.6)',
-                            borderRadius: '4px',
-                            padding: '4px 8px'
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: '12px',
-                              color: 'white',
-                              textAlign: 'center'
-                            }}
-                          >
-                            Video 3
-                          </Typography>
-                        </Box>
-                      </>
-                    ) : (
-                      <>
-                        {/* Video Icon - Default */}
-                        <Box
-                          sx={{
-                            width: '53px',
-                            height: '59px',
-                            '@media (max-width: 768px)': {
-                              width: '46px',
-                              height: '52px'
-                            },
-                            '@media (max-width: 480px)': {
-                              width: '40px',
-                              height: '45px'
-                            },
-                            background: 'linear-gradient(42.07deg, #6ACAD8 11.27%, #AE6BAC 93.84%)',
-                            borderRadius: '4px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '1px dashed',
-                            borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1'
-                          }}
-                        >
-                          <VideoLibraryIcon sx={{
-                            color: 'white',
-                            fontSize: '30px',
-                            '@media (max-width: 768px)': {
-                              fontSize: '25px'
-                            },
-                            '@media (max-width: 480px)': {
-                              fontSize: '20px'
-                            }
-                          }} />
-                        </Box>
-                      </>
-                    )}
-
-                    {/* Hidden File Input */}
-                    <input
-                      type="file"
-                      accept="video/mp4,video/avi,video/mov,video/wmv,video/flv,video/webm,video/mkv,video/3gp,video/quicktime"
-                      style={{ display: 'none' }}
-                      id="video-upload-3"
-                      onChange={handleVideoUpload}
-                    />
-
-                    {/* Upload/Change Button */}
-                    <Button
-                      component="label"
-                      htmlFor="video-upload-3"
-                      sx={{
-                        background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                        color: '#FFFFFF',
-                        fontFamily: 'Poppins',
-                        fontWeight: 500,
-                        fontSize: '16px',
-                        lineHeight: '140%',
-                        letterSpacing: '0%',
-                        textTransform: 'none',
-                        px: '24px',
-                        py: '8px',
-                        borderRadius: '4px',
-                        zIndex: 2,
-                        position: 'relative',
-                        '@media (max-width: 768px)': {
-                          fontSize: '14px',
-                          px: '20px',
-                          py: '6px'
-                        },
-                        '@media (max-width: 480px)': {
-                          fontSize: '12px',
-                          px: '16px',
-                          py: '4px'
-                        },
-                        '&:hover': {
-                          background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
-                        }
-                      }}
-                    >
-                      {uploadedVideos.find(video => video.category === 'Video 3') ? 'Change' : 'Upload'}
-                    </Button>
-
-                    {/* Remove Button - Show only when video is uploaded */}
-                    {uploadedVideos.find(video => video.category === 'Video 3') && (
-                      <IconButton
-                        onClick={() => handleCategoryVideoRemove('Video 3')}
-                        sx={{
-                          position: 'absolute',
-                          top: 10,
-                          right: 10,
-                          zIndex: 3,
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          '&:hover': {
-                            backgroundColor: 'rgba(255, 255, 255, 1)'
-                          }
-                        }}
-                      >
-                        <CloseIcon sx={{ fontSize: 16, color: '#666' }} />
-                      </IconButton>
-                    )}
-                  </Box>
+                    <AddPhotoAlternateIcon sx={{ 
+                      color: '#DA498D', 
+                      fontSize: '40px',
+                      '@media (max-width: 768px)': {
+                        fontSize: '35px'
+                      },
+                      '@media (max-width: 480px)': {
+                        fontSize: '30px'
+                      }
+                    }} />
+                    <Typography sx={{
+                      fontFamily: 'Poppins',
+                      fontWeight: 500,
+                      fontSize: '14px',
+                      color: '#DA498D',
+                      '@media (max-width: 480px)': {
+                        fontSize: '12px'
+                      }
+                    }}>
+                      Add More
+                    </Typography>
+                  </Button>
                 </Box>
               </Box>
 
@@ -1745,6 +1644,7 @@ const ShowcasePage = () => {
                 {/* Photos Container */}
                 <Box sx={{
                   width: '988px',
+                  maxHeight: '368px',
                   height: '368px',
                   borderRadius: '10px',
                   background: '#FFFFFF',
@@ -1754,15 +1654,19 @@ const ShowcasePage = () => {
                   padding: '20px',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'center',
+                  justifyContent: 'flex-start',
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
                   '@media (max-width: 1050px)': {
                     width: '90%',
-                    height: 'auto',
-                    minHeight: '368px'
+                    maxHeight: '368px',
+                    height: '368px'
                   },
                   '@media (max-width: 768px)': {
                     width: '95%',
-                    padding: '16px'
+                    padding: '16px',
+                    maxHeight: '350px',
+                    height: '350px'
                   }
                 }}>
 
@@ -1770,554 +1674,306 @@ const ShowcasePage = () => {
                   {dropdownStates.photos && (
                     <>
 
-                      {/* Photo Upload Boxes Row */}
-                      <Box sx={{
-                        display: 'flex',
-                        gap: { xs: 2, sm: 3 },
-                        justifyContent: 'center',
-                        flexWrap: 'wrap',
-                        mb: { xs: 3, sm: 4 }
-                      }}>
-                        {/* Headshot Box */}
-                        <Box
-                          sx={{
-                            width: { xs: 150, sm: 175, md: 200 },
-                            height: { xs: 190, sm: 220, md: 250 },
-                            background: '#FFFFFF',
-                            border: '2px solid #69247C',
-                            borderRadius: '8px',
+                      {/* Additional Photos Section - Dynamic Upload Boxes */}
+                      <Box>
+                        {/* Photo Upload Boxes Container */}
+                        <Box sx={{
+                          width: '1000px',
+                          maxHeight: '302px',
+                          height: '302px',
+                          borderRadius: '10px',
+                          background: '#FFFFFF',
+                          boxShadow: '0px 0px 4px 0px #F2B6C6',
+                          opacity: 1,
+                          margin: '0 auto',
+                          padding: '20px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'flex-start',
+                          overflowY: 'auto',
+                          overflowX: 'hidden',
+                          '@media (max-width: 900px)': {
+                            width: '90%',
+                            maxHeight: '302px',
+                            height: '302px'
+                          },
+                          '@media (max-width: 768px)': {
+                            width: '95%',
+                            padding: '16px',
+                            maxHeight: '280px',
+                            height: '280px'
+                          }
+                        }}>
+                          {/* Dynamic Photo Upload Boxes */}
+                          <Box sx={{
                             display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
+                            gap: '24px',
                             justifyContent: 'center',
-                            gap: 2,
-                            position: 'relative',
-                            overflow: 'hidden'
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: { xs: '14px', sm: '16px', md: '18px' },
-                              lineHeight: '140%',
-                              letterSpacing: '0%',
-                              color: '#444444',
-                              position: 'absolute',
-                              top: 10,
-                              left: 10,
-                              zIndex: 2
-                            }}
-                          >
-                            Headshot
-                          </Typography>
-
-                          {/* Check if headshot photo is uploaded */}
-                          {uploadedPhotos.find(photo => photo.category === 'Headshot') ? (
-                            <>
-                              {/* Uploaded Photo Preview */}
-                              <Box
-                                sx={{
-                                  width: '100%',
-                                  height: '100%',
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0,
-                                  backgroundImage: `url(${URL.createObjectURL(uploadedPhotos.find(photo => photo.category === 'Headshot').file)})`,
-                                  backgroundSize: 'cover',
-                                  backgroundPosition: 'center',
-                                  backgroundRepeat: 'no-repeat',
-                                  borderRadius: '8px'
-                                }}
-                              />
-                              {/* Overlay for better text visibility */}
-                              <Box
-                                sx={{
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0,
-                                  width: '100%',
-                                  height: '100%',
-                                  background: 'rgba(0, 0, 0, 0.3)',
-                                  zIndex: 1,
-                                  borderRadius: '8px'
-                                }}
-                              />
-                            </>
-                          ) : (
-                            <>
-                              {/* Person Image - Default */}
-                              <Box
-                                sx={{
-                                  width: 60,
-                                  height: 60,
-                                  borderRadius: '50%',
-                                  border: '2px solid',
-                                  borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  mt: 3,
-                                  overflow: 'hidden'
-                                }}
-                              >
-                                <img
-                                  src={headImage}
-                                  alt="Headshot"
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover'
+                            flexWrap: 'wrap',
+                            alignItems: 'flex-start',
+                            '@media (max-width: 768px)': {
+                              gap: '16px'
+                            },
+                            '@media (max-width: 480px)': {
+                              gap: '12px'
+                            }
+                          }}>
+                            {Array.from({ length: photoBoxCount }).map((_, index) => {
+                              const category = `Photo ${index + 1}`;
+                              const photo = uploadedPhotos.find(p => p.category === category);
+                              
+                              return (
+                                <Box
+                                  key={index}
+                                  sx={{
+                                    width: '200px',
+                                    height: '200px',
+                                    background: '#FFFFFF',
+                                    border: '1px dashed',
+                                    borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
+                                    borderRadius: '8px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '16px',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    '@media (max-width: 768px)': {
+                                      width: '180px',
+                                      height: '180px',
+                                      borderRadius: '6px',
+                                      gap: '12px'
+                                    },
+                                    '@media (max-width: 480px)': {
+                                      width: '150px',
+                                      height: '150px',
+                                      borderRadius: '6px',
+                                      gap: '8px'
+                                    }
                                   }}
-                                />
-                              </Box>
-                            </>
-                          )}
+                                >
+                                  {/* Check if photo is uploaded */}
+                                  {photo ? (
+                                    <>
+                                      {/* Uploaded Photo Preview */}
+                                      <Box
+                                        sx={{
+                                          width: '100%',
+                                          height: '100%',
+                                          position: 'absolute',
+                                          top: 0,
+                                          left: 0,
+                                          backgroundImage: `url(${URL.createObjectURL(photo.file)})`,
+                                          backgroundSize: 'cover',
+                                          backgroundPosition: 'center',
+                                          backgroundRepeat: 'no-repeat',
+                                          borderRadius: '8px'
+                                        }}
+                                      />
+                                      {/* Overlay for better visibility */}
+                                      <Box
+                                        sx={{
+                                          position: 'absolute',
+                                          top: 10,
+                                          left: 10,
+                                          right: 10,
+                                          zIndex: 2,
+                                          background: 'rgba(0, 0, 0, 0.6)',
+                                          borderRadius: '4px',
+                                          padding: '4px 8px'
+                                        }}
+                                      >
+                                        <Typography
+                                          sx={{
+                                            fontFamily: 'Poppins',
+                                            fontWeight: 500,
+                                            fontSize: '12px',
+                                            color: 'white',
+                                            textAlign: 'center'
+                                          }}
+                                        >
+                                          {category}
+                                        </Typography>
+                                      </Box>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {/* Photo Icon - Default */}
+                                      <Box
+                                        sx={{
+                                          width: '53px',
+                                          height: '59px',
+                                          '@media (max-width: 768px)': {
+                                            width: '46px',
+                                            height: '52px'
+                                          },
+                                          '@media (max-width: 480px)': {
+                                            width: '40px',
+                                            height: '45px'
+                                          },
+                                          background: 'linear-gradient(42.07deg, #6ACAD8 11.27%, #AE6BAC 93.84%)',
+                                          borderRadius: '4px',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          border: '1px dashed',
+                                          borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1'
+                                        }}
+                                      >
+                                        <AddPhotoAlternateIcon sx={{
+                                          color: 'white',
+                                          fontSize: '30px',
+                                          '@media (max-width: 768px)': {
+                                            fontSize: '25px'
+                                          },
+                                          '@media (max-width: 480px)': {
+                                            fontSize: '20px'
+                                          }
+                                        }} />
+                                      </Box>
+                                    </>
+                                  )}
 
-                          {/* Hidden File Input */}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            style={{ display: 'none' }}
-                            id="headshot-upload"
-                            onChange={(e) => handlePhotoUpload('Headshot', e)}
-                          />
+                                  {/* Hidden File Input */}
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    id={`photo-upload-${index + 1}`}
+                                    onChange={(e) => handleGeneralPhotoUpload(e, index)}
+                                  />
 
-                          {/* Upload/Change Button */}
-                          <Button
-                            component="label"
-                            htmlFor="headshot-upload"
-                            sx={{
-                              background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                              color: '#FFFFFF',
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: '16px',
-                              '@media (max-width: 768px)': {
-                                fontSize: '14px'
-                              },
-                              '@media (max-width: 480px)': {
-                                fontSize: '12px'
-                              },
-                              textTransform: 'none',
-                              px: { xs: 2, sm: 2.5, md: 3 },
-                              py: { xs: 0.5, sm: 0.75, md: 1 },
-                              borderRadius: '4px',
-                              zIndex: 2,
-                              position: 'relative',
-                              '&:hover': {
-                                background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
-                              }
-                            }}
-                          >
-                            {uploadedPhotos.find(photo => photo.category === 'Headshot') ? '+ Change' : '+ Upload'}
-                          </Button>
+                                  {/* Upload/Change Button */}
+                                  <Button
+                                    component="label"
+                                    htmlFor={`photo-upload-${index + 1}`}
+                                    sx={{
+                                      background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+                                      color: '#FFFFFF',
+                                      fontFamily: 'Poppins',
+                                      fontWeight: 500,
+                                      fontSize: '16px',
+                                      lineHeight: '140%',
+                                      letterSpacing: '0%',
+                                      textTransform: 'none',
+                                      px: '24px',
+                                      py: '8px',
+                                      borderRadius: '4px',
+                                      zIndex: 2,
+                                      position: 'relative',
+                                      '@media (max-width: 768px)': {
+                                        fontSize: '14px',
+                                        px: '20px',
+                                        py: '6px'
+                                      },
+                                      '@media (max-width: 480px)': {
+                                        fontSize: '12px',
+                                        px: '16px',
+                                        py: '4px'
+                                      },
+                                      '&:hover': {
+                                        background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
+                                      }
+                                    }}
+                                  >
+                                    {photo ? 'Change' : 'Upload'}
+                                  </Button>
 
-                          {/* Remove Button - Show only when photo is uploaded */}
-                          {uploadedPhotos.find(photo => photo.category === 'Headshot') && (
-                            <IconButton
-                              onClick={() => handleCategoryPhotoRemove('Headshot')}
+                                  {/* Remove Photo Button - Show only when photo is uploaded */}
+                                  {photo && (
+                                    <IconButton
+                                      onClick={() => handleCategoryPhotoRemove(category)}
+                                      sx={{
+                                        position: 'absolute',
+                                        top: 10,
+                                        right: 10,
+                                        zIndex: 3,
+                                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                        '&:hover': {
+                                          backgroundColor: 'rgba(255, 255, 255, 1)'
+                                        }
+                                      }}
+                                    >
+                                      <CloseIcon sx={{ fontSize: 16, color: '#666' }} />
+                                    </IconButton>
+                                  )}
+
+                                  {/* Remove Box Button - Show on all boxes when more than 1 box exists */}
+                                  {photoBoxCount > 1 && (
+                                    <IconButton
+                                      onClick={() => handleRemovePhotoBox(index)}
+                                      sx={{
+                                        position: 'absolute',
+                                        top: 10,
+                                        left: 10,
+                                        zIndex: 3,
+                                        backgroundColor: 'rgba(218, 73, 141, 0.9)',
+                                        '&:hover': {
+                                          backgroundColor: 'rgba(218, 73, 141, 1)'
+                                        }
+                                      }}
+                                    >
+                                      <CloseIcon sx={{ fontSize: 16, color: '#FFFFFF' }} />
+                                    </IconButton>
+                                  )}
+                                </Box>
+                              );
+                            })}
+                            
+                            {/* Add More Button */}
+                            <Button
+                              onClick={handleAddMorePhotoBox}
                               sx={{
-                                position: 'absolute',
-                                top: 10,
-                                right: 10,
-                                zIndex: 3,
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                width: '200px',
+                                height: '200px',
+                                background: '#FFFFFF',
+                                border: '1px dashed',
+                                borderColor: '#DA498D',
+                                borderRadius: '8px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                cursor: 'pointer',
+                                '@media (max-width: 768px)': {
+                                  width: '180px',
+                                  height: '180px'
+                                },
+                                '@media (max-width: 480px)': {
+                                  width: '150px',
+                                  height: '150px'
+                                },
                                 '&:hover': {
-                                  backgroundColor: 'rgba(255, 255, 255, 1)'
+                                  borderColor: '#69247C',
+                                  backgroundColor: 'rgba(218, 73, 141, 0.05)'
                                 }
                               }}
                             >
-                              <CloseIcon sx={{ fontSize: 16, color: '#666' }} />
-                            </IconButton>
-                          )}
-                        </Box>
-
-                        {/* Left Side Box */}
-                        <Box
-                          sx={{
-                            width: { xs: 150, sm: 175, md: 200 },
-                            height: { xs: 190, sm: 220, md: 250 },
-                            background: '#FFFFFF',
-                            border: '1px dashed',
-                            borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 2,
-                            position: 'relative',
-                            overflow: 'hidden'
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: { xs: '14px', sm: '16px', md: '18px' },
-                              lineHeight: '140%',
-                              letterSpacing: '0%',
-                              color: '#444444',
-                              position: 'absolute',
-                              top: 10,
-                              left: 10,
-                              zIndex: 2
-                            }}
-                          >
-                            Left Side
-                          </Typography>
-
-                          {/* Check if left side photo is uploaded */}
-                          {uploadedPhotos.find(photo => photo.category === 'Left Side') ? (
-                            <>
-                              {/* Uploaded Photo Preview */}
-                              <Box
-                                sx={{
-                                  width: '100%',
-                                  height: '100%',
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0,
-                                  backgroundImage: `url(${URL.createObjectURL(uploadedPhotos.find(photo => photo.category === 'Left Side').file)})`,
-                                  backgroundSize: 'cover',
-                                  backgroundPosition: 'center',
-                                  backgroundRepeat: 'no-repeat',
-                                  borderRadius: '8px'
-                                }}
-                              />
-                              {/* Overlay for better text visibility */}
-                              <Box
-                                sx={{
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0,
-                                  width: '100%',
-                                  height: '100%',
-                                  background: 'rgba(0, 0, 0, 0.3)',
-                                  zIndex: 1,
-                                  borderRadius: '8px'
-                                }}
-                              />
-                            </>
-                          ) : (
-                            <>
-                              {/* Left Side Image - Default */}
-                              <Box
-                                sx={{
-                                  width: 60,
-                                  height: 60,
-                                  borderRadius: '50%',
-                                  border: '2px solid',
-                                  borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  mt: 3,
-                                  overflow: 'hidden'
-                                }}
-                              >
-                                <img
-                                  src={leftImage}
-                                  alt="Left side view"
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover'
-                                  }}
-                                />
-                              </Box>
-                            </>
-                          )}
-
-                          {/* Hidden File Input */}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            style={{ display: 'none' }}
-                            id="leftside-upload"
-                            onChange={(e) => handlePhotoUpload('Left Side', e)}
-                          />
-
-                          {/* Upload/Change Button */}
-                          <Button
-                            component="label"
-                            htmlFor="leftside-upload"
-                            sx={{
-                              background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                              color: '#FFFFFF',
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: '16px',
-                              '@media (max-width: 768px)': {
-                                fontSize: '14px'
-                              },
-                              '@media (max-width: 480px)': {
-                                fontSize: '12px'
-                              },
-                              textTransform: 'none',
-                              px: { xs: 2, sm: 2.5, md: 3 },
-                              py: { xs: 0.5, sm: 0.75, md: 1 },
-                              borderRadius: '4px',
-                              zIndex: 2,
-                              position: 'relative',
-                              '&:hover': {
-                                background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
-                              }
-                            }}
-                          >
-                            {uploadedPhotos.find(photo => photo.category === 'Left Side') ? '+ Change' : '+ Upload'}
-                          </Button>
-
-                          {/* Remove Button - Show only when photo is uploaded */}
-                          {uploadedPhotos.find(photo => photo.category === 'Left Side') && (
-                            <IconButton
-                              onClick={() => handleCategoryPhotoRemove('Left Side')}
-                              sx={{
-                                position: 'absolute',
-                                top: 10,
-                                right: 10,
-                                zIndex: 3,
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                '&:hover': {
-                                  backgroundColor: 'rgba(255, 255, 255, 1)'
+                              <AddPhotoAlternateIcon sx={{ 
+                                color: '#DA498D', 
+                                fontSize: '40px',
+                                '@media (max-width: 768px)': {
+                                  fontSize: '35px'
+                                },
+                                '@media (max-width: 480px)': {
+                                  fontSize: '30px'
                                 }
-                              }}
-                            >
-                              <CloseIcon sx={{ fontSize: 16, color: '#666' }} />
-                            </IconButton>
-                          )}
-                        </Box>
-
-                        {/* Full Body Box */}
-                        <Box
-                          sx={{
-                            width: { xs: 150, sm: 175, md: 200 },
-                            height: { xs: 190, sm: 220, md: 250 },
-                            background: '#FFFFFF',
-                            border: '1px dashed',
-                            borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 2,
-                            position: 'relative',
-                            overflow: 'hidden'
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: { xs: '14px', sm: '16px', md: '18px' },
-                              lineHeight: '140%',
-                              letterSpacing: '0%',
-                              color: '#444444',
-                              position: 'absolute',
-                              top: 10,
-                              left: 10,
-                              zIndex: 2
-                            }}
-                          >
-                            Full Body (Optional)
-                          </Typography>
-
-                          {/* Check if full body photo is uploaded */}
-                          {uploadedPhotos.find(photo => photo.category === 'Full Body') ? (
-                            <>
-                              {/* Uploaded Photo Preview */}
-                              <Box
-                                sx={{
-                                  width: '100%',
-                                  height: '100%',
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0,
-                                  backgroundImage: `url(${URL.createObjectURL(uploadedPhotos.find(photo => photo.category === 'Full Body').file)})`,
-                                  backgroundSize: 'cover',
-                                  backgroundPosition: 'center',
-                                  backgroundRepeat: 'no-repeat',
-                                  borderRadius: '8px'
-                                }}
-                              />
-                              {/* Overlay for better text visibility */}
-                              <Box
-                                sx={{
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0,
-                                  width: '100%',
-                                  height: '100%',
-                                  background: 'rgba(0, 0, 0, 0.3)',
-                                  zIndex: 1,
-                                  borderRadius: '8px'
-                                }}
-                              />
-                            </>
-                          ) : (
-                            <>
-                              {/* Full Body Image - Default */}
-                              <Box
-                                sx={{
-                                  width: 60,
-                                  height: 60,
-                                  borderRadius: '50%',
-                                  border: '2px solid',
-                                  borderImage: 'linear-gradient(180deg, #69247C 0%, #DA498D 100%) 1',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  mt: 3,
-                                  overflow: 'hidden'
-                                }}
-                              >
-                                <img
-                                  src={fullbodyImage}
-                                  alt="Full body view"
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover'
-                                  }}
-                                />
-                              </Box>
-                            </>
-                          )}
-
-                          {/* Hidden File Input */}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            style={{ display: 'none' }}
-                            id="fullbody-upload"
-                            onChange={(e) => handlePhotoUpload('Full Body', e)}
-                          />
-
-                          {/* Upload/Change Button */}
-                          <Button
-                            component="label"
-                            htmlFor="fullbody-upload"
-                            sx={{
-                              background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                              color: '#FFFFFF',
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: '16px',
-                              '@media (max-width: 768px)': {
-                                fontSize: '14px'
-                              },
-                              '@media (max-width: 480px)': {
-                                fontSize: '12px'
-                              },
-                              textTransform: 'none',
-                              px: { xs: 2, sm: 2.5, md: 3 },
-                              py: { xs: 0.5, sm: 0.75, md: 1 },
-                              borderRadius: '4px',
-                              zIndex: 2,
-                              position: 'relative',
-                              '&:hover': {
-                                background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
-                              }
-                            }}
-                          >
-                            {uploadedPhotos.find(photo => photo.category === 'Full Body') ? '+ Change' : '+ Upload'}
-                          </Button>
-
-                          {/* Remove Button - Show only when photo is uploaded */}
-                          {uploadedPhotos.find(photo => photo.category === 'Full Body') && (
-                            <IconButton
-                              onClick={() => handleCategoryPhotoRemove('Full Body')}
-                              sx={{
-                                position: 'absolute',
-                                top: 10,
-                                right: 10,
-                                zIndex: 3,
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                '&:hover': {
-                                  backgroundColor: 'rgba(255, 255, 255, 1)'
+                              }} />
+                              <Typography sx={{
+                                fontFamily: 'Poppins',
+                                fontWeight: 500,
+                                fontSize: '14px',
+                                color: '#DA498D',
+                                '@media (max-width: 480px)': {
+                                  fontSize: '12px'
                                 }
-                              }}
-                            >
-                              <CloseIcon sx={{ fontSize: 16, color: '#666' }} />
-                            </IconButton>
-                          )}
-                        </Box>
-
-                        {/* Additional Photos Box */}
-                        <Box
-                          sx={{
-                            width: { xs: 150, sm: 175, md: 200 },
-                            height: { xs: 190, sm: 220, md: 250 },
-                            background: '#F5F5F5',
-                            border: '1px solid #D9D9D9',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 2,
-                            position: 'relative'
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: { xs: '14px', sm: '16px', md: '18px' },
-                              lineHeight: '140%',
-                              letterSpacing: '0%',
-                              color: '#444444',
-                              position: 'absolute',
-                              top: 10,
-                              left: 10
-                            }}
-                          >
-                            Additional photos
-                          </Typography>
-
-                          {/* Lock Icon */}
-                          <Box
-                            sx={{
-                              width: 60,
-                              height: 60,
-                              borderRadius: '50%',
-                              border: '2px solid #D9D9D9',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              mt: 3
-                            }}
-                          >
-                            <AddPhotoAlternateIcon sx={{ color: '#D9D9D9', fontSize: 30 }} />
+                              }}>
+                                Add More
+                              </Typography>
+                            </Button>
                           </Box>
-
-                          {/* Unlock Button */}
-                          <Button
-                            sx={{
-                              background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                              color: '#FFFFFF',
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: '16px',
-                              '@media (max-width: 768px)': {
-                                fontSize: '14px'
-                              },
-                              '@media (max-width: 480px)': {
-                                fontSize: '12px'
-                              },
-                              textTransform: 'none',
-                              px: { xs: 2, sm: 2.5, md: 3 },
-                              py: { xs: 0.5, sm: 0.75, md: 1 },
-                              borderRadius: '4px',
-                              '&:hover': {
-                                background: 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)'
-                              }
-                            }}
-                          >
-                            Unlock Features
-                          </Button>
                         </Box>
                       </Box>
 
@@ -3135,7 +2791,7 @@ const ShowcasePage = () => {
                 }}>
                   {/* Back Button */}
                   <Button
-                    onClick={() => navigate('/physical-details')}
+                    onClick={() => navigate('/complete-profile')}
                     sx={{
                       background: 'transparent',
                       color: '#69247C',

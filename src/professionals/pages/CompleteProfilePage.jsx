@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Alert, Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import EditIcon from '@mui/icons-material/Edit';
-import { Person as PersonIcon, Phone as PhoneIcon, Work as WorkIcon, CalendarToday as CalendarTodayIcon, Favorite as FavoriteIcon, Email as EmailIcon, LocationOn as LocationOnIcon } from '@mui/icons-material';
+import { Person as PersonIcon, Phone as PhoneIcon, Work as WorkIcon, CalendarToday as CalendarTodayIcon, Favorite as FavoriteIcon, Email as EmailIcon, LocationOn as LocationOnIcon, ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
 import menImage from '../../assets/images/Men.jpg';
 import { getProfessionalsProfileById, saveOrUpdateProfessionalsProfile, updateProfessionalsProfile } from '../../API/professionalsProfileApi';
 import { sessionManager } from '../../API/authApi';
@@ -12,6 +12,8 @@ import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/pro
 import AuthImage from '../../components/common/AuthImage';
 import AuthVideo from '../../components/common/AuthVideo';
 import Swal from 'sweetalert2';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const CompleteProfilePage = () => {
   const navigate = useNavigate();
@@ -20,6 +22,10 @@ const CompleteProfilePage = () => {
   const [error, setError] = useState(null);
   const [profileId, setProfileId] = useState(null);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [headlineAnchorEl, setHeadlineAnchorEl] = useState(null);
+  const headlineMenuOpen = Boolean(headlineAnchorEl);
+  const [showAllVideos, setShowAllVideos] = useState(false);
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
 
   // Initialize profile ID on mount
   useEffect(() => {
@@ -128,6 +134,96 @@ const CompleteProfilePage = () => {
     return 'N/A';
   };
 
+  // Handle Share Profile on Social Media
+  const handleShareProfile = () => {
+    if (!profileData) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Profile Not Ready',
+        text: 'Please wait for your profile to load before sharing.',
+        confirmButtonColor: '#69247C'
+      });
+      return;
+    }
+
+    const profileName = getFullName();
+    const profileHeadline = profileData.basicInfo?.profileHeadline || 'Professional Profile';
+    const currentUrl = window.location.href;
+    const shareText = `Check out ${profileName}'s professional profile: ${profileHeadline}`;
+
+    // Check if Web Share API is available (mobile devices)
+    if (navigator.share) {
+      navigator.share({
+        title: `${profileName} - Professional Profile`,
+        text: shareText,
+        url: currentUrl,
+      }).catch((error) => {
+        console.log('Error sharing:', error);
+      });
+    } else {
+      // Show social media sharing options
+      Swal.fire({
+        title: 'Share Profile',
+        html: `
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #1877F2; color: white; border-radius: 8px; text-decoration: none; font-weight: 500;">
+              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              Share on Facebook
+            </a>
+            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(currentUrl)}" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #1DA1F2; color: white; border-radius: 8px; text-decoration: none; font-weight: 500;">
+              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+              </svg>
+              Share on Twitter
+            </a>
+            <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #0077B5; color: white; border-radius: 8px; text-decoration: none; font-weight: 500;">
+              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+              Share on LinkedIn
+            </a>
+            <a href="https://wa.me/?text=${encodeURIComponent(shareText + ' ' + currentUrl)}" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #25D366; color: white; border-radius: 8px; text-decoration: none; font-weight: 500;">
+              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Share on WhatsApp
+            </a>
+            <button onclick="(async function(){try{await navigator.clipboard.writeText('${currentUrl}');Swal.close();Swal.fire({icon:'success',title:'Copied!',text:'Profile link copied to clipboard',confirmButtonColor:'#69247C',timer:2000});}catch(e){Swal.close();Swal.fire({icon:'error',title:'Error',text:'Failed to copy link',confirmButtonColor:'#69247C'});}})()" 
+                    style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #6c757d; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; width: 100%;">
+              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+              </svg>
+              Copy Link
+            </button>
+          </div>
+        `,
+        showConfirmButton: false,
+        showCancelButton: true,
+        cancelButtonText: 'Close',
+        cancelButtonColor: '#69247C',
+        width: '400px',
+        customClass: {
+          popup: 'swal2-popup-custom',
+          htmlContainer: 'swal2-html-container-custom'
+        }
+      });
+    }
+  };
+
   // Navigation handlers for edit icons
   const handleEditBasicInfo = () => {
     navigate('/basic-info');
@@ -147,6 +243,382 @@ const CompleteProfilePage = () => {
 
   const handleEditPreferences = () => {
     navigate('/preferences');
+  };
+
+  const handleHeadlineMenuOpen = (event) => {
+    setHeadlineAnchorEl(event.currentTarget);
+  };
+
+  const handleHeadlineMenuClose = () => {
+    setHeadlineAnchorEl(null);
+  };
+
+  const handleHeadlineSelect = (headline) => {
+    // Navigate to basic info page to edit the headline
+    handleHeadlineMenuClose();
+    navigate('/basic-info');
+  };
+
+  // Handle Download Profile as PDF
+  const handleDownloadProfile = async () => {
+    if (!profileData) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Profile Not Ready',
+        text: 'Please wait for your profile to load before downloading.',
+        confirmButtonColor: '#69247C'
+      });
+      return;
+    }
+
+    try {
+      // Show loading alert
+      Swal.fire({
+        title: 'Generating PDF...',
+        text: 'Please wait while we prepare your profile document',
+        icon: 'info',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // Create a temporary container for PDF content
+      const pdfContent = document.createElement('div');
+      pdfContent.style.position = 'absolute';
+      pdfContent.style.left = '-9999px';
+      pdfContent.style.width = '210mm'; // A4 width
+      pdfContent.style.padding = '20mm';
+      pdfContent.style.backgroundColor = 'white';
+      pdfContent.style.fontFamily = 'Poppins, Arial, sans-serif';
+      pdfContent.style.color = '#333333';
+
+      // Helper function to create section
+      const createSection = (title, content) => {
+        const section = document.createElement('div');
+        section.style.marginBottom = '30px';
+        section.innerHTML = `
+          <div style="font-size: 22px; font-weight: 600; color: #DA498D; margin-bottom: 10px; border-bottom: 2px solid #69247C; padding-bottom: 10px;">
+            ${title}
+          </div>
+          ${content}
+        `;
+        return section;
+      };
+
+      // Helper function to create info row
+      const createInfoRow = (label, value) => {
+        return `
+          <div style="display: flex; margin-bottom: 10px;">
+            <span style="font-weight: 600; color: #333333; min-width: 150px;">${label}:</span>
+            <span style="color: #666666;">${value || 'N/A'}</span>
+          </div>
+        `;
+      };
+
+      // Profile Header
+      const header = document.createElement('div');
+      header.style.marginBottom = '30px';
+      header.style.textAlign = 'center';
+      header.innerHTML = `
+        <h1 style="font-size: 28px; font-weight: 700; color: #69247C; margin-bottom: 10px;">Complete Profile</h1>
+        <div style="border-bottom: 3px solid #DA498D; margin: 20px 0;"></div>
+      `;
+      pdfContent.appendChild(header);
+
+      // Basic Details Section
+      let basicDetailsContent = `
+        <div style="margin-bottom: 15px;">
+          ${createInfoRow('Name', getFullName())}
+          ${createInfoRow('Headline', profileData.basicInfo?.profileHeadline || 'N/A')}
+          ${createInfoRow('Phone', profileData.basicInfo?.phoneNo || profileData.professionalsDto?.phoneNumber || 'N/A')}
+          ${createInfoRow('Email', profileData.basicInfo?.email || profileData.professionalsDto?.email || 'N/A')}
+          ${createInfoRow('Category', profileData.basicInfo?.category?.categoryName || 'N/A')}
+          ${createInfoRow('Date of Birth', formatDate(profileData.basicInfo?.dateOfBirth))}
+          ${createInfoRow('Marital Status', profileData.basicInfo?.maritalStatus?.maritalStatusName || 'N/A')}
+          ${createInfoRow('Location', `${profileData.basicInfo?.state?.stateName || ''}, ${profileData.basicInfo?.city?.cityName || ''}`.replace(/^,\s*|,\s*$/g, '') || 'N/A')}
+        </div>
+      `;
+      pdfContent.appendChild(createSection('Basic Details', basicDetailsContent));
+
+      // Physical Details Section
+      let physicalDetailsContent = `
+        <div style="margin-bottom: 15px;">
+          <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1; min-width: 30%;">${createInfoRow('Body Type', profileData.styleProfile?.bodyType?.bodyTypeName || 'N/A')}</div>
+            <div style="flex: 1; min-width: 30%;">${createInfoRow('Height', profileData.styleProfile?.height ? `${profileData.styleProfile.height} cm` : 'N/A')}</div>
+            <div style="flex: 1; min-width: 30%;">${createInfoRow('Weight', profileData.styleProfile?.weight ? `${profileData.styleProfile.weight} kg` : 'N/A')}</div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1; min-width: 30%;">${createInfoRow('Shoe Size', profileData.styleProfile?.shoeSize?.shoeSizeName || 'N/A')}</div>
+            <div style="flex: 1; min-width: 30%;">${createInfoRow('Chest', profileData.styleProfile?.chest ? `${profileData.styleProfile.chest} inch` : 'N/A')}</div>
+            <div style="flex: 1; min-width: 30%;">${createInfoRow('Waist', profileData.styleProfile?.waist ? `${profileData.styleProfile.waist} inch` : 'N/A')}</div>
+          </div>
+          <div style="margin-bottom: 15px;">
+            ${createInfoRow('Skin Color', profileData.styleProfile?.skinColor?.skinColorName || 'N/A')}
+            ${createInfoRow('Hair Color', profileData.styleProfile?.hairColor?.hairColorName || 'N/A')}
+            ${createInfoRow('Eye Color', profileData.styleProfile?.eyeColor?.eyeColorName || 'N/A')}
+            ${createInfoRow('Allergies', profileData.styleProfile?.allergies || 'N/A')}
+          </div>
+        </div>
+      `;
+      pdfContent.appendChild(createSection('Physical Details', physicalDetailsContent));
+
+      // Photos Section (excluding videos)
+      const photos = profileData.showcase?.files?.filter(file => file.isImage) || [];
+      if (photos.length > 0) {
+        let photosContent = `
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+            ${photos.map((photo, index) => `
+              <div style="flex: 1; min-width: 30%; max-width: 32%; border: 1px solid #DA498D; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="color: #666666; font-size: 12px; margin-top: 5px;">Photo ${index + 1}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        pdfContent.appendChild(createSection('Photos', photosContent));
+      }
+
+      // Social Media Presence Section
+      const socialPresence = profileData.showcase?.socialPresence || [];
+      if (socialPresence.length > 0) {
+        let socialContent = `
+          <div style="margin-bottom: 15px;">
+            ${socialPresence.map((url, index) => createInfoRow(`Link ${index + 1}`, url)).join('')}
+          </div>
+        `;
+        pdfContent.appendChild(createSection('Social Media Presence', socialContent));
+      }
+
+      // Languages Section
+      const languages = profileData.showcase?.languages || [];
+      if (languages.length > 0) {
+        let languagesContent = `
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+            ${languages.map(lang => `
+              <span style="background: linear-gradient(90deg, #DA498D 0%, #69247C 100%); color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px;">
+                ${lang.languageName}
+              </span>
+            `).join('')}
+          </div>
+        `;
+        pdfContent.appendChild(createSection('Languages', languagesContent));
+      }
+
+      // Educational Background Section
+      if (profileData.workExperiences && profileData.workExperiences.length > 0) {
+        let workExpContent = `
+          <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 18px; font-weight: 600; color: #333333; margin-bottom: 15px;">Work Experience</h3>
+            ${profileData.workExperiences.map((exp, index) => `
+              <div style="border: 1px solid #DA498D; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                ${createInfoRow('Category', exp.categoryName)}
+                ${createInfoRow('Role', exp.roleTitle)}
+                ${createInfoRow('Project Name', exp.projectName)}
+                ${createInfoRow('Year', exp.year)}
+                <div style="margin-top: 10px;">
+                  <div style="font-weight: 600; color: #333333; margin-bottom: 5px;">Description:</div>
+                  <div style="color: #666666; line-height: 1.6;">${exp.description || 'N/A'}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        pdfContent.appendChild(createSection('Educational Background', workExpContent));
+      }
+
+      // Education Section
+      if (profileData.educations && profileData.educations.length > 0) {
+        let educationContent = `
+          <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 18px; font-weight: 600; color: #333333; margin-bottom: 15px;">Education</h3>
+            ${profileData.educations.map((edu, index) => `
+              <div style="border: 1px solid #DA498D; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                ${createInfoRow('Highest Qualification', edu.highestQualification)}
+                ${createInfoRow('Academy Name', edu.academyName)}
+                ${createInfoRow('Passout Year', edu.passoutYear)}
+              </div>
+            `).join('')}
+          </div>
+        `;
+        const educationSection = document.createElement('div');
+        educationSection.style.marginBottom = '30px';
+        educationSection.innerHTML = educationContent;
+        pdfContent.appendChild(educationSection);
+      }
+
+      // Skills Section
+      if (profileData.professionalSkills && profileData.professionalSkills.length > 0) {
+        let skillsContent = `
+          <div style="margin-bottom: 15px;">
+            ${profileData.professionalSkills.map((skill, index) => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F8F9FA; border-radius: 8px; margin-bottom: 10px;">
+                <span style="font-weight: 500; color: #444444;">${skill.skillName}</span>
+                <span style="color: #666666;">${'★'.repeat(skill.rating || 0)}${'☆'.repeat(5 - (skill.rating || 0))}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        const skillsSection = document.createElement('div');
+        skillsSection.style.marginBottom = '30px';
+        skillsSection.innerHTML = `
+          <div style="font-size: 22px; font-weight: 600; color: #DA498D; margin-bottom: 10px; border-bottom: 2px solid #69247C; padding-bottom: 10px;">
+            Skills
+          </div>
+          ${skillsContent}
+        `;
+        pdfContent.appendChild(skillsSection);
+      }
+
+      // Certifications Section
+      if (profileData.certifications && profileData.certifications.length > 0) {
+        let certContent = `
+          <div style="margin-bottom: 15px;">
+            ${profileData.certifications.map((cert, index) => `
+              <div style="border: 1px solid #DA498D; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                ${createInfoRow('Certification Name', cert.certificationName)}
+                ${createInfoRow('Issued By', cert.issuedBy)}
+                ${createInfoRow('Issue Date', cert.issueDate)}
+                ${createInfoRow('Credential ID', cert.credentialId)}
+              </div>
+            `).join('')}
+          </div>
+        `;
+        const certSection = document.createElement('div');
+        certSection.style.marginBottom = '30px';
+        certSection.innerHTML = `
+          <div style="font-size: 22px; font-weight: 600; color: #DA498D; margin-bottom: 10px; border-bottom: 2px solid #69247C; padding-bottom: 10px;">
+            Certifications
+          </div>
+          ${certContent}
+        `;
+        pdfContent.appendChild(certSection);
+      }
+
+      // Preferences Section
+      let preferencesContent = `
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 18px; font-weight: 600; color: #333333; margin-bottom: 15px;">Comfortable Attire</h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+            <div style="flex: 1; min-width: 30%;">
+              <div style="font-weight: 600; color: #333333; margin-bottom: 10px;">Mainstream Attires</div>
+              ${[
+                { name: 'Casual Wear', selected: profileData.preferences?.casualWear },
+                { name: 'Traditional', selected: profileData.preferences?.traditional },
+                { name: 'Party Western', selected: profileData.preferences?.partyWestern },
+                { name: 'Formal', selected: profileData.preferences?.formal }
+              ].filter(item => item.selected).map(item => `
+                <div style="margin-bottom: 5px;">✓ ${item.name}</div>
+              `).join('')}
+            </div>
+            <div style="flex: 1; min-width: 30%;">
+              <div style="font-weight: 600; color: #333333; margin-bottom: 10px;">Functional Attires</div>
+              ${[
+                { name: 'Sports', selected: profileData.preferences?.sports },
+                { name: 'Cultural', selected: profileData.preferences?.cultural },
+                { name: 'Historical', selected: profileData.preferences?.historical },
+                { name: 'Swimmer', selected: profileData.preferences?.swimmer }
+              ].filter(item => item.selected).map(item => `
+                <div style="margin-bottom: 5px;">✓ ${item.name}</div>
+              `).join('')}
+            </div>
+            <div style="flex: 1; min-width: 30%;">
+              <div style="font-weight: 600; color: #333333; margin-bottom: 10px;">Optional Attires</div>
+              ${[
+                { name: 'Cosplay Costume', selected: profileData.preferences?.cosplayCostume },
+                { name: 'Lingerie', selected: profileData.preferences?.lingerie }
+              ].filter(item => item.selected).map(item => `
+                <div style="margin-bottom: 5px;">✓ ${item.name}</div>
+              `).join('')}
+            </div>
+          </div>
+          <h3 style="font-size: 18px; font-weight: 600; color: #333333; margin-bottom: 15px;">Preferred Job Types</h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+            ${[
+              { name: 'Modeling', selected: profileData.preferences?.modeling },
+              { name: 'Acting', selected: profileData.preferences?.acting },
+              { name: 'Commercial', selected: profileData.preferences?.commercial },
+              { name: 'Fashion', selected: profileData.preferences?.fashion },
+              { name: 'Film', selected: profileData.preferences?.film },
+              { name: 'Television', selected: profileData.preferences?.television },
+              { name: 'Music', selected: profileData.preferences?.music },
+              { name: 'Event', selected: profileData.preferences?.event },
+              { name: 'Photography', selected: profileData.preferences?.photography },
+              { name: 'Runway', selected: profileData.preferences?.runway },
+              { name: 'Print', selected: profileData.preferences?.print },
+              { name: 'Digital', selected: profileData.preferences?.digital }
+            ].filter(item => item.selected).map(item => `
+              <span style="border: 1px solid #DA498D; border-radius: 20px; padding: 5px 15px; font-size: 14px;">${item.name}</span>
+            `).join('')}
+          </div>
+          <div style="margin-top: 15px;">
+            ${createInfoRow('Available From', formatDate(profileData.preferences?.availableFromDate) || 'Not specified')}
+            <div style="margin-top: 10px;">
+              <span style="font-weight: 600; color: #333333;">Open for out of country shoots: </span>
+              <span style="color: #666666;">${profileData.preferences?.openForOutOfCountryShoots ? 'Yes' : 'No'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+      pdfContent.appendChild(createSection('Preferences', preferencesContent));
+
+      // Add to DOM temporarily
+      document.body.appendChild(pdfContent);
+
+      // Wait for images to load
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Generate PDF
+      const canvas = await html2canvas(pdfContent, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      // Download PDF
+      const fileName = `${getFullName().replace(/\s+/g, '_')}_Complete_Profile.pdf`;
+      pdf.save(fileName);
+
+      // Clean up
+      document.body.removeChild(pdfContent);
+
+      Swal.close();
+      Swal.fire({
+        icon: 'success',
+        title: 'Download Complete!',
+        text: 'Your profile has been downloaded successfully.',
+        confirmButtonColor: '#69247C',
+        timer: 2000
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Download Failed',
+        text: 'An error occurred while generating the PDF. Please try again.',
+        confirmButtonColor: '#69247C'
+      });
+    }
   };
 
   // Handle Complete Profile button click
@@ -426,10 +898,83 @@ const CompleteProfilePage = () => {
               </Typography>
             </Box>
 
-            {/* Description/Bio */}
-            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 400, fontSize: '14px', lineHeight: '140%', color: '#666666', mb: 3 }}>
-              {profileData.basicInfo?.profileHeadline || 'No description available'}
-            </Typography>
+            {/* Description/Bio with Dropdown */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+              <Typography 
+                sx={{ 
+                  fontFamily: 'Poppins', 
+                  fontWeight: 400, 
+                  fontSize: '14px', 
+                  lineHeight: '140%', 
+                  color: '#666666', 
+                  flex: 1,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {profileData.basicInfo?.profileHeadline || 'No description available'}
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={handleHeadlineMenuOpen}
+                sx={{
+                  color: '#DA498D',
+                  '&:hover': {
+                    backgroundColor: 'rgba(218, 73, 141, 0.1)',
+                  },
+                }}
+              >
+                <ArrowDropDownIcon />
+              </IconButton>
+              <Menu
+                anchorEl={headlineAnchorEl}
+                open={headlineMenuOpen}
+                onClose={handleHeadlineMenuClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                PaperProps={{
+                  sx: {
+                    maxWidth: '400px',
+                    minWidth: '250px',
+                  }
+                }}
+              >
+                <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
+                  <Typography sx={{ 
+                    fontFamily: 'Poppins', 
+                    fontWeight: 500, 
+                    fontSize: '12px', 
+                    color: '#666666',
+                    mb: 1
+                  }}>
+                    Full Profile Headline:
+                  </Typography>
+                  <Typography sx={{ 
+                    fontFamily: 'Poppins', 
+                    fontWeight: 400, 
+                    fontSize: '14px', 
+                    lineHeight: '140%', 
+                    color: '#333333',
+                    wordBreak: 'break-word'
+                  }}>
+                    {profileData.basicInfo?.profileHeadline || 'No description available'}
+                  </Typography>
+                </Box>
+                <MenuItem onClick={() => handleHeadlineSelect('Edit Profile Headline')}>
+                  <EditIcon sx={{ mr: 1, fontSize: 18, color: '#DA498D' }} />
+                  Edit Headline
+                </MenuItem>
+              </Menu>
+            </Box>
 
             {/* Contact and Personal Information Grid */}
             <Grid container spacing={2}>
@@ -561,120 +1106,189 @@ const CompleteProfilePage = () => {
 
           {/* Videos Section */}
           <Box sx={{ mb: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
-                Videos
-              </Typography>
-              <IconButton size="small" onClick={handleEditShowcase}>
-                <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
-              </IconButton>
-            </Box>
+            {(() => {
+              const videos = profileData.showcase?.files?.filter(file => file.isVideo) || [];
+              const hasMoreVideos = videos.length > 5;
+              return (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                    Videos
+                  </Typography>
+                  {hasMoreVideos && (
+                    <IconButton 
+                      size="small" 
+                      onClick={() => setShowAllVideos(!showAllVideos)}
+                      sx={{ 
+                        color: '#DA498D',
+                        '&:hover': {
+                          backgroundColor: 'rgba(218, 73, 141, 0.1)'
+                        }
+                      }}
+                    >
+                      <ArrowDropDownIcon sx={{ 
+                        color: '#DA498D', 
+                        fontSize: '20px',
+                        transform: showAllVideos ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.3s ease'
+                      }} />
+                    </IconButton>
+                  )}
+                  <IconButton size="small" onClick={handleEditShowcase}>
+                    <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
+                  </IconButton>
+                </Box>
+              );
+            })()}
 
             <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
 
             {/* Video Thumbnails */}
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              {profileData.showcase?.files?.filter(file => file.isVideo)?.map((video, index) => (
-                <Box key={video.id} sx={{ position: 'relative', width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa', overflow: 'hidden' }}>
-                  <AuthVideo 
-                    filePath={video.filePath}
-                    thumbnailPath={video.thumbnailPath}
-                    alt={`Video ${index}`}
-                    fallbackSrc={menImage}
-                    showControls={true}
-                    autoPlay={false}
-                    muted={true}
-                    loop={false}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0
-                    }}
-                  />
-                  <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40px', backgroundColor: 'rgba(218, 73, 141, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, zIndex: 3 }}>
-                    <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={handleEditShowcase}>
-                      <EditIcon sx={{ color: 'white', fontSize: '16px' }} />
-                    </Box>
-                    <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                      <Box sx={{ width: '12px', height: '12px', border: '1px solid white', borderRadius: '2px', position: 'relative' }}>
-                        <Box sx={{ position: 'absolute', top: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
-                        <Box sx={{ position: 'absolute', bottom: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
-                      </Box>
-                    </Box>
-                    <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                      <Typography sx={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>×</Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              ))}
-              {(!profileData.showcase?.files?.filter(file => file.isVideo) || profileData.showcase.files.filter(file => file.isVideo).length === 0) && (
-                <Box sx={{ width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa' }}>
-                  <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: '14px' }}>No videos uploaded</Typography>
-                </Box>
-              )}
-            </Box>
-          </Box>
-
-          {/* Photos and Social Media Section - Side by Side */}
-          <Box sx={{ display: 'flex', gap: 4 }}>
-            {/* Photos Section - Left Side */}
-            <Box sx={{ flex: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
-                  Photos
-                </Typography>
-                <IconButton size="small" onClick={handleEditShowcase}>
-                  <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
-                </IconButton>
-              </Box>
-
-              <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
-
-              {/* Photo Thumbnails */}
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                {profileData.showcase?.files?.filter(file => file.isImage)?.map((image, index) => (
-                  <Box key={image.id} sx={{ position: 'relative', width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa', overflow: 'hidden' }}>
-                    <AuthImage 
-                      filePath={image.filePath}
-                      alt={`Photo ${index}`}
-                      fallbackSrc={menImage}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0
-                      }}
-                    />
-                    <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40px', backgroundColor: 'rgba(218, 73, 141, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, zIndex: 3 }}>
-                      <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={handleEditShowcase}>
-                        <EditIcon sx={{ color: 'white', fontSize: '16px' }} />
-                      </Box>
-                      <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                        <Box sx={{ width: '12px', height: '12px', border: '1px solid white', borderRadius: '2px', position: 'relative' }}>
-                          <Box sx={{ position: 'absolute', top: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
-                          <Box sx={{ position: 'absolute', bottom: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
+            {(() => {
+              const videos = profileData.showcase?.files?.filter(file => file.isVideo) || [];
+              const displayedVideos = showAllVideos ? videos : videos.slice(0, 5);
+              const hasMoreVideos = videos.length > 5;
+              
+              return (
+                <>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    {displayedVideos.map((video, index) => (
+                      <Box key={video.id} sx={{ position: 'relative', width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa', overflow: 'hidden' }}>
+                        <AuthVideo 
+                          filePath={video.filePath}
+                          thumbnailPath={video.thumbnailPath}
+                          alt={`Video ${index}`}
+                          fallbackSrc={menImage}
+                          showControls={true}
+                          autoPlay={false}
+                          muted={true}
+                          loop={false}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0
+                          }}
+                        />
+                        <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40px', backgroundColor: 'rgba(218, 73, 141, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, zIndex: 3 }}>
+                          <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={handleEditShowcase}>
+                            <EditIcon sx={{ color: 'white', fontSize: '16px' }} />
+                          </Box>
+                          <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                            <Box sx={{ width: '12px', height: '12px', border: '1px solid white', borderRadius: '2px', position: 'relative' }}>
+                              <Box sx={{ position: 'absolute', top: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
+                              <Box sx={{ position: 'absolute', bottom: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
+                            </Box>
+                          </Box>
+                          <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                            <Typography sx={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>×</Typography>
+                          </Box>
                         </Box>
                       </Box>
-                      <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                        <Typography sx={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>×</Typography>
+                    ))}
+                    
+                    {videos.length === 0 && (
+                      <Box sx={{ width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: '14px' }}>No videos uploaded</Typography>
                       </Box>
-                    </Box>
+                    )}
                   </Box>
-                ))}
-                {(!profileData.showcase?.files?.filter(file => file.isImage) || profileData.showcase.files.filter(file => file.isImage).length === 0) && (
-                  <Box sx={{ width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa' }}>
-                    <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: '14px' }}>No photos uploaded</Typography>
-                  </Box>
-                )}
-              </Box>
-            </Box>
+                </>
+              );
+            })()}
+          </Box>
 
-            {/* Social Media Presence Section - Right Side */}
-            <Box sx={{ flex: 1 }}>
+          {/* Photos Section */}
+          <Box>
+            {(() => {
+              const photos = profileData.showcase?.files?.filter(file => file.isImage) || [];
+              const hasMorePhotos = photos.length > 5;
+              return (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                    Photos
+                  </Typography>
+                  {hasMorePhotos && (
+                    <IconButton 
+                      size="small" 
+                      onClick={() => setShowAllPhotos(!showAllPhotos)}
+                      sx={{ 
+                        color: '#DA498D',
+                        '&:hover': {
+                          backgroundColor: 'rgba(218, 73, 141, 0.1)'
+                        }
+                      }}
+                    >
+                      <ArrowDropDownIcon sx={{ 
+                        color: '#DA498D', 
+                        fontSize: '20px',
+                        transform: showAllPhotos ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.3s ease'
+                      }} />
+                    </IconButton>
+                  )}
+                  <IconButton size="small" onClick={handleEditShowcase}>
+                    <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
+                  </IconButton>
+                </Box>
+              );
+            })()}
+
+            <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
+
+            {/* Photo Thumbnails */}
+            {(() => {
+              const photos = profileData.showcase?.files?.filter(file => file.isImage) || [];
+              const displayedPhotos = showAllPhotos ? photos : photos.slice(0, 5);
+              
+              return (
+                <>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    {displayedPhotos.map((image, index) => (
+                      <Box key={image.id} sx={{ position: 'relative', width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa', overflow: 'hidden' }}>
+                        <AuthImage 
+                          filePath={image.filePath}
+                          alt={`Photo ${index}`}
+                          fallbackSrc={menImage}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0
+                          }}
+                        />
+                        <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40px', backgroundColor: 'rgba(218, 73, 141, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, zIndex: 3 }}>
+                          <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={handleEditShowcase}>
+                            <EditIcon sx={{ color: 'white', fontSize: '16px' }} />
+                          </Box>
+                          <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                            <Box sx={{ width: '12px', height: '12px', border: '1px solid white', borderRadius: '2px', position: 'relative' }}>
+                              <Box sx={{ position: 'absolute', top: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
+                              <Box sx={{ position: 'absolute', bottom: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
+                            </Box>
+                          </Box>
+                          <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                            <Typography sx={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>×</Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    ))}
+                    
+                    {photos.length === 0 && (
+                      <Box sx={{ width: '200px', height: '150px', border: '2px dashed #DA498D', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafafa' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', color: '#666666', fontSize: '14px' }}>No photos uploaded</Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </>
+              );
+            })()}
+          </Box>
+
+          {/* Social Media Presence Section - Next Row */}
+          <Box sx={{ mt: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Social Media Presence
@@ -746,7 +1360,6 @@ const CompleteProfilePage = () => {
                   )}
                 </Grid>
               </Box>
-            </Box>
           </Box>
 
           {/* Languages Section */}
@@ -1137,15 +1750,15 @@ const CompleteProfilePage = () => {
               <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', mt: 6 }}>
                 <Button 
                   variant="outlined" 
-                  onClick={() => navigate('/preferences')}
+                  onClick={handleShareProfile}
                   sx={{ border: '1px solid #DA498D', borderRadius: '8px', color: '#DA498D', fontFamily: 'Poppins', fontWeight: 600, fontSize: '16px', padding: '12px 32px', textTransform: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', '&:hover': { border: '1px solid #DA498D', backgroundColor: 'rgba(218, 73, 141, 0.04)' } }}
                 >
-                  Back
+                  Share
                 </Button>
                 <Button 
                   variant="contained" 
-                  onClick={handleCompleteProfile}
-                  disabled={isCompleting || !profileData}
+                  onClick={handleDownloadProfile}
+                  disabled={!profileData}
                   sx={{ 
                     background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)', 
                     borderRadius: '8px', 
@@ -1166,7 +1779,7 @@ const CompleteProfilePage = () => {
                     }
                   }}
                 >
-                  {isCompleting ? 'Completing...' : 'DONE'}
+                  Download
                 </Button>
               </Box>
             </Box>

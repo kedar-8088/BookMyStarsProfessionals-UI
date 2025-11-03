@@ -1883,7 +1883,7 @@ const PreferencesPage = () => {
               }}>
                 {/* Back Button */}
                 <Button
-                  onClick={() => navigate('/education-background')}
+                  onClick={() => navigate('/complete-profile')}
                   sx={{
                     background: 'transparent',
                     color: '#69247C',

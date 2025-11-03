@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import { useNavigate } from 'react-router-dom';
 import { sessionManager } from '../../API/authApi';
-import { Person as PersonIcon, AccountCircle as AccountIcon, ExitToApp as LogoutIcon, Menu as MenuIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { Person as PersonIcon, AccountCircle as AccountIcon, ExitToApp as LogoutIcon, Menu as MenuIcon } from '@mui/icons-material';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 
 const ProfileNavBar = () => {
@@ -113,34 +113,7 @@ const ProfileNavBar = () => {
           }}
         >
           <MenuItem 
-            onClick={() => { handleMenuClose(); navigate('/view-profile'); }}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
-              color: '#333333',
-              fontWeight: 500
-            }}
-          >
-            <Box sx={{ 
-              width: 24, 
-              height: 24, 
-              borderRadius: '50%', 
-              background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white'
-            }}>
-              <VisibilityIcon sx={{ fontSize: 16 }} />
-            </Box>
-            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
-              View Profile
-            </Typography>
-          </MenuItem>
-          
-          <MenuItem 
-            onClick={() => { handleMenuClose(); navigate('/update-profile'); }}
+            onClick={() => { handleMenuClose(); navigate('/complete-profile'); }}
             sx={{
               display: 'flex',
               alignItems: 'center',

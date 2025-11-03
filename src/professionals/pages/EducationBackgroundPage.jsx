@@ -741,7 +741,7 @@ const EducationBackgroundPage = () => {
       });
       
       // Navigate to next page
-      navigate('/preferences');
+      navigate('/complete-profile');
 
     } catch (error) {
       console.error('Error in bulk submission:', error);
@@ -769,7 +769,7 @@ const EducationBackgroundPage = () => {
 
   // Navigation handlers
   const handleNextClick = () => {
-    navigate('/preferences');
+    navigate('/complete-profile');
   };
 
   const handleBackClick = () => {
@@ -1283,7 +1283,7 @@ const EducationBackgroundPage = () => {
               }}>
                 {/* Back Button - Positioned absolutely on the left */}
                 <Button
-                  onClick={() => navigate('/showcase')}
+                  onClick={() => navigate('/complete-profile')}
                   sx={{
                     position: 'absolute',
                     left: 0,
@@ -3566,7 +3566,7 @@ const EducationBackgroundPage = () => {
               }}>
                 {/* Back Button */}
                 <Button
-                  onClick={() => navigate('/showcase')}
+                  onClick={() => navigate('/complete-profile')}
                   sx={{
                     background: 'transparent',
                     color: '#69247C',
