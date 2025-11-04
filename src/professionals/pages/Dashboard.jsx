@@ -47,6 +47,7 @@ import {
   Star as StarIcon,
   ArrowForward as ArrowForwardIcon,
   LocationOn as LocationOnIcon,
+  Place as PlaceIcon,
   AccessTime as AccessTimeIcon,
   AttachMoney as MoneyIcon,
   Assignment as AssignmentIcon,
@@ -202,6 +203,20 @@ const StaticBannerCard = styled(Paper)(({ theme }) => ({
     boxShadow: '0 12px 32px rgba(105, 36, 124, 0.3)',
   },
 }));
+
+const LocationCard = styled(Box)(({ theme }) => ({
+  borderRadius: '12px',
+  padding: theme.spacing(2, 2.5),
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(2),
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+  },
+}));
+
 
 
 const Dashboard = () => {
@@ -916,6 +931,163 @@ const Dashboard = () => {
         </motion.div>
       </Container>
 
+      {/* Location Section */}
+      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <motion.div
+              animate={{
+                y: [0, -20, 0]
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  mb: 1,
+                  textAlign: 'center',
+                }}
+              >
+                Project Locations
+              </Typography>
+            </motion.div>
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#666666',
+                fontSize: '16px',
+                mb: 3,
+                textAlign: 'center',
+              }}
+            >
+              Explore projects by location
+            </Typography>
+          </Box>
+
+          {/* Location Grid */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+              gap: 2.5,
+            }}
+          >
+            {[
+              { name: 'Mumbai', projects: 12, gradientStart: '#4ECDC4', gradientEnd: '#2E9E96' }, // Teal
+              { name: 'Delhi', projects: 8, gradientStart: '#FF8C42', gradientEnd: '#FF6B00' }, // Orange
+              { name: 'Bangalore', projects: 10, gradientStart: '#FF5252', gradientEnd: '#D32F2F' }, // Red
+              { name: 'Chennai', projects: 6, gradientStart: '#81C784', gradientEnd: '#66BB6A' }, // Mint Green
+              { name: 'Hyderabad', projects: 7, gradientStart: '#9C27B0', gradientEnd: '#7B1FA2' }, // Purple
+              { name: 'Pune', projects: 5, gradientStart: '#FFD54F', gradientEnd: '#FFC107' }, // Yellow
+              { name: 'Kolkata', projects: 4, gradientStart: '#69247C', gradientEnd: '#DA498D' }, // Purple-Pink
+              { name: 'Ahmedabad', projects: 3, gradientStart: '#2196F3', gradientEnd: '#1976D2' }, // Blue
+            ].map((location, index) => {
+              return (
+                <motion.div
+                  key={location.name}
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: index * 0.1,
+                    ease: "easeOut" 
+                  }}
+                >
+                  <LocationCard>
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '40px',
+                        height: '40px',
+                      }}
+                    >
+                      <svg
+                        width="36"
+                        height="36"
+                        viewBox="0 0 24 24"
+                        style={{
+                          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+                          position: 'relative',
+                          zIndex: 2,
+                        }}
+                      >
+                        <defs>
+                          <linearGradient id={`pin-gradient-${location.name.replace(/\s+/g, '-')}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor={location.gradientStart} />
+                            <stop offset="100%" stopColor={location.gradientEnd} />
+                          </linearGradient>
+                        </defs>
+                        <path
+                          d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                          fill={`url(#pin-gradient-${location.name.replace(/\s+/g, '-')})`}
+                        />
+                      </svg>
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          bottom: '-4px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          width: '16px',
+                          height: '4px',
+                          borderRadius: '50%',
+                          background: 'rgba(0, 0, 0, 0.15)',
+                          filter: 'blur(3px)',
+                          zIndex: 0,
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: '16px',
+                          color: '#333333',
+                          mb: 0.5,
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {location.name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: '#666666',
+                          fontSize: '13px',
+                          fontWeight: 400,
+                        }}
+                      >
+                        {location.projects} projects
+                      </Typography>
+                    </Box>
+                  </LocationCard>
+                </motion.div>
+              );
+            })}
+          </Box>
+        </motion.div>
+      </Container>
+
       {/* Opportunities Section with Categories */}
       <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
         <motion.div
@@ -1508,6 +1680,279 @@ const Dashboard = () => {
                     </Typography>
                   </Box>
                 </motion.div>
+              );
+            })}
+          </Box>
+        </motion.div>
+      </Container>
+
+      {/* Sources Section */}
+      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <motion.div
+              animate={{
+                y: [0, -20, 0]
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  mb: 1,
+                  textAlign: 'center',
+                }}
+              >
+                Project Sources
+              </Typography>
+            </motion.div>
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#666666',
+                fontSize: '16px',
+                mb: 3,
+                textAlign: 'center',
+              }}
+            >
+              Discover projects from various sources
+            </Typography>
+          </Box>
+
+          {/* Sources Grid */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+              gap: 3,
+            }}
+          >
+            {[
+              { name: 'Social Media', count: 25, icon: CampaignIcon },
+              { name: 'Agency', count: 18, icon: BusinessIcon },
+              { name: 'Direct Client', count: 32, icon: PersonIcon },
+              { name: 'Referral', count: 12, icon: StarIcon },
+              { name: 'Online Platform', count: 28, icon: VideoCallIcon },
+              { name: 'Casting Call', count: 15, icon: MicIcon },
+              { name: 'Event', count: 9, icon: EventIcon },
+              { name: 'Other', count: 6, icon: AssignmentIcon },
+            ].map((source, index) => {
+              const IconComponent = source.icon;
+              return (
+                <Box key={source.name}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ 
+                      duration: 0.5, 
+                      delay: index * 0.1,
+                      ease: "easeOut" 
+                    }}
+                  >
+                    <ProjectCard>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <Box
+                            sx={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: '12px',
+                              background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              mr: 2,
+                            }}
+                          >
+                            <IconComponent sx={{ fontSize: 24 }} />
+                          </Box>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                fontWeight: 700,
+                                fontSize: '18px',
+                                color: '#333333',
+                                mb: 0.5,
+                              }}
+                            >
+                              {source.name}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: '#666666',
+                                fontSize: '14px',
+                              }}
+                            >
+                              {source.count} projects
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </ProjectCard>
+                  </motion.div>
+                </Box>
+              );
+            })}
+          </Box>
+        </motion.div>
+      </Container>
+
+      {/* Used Projects Section */}
+      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <motion.div
+              animate={{
+                y: [0, -20, 0]
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  mb: 1,
+                  textAlign: 'center',
+                }}
+              >
+                Used Projects
+              </Typography>
+            </motion.div>
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#666666',
+                fontSize: '16px',
+                mb: 3,
+                textAlign: 'center',
+              }}
+            >
+              Projects you've completed and used in your portfolio
+            </Typography>
+          </Box>
+
+          {/* Used Projects Grid */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+              gap: 3,
+            }}
+          >
+            {[
+              { name: 'Fashion Campaign 2024', client: 'Luxury Brand', status: 'Completed', icon: CampaignIcon },
+              { name: 'Beauty Product Shoot', client: 'Glamour Cosmetics', status: 'Completed', icon: ImageIcon },
+              { name: 'Corporate Video', client: 'Tech Solutions', status: 'Completed', icon: VideoCallIcon },
+              { name: 'Music Video', client: 'Rhythm Records', status: 'Completed', icon: MovieIcon },
+              { name: 'Photoshoot Series', client: 'Style Magazine', status: 'Completed', icon: PhotoLibraryIcon },
+              { name: 'Brand Ambassador', client: 'Global Brands', status: 'Completed', icon: BusinessIcon },
+              { name: 'Event Hosting', client: 'EventPro', status: 'Completed', icon: EventIcon },
+              { name: 'TV Commercial', client: 'Creative Media', status: 'Completed', icon: CameraIcon },
+            ].map((project, index) => {
+              const IconComponent = project.icon;
+              return (
+                <Box key={project.name}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ 
+                      duration: 0.5, 
+                      delay: index * 0.1,
+                      ease: "easeOut" 
+                    }}
+                  >
+                    <ProjectCard>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                          <Box
+                            sx={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: '12px',
+                              background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              mr: 2,
+                            }}
+                          >
+                            <IconComponent sx={{ fontSize: 24 }} />
+                          </Box>
+                          <Box sx={{ flex: 1 }}>
+                            <Chip
+                              label={project.status}
+                              size="small"
+                              sx={{
+                                backgroundColor: '#e8f5e9',
+                                color: '#2e7d32',
+                                fontWeight: 600,
+                                fontSize: '11px',
+                                mb: 1,
+                              }}
+                            />
+                          </Box>
+                        </Box>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '18px',
+                            color: '#333333',
+                            mb: 1,
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {project.name}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: '#69247C',
+                            fontWeight: 600,
+                            fontSize: '14px',
+                          }}
+                        >
+                          {project.client}
+                        </Typography>
+                      </CardContent>
+                    </ProjectCard>
+                  </motion.div>
+                </Box>
               );
             })}
           </Box>
