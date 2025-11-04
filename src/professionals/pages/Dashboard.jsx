@@ -343,18 +343,6 @@ const Dashboard = () => {
       icon: PaletteIcon,
       link: '/opportunities/makeup-artist-1',
     },
-    {
-      id: 9,
-      title: 'Brand Spokesperson',
-      company: 'Global Brands Inc',
-      location: 'Hyderabad, India',
-      type: 'Contract',
-      salary: '₹60K - ₹90K/month',
-      posted: '3 days ago',
-      category: 'Corporate',
-      icon: BusinessIcon,
-      link: '/opportunities/spokesperson-1',
-    },
   ];
 
   // Filter opportunities by category
@@ -615,51 +603,43 @@ const Dashboard = () => {
           <Paper 
             sx={{ 
               p: 4, 
-              borderRadius: '16px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+              borderRadius: '12px',
               backgroundColor: 'white',
-              transition: 'all 0.3s ease-in-out',
               width: '100%',
               maxWidth: '100%',
-              border: '1px solid #e0e0e0',
-              position: 'relative',
-              overflow: 'hidden',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 32px rgba(105, 36, 124, 0.15)',
-                borderColor: '#DA498D',
-                '& .info-icon': {
-                  transform: 'scale(1.1)',
-                  color: '#DA498D',
-                },
-                '& .info-header': {
-                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                },
-              },
+              border: '1px solid #DA498D',
+              boxShadow: 'none',
             }} 
             elevation={0}
           >
-          {/* Header with Icon */}
+          {/* Header */}
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <AccountCircleIcon 
-              className="info-icon"
-              sx={{ 
-                fontSize: 32, 
-                color: '#69247C',
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                backgroundColor: '#69247C',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 mr: 2,
-                transition: 'all 0.3s ease-in-out',
-              }} 
-            />
+                flexShrink: 0,
+              }}
+            >
+              <AccountCircleIcon 
+                sx={{ 
+                  fontSize: 24, 
+                  color: 'white',
+                }} 
+              />
+            </Box>
             <Typography 
-              variant="h5" 
-              className="info-header"
+              variant="h4" 
               sx={{ 
                 fontWeight: 700,
+                fontSize: { xs: '20px', sm: '24px', md: '28px' },
                 color: '#333333',
-                transition: 'color 0.3s ease-in-out',
               }}
             >
               Your Information
@@ -909,182 +889,7 @@ const Dashboard = () => {
               </Box>
             </Box>
           )}
-
-          <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={() => navigate(-1)}
-              sx={{
-                transition: 'all 0.3s ease-in-out',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 20px rgba(105, 36, 124, 0.4)',
-                  backgroundColor: 'primary.dark',
-                }
-              }}
-            >
-              Back
-            </Button>
-          </Box>
         </Paper>
-        </motion.div>
-      </Container>
-
-      {/* Location Section */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        >
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <motion.div
-              animate={{
-                y: [0, -20, 0]
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
-                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  mb: 1,
-                  textAlign: 'center',
-                }}
-              >
-                Project Locations
-              </Typography>
-            </motion.div>
-            <Typography
-              variant="body1"
-              sx={{
-                color: '#666666',
-                fontSize: '16px',
-                mb: 3,
-                textAlign: 'center',
-              }}
-            >
-              Explore projects by location
-            </Typography>
-          </Box>
-
-          {/* Location Grid */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
-              gap: 2.5,
-            }}
-          >
-            {[
-              { name: 'Mumbai', projects: 12, gradientStart: '#4ECDC4', gradientEnd: '#2E9E96' }, // Teal
-              { name: 'Delhi', projects: 8, gradientStart: '#FF8C42', gradientEnd: '#FF6B00' }, // Orange
-              { name: 'Bangalore', projects: 10, gradientStart: '#FF5252', gradientEnd: '#D32F2F' }, // Red
-              { name: 'Chennai', projects: 6, gradientStart: '#81C784', gradientEnd: '#66BB6A' }, // Mint Green
-              { name: 'Hyderabad', projects: 7, gradientStart: '#9C27B0', gradientEnd: '#7B1FA2' }, // Purple
-              { name: 'Pune', projects: 5, gradientStart: '#FFD54F', gradientEnd: '#FFC107' }, // Yellow
-              { name: 'Kolkata', projects: 4, gradientStart: '#69247C', gradientEnd: '#DA498D' }, // Purple-Pink
-              { name: 'Ahmedabad', projects: 3, gradientStart: '#2196F3', gradientEnd: '#1976D2' }, // Blue
-            ].map((location, index) => {
-              return (
-                <motion.div
-                  key={location.name}
-                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: index * 0.1,
-                    ease: "easeOut" 
-                  }}
-                >
-                  <LocationCard>
-                    <Box
-                      sx={{
-                        position: 'relative',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '40px',
-                        height: '40px',
-                      }}
-                    >
-                      <svg
-                        width="36"
-                        height="36"
-                        viewBox="0 0 24 24"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
-                          position: 'relative',
-                          zIndex: 2,
-                        }}
-                      >
-                        <defs>
-                          <linearGradient id={`pin-gradient-${location.name.replace(/\s+/g, '-')}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor={location.gradientStart} />
-                            <stop offset="100%" stopColor={location.gradientEnd} />
-                          </linearGradient>
-                        </defs>
-                        <path
-                          d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                          fill={`url(#pin-gradient-${location.name.replace(/\s+/g, '-')})`}
-                        />
-                      </svg>
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          bottom: '-4px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          width: '16px',
-                          height: '4px',
-                          borderRadius: '50%',
-                          background: 'rgba(0, 0, 0, 0.15)',
-                          filter: 'blur(3px)',
-                          zIndex: 0,
-                        }}
-                      />
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: '16px',
-                          color: '#333333',
-                          mb: 0.5,
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {location.name}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: '#666666',
-                          fontSize: '13px',
-                          fontWeight: 400,
-                        }}
-                      >
-                        {location.projects} projects
-                      </Typography>
-                    </Box>
-                  </LocationCard>
-                </motion.div>
-              );
-            })}
-          </Box>
         </motion.div>
       </Container>
 
@@ -1152,7 +957,7 @@ const Dashboard = () => {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
             gap: 3,
           }}
         >
@@ -1410,32 +1215,21 @@ const Dashboard = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <Box sx={{ mb: 4, textAlign: 'center' }}>
-            <motion.div
-              animate={{
-                y: [0, -20, 0]
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut"
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                mb: 1,
+                textAlign: 'center',
               }}
             >
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
-                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  mb: 1,
-                  textAlign: 'center',
-                }}
-              >
-                My Projects
-              </Typography>
-            </motion.div>
+              My Projects
+            </Typography>
             <Typography
               variant="body1"
               sx={{
@@ -1695,32 +1489,21 @@ const Dashboard = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <motion.div
-              animate={{
-                y: [0, -20, 0]
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut"
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                mb: 1,
+                textAlign: 'center',
               }}
             >
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
-                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  mb: 1,
-                  textAlign: 'center',
-                }}
-              >
-                Project Sources
-              </Typography>
-            </motion.div>
+              Project Sources
+            </Typography>
             <Typography
               variant="body1"
               sx={{
@@ -1825,32 +1608,21 @@ const Dashboard = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <motion.div
-              animate={{
-                y: [0, -20, 0]
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut"
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                mb: 1,
+                textAlign: 'center',
               }}
             >
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
-                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  mb: 1,
-                  textAlign: 'center',
-                }}
-              >
-                Used Projects
-              </Typography>
-            </motion.div>
+              Used Projects
+            </Typography>
             <Typography
               variant="body1"
               sx={{
@@ -1953,6 +1725,152 @@ const Dashboard = () => {
                     </ProjectCard>
                   </motion.div>
                 </Box>
+              );
+            })}
+          </Box>
+        </motion.div>
+      </Container>
+
+      {/* Location Section */}
+      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                mb: 1,
+                textAlign: 'center',
+              }}
+            >
+              Project Locations
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#666666',
+                fontSize: '16px',
+                mb: 3,
+                textAlign: 'center',
+              }}
+            >
+              Explore projects by location
+            </Typography>
+          </Box>
+
+          {/* Location Grid */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+              gap: 2.5,
+            }}
+          >
+            {[
+              { name: 'Mumbai', projects: 12, gradientStart: '#4ECDC4', gradientEnd: '#2E9E96' }, // Teal
+              { name: 'Delhi', projects: 8, gradientStart: '#FF8C42', gradientEnd: '#FF6B00' }, // Orange
+              { name: 'Bangalore', projects: 10, gradientStart: '#FF5252', gradientEnd: '#D32F2F' }, // Red
+              { name: 'Chennai', projects: 6, gradientStart: '#81C784', gradientEnd: '#66BB6A' }, // Mint Green
+              { name: 'Hyderabad', projects: 7, gradientStart: '#9C27B0', gradientEnd: '#7B1FA2' }, // Purple
+              { name: 'Pune', projects: 5, gradientStart: '#FFD54F', gradientEnd: '#FFC107' }, // Yellow
+              { name: 'Kolkata', projects: 4, gradientStart: '#69247C', gradientEnd: '#DA498D' }, // Purple-Pink
+              { name: 'Ahmedabad', projects: 3, gradientStart: '#2196F3', gradientEnd: '#1976D2' }, // Blue
+            ].map((location, index) => {
+              return (
+                <motion.div
+                  key={location.name}
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: index * 0.1,
+                    ease: "easeOut" 
+                  }}
+                >
+                  <LocationCard>
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '40px',
+                        height: '40px',
+                      }}
+                    >
+                      <svg
+                        width="36"
+                        height="36"
+                        viewBox="0 0 24 24"
+                        style={{
+                          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+                          position: 'relative',
+                          zIndex: 2,
+                        }}
+                      >
+                        <defs>
+                          <linearGradient id={`pin-gradient-${location.name.replace(/\s+/g, '-')}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor={location.gradientStart} />
+                            <stop offset="100%" stopColor={location.gradientEnd} />
+                          </linearGradient>
+                        </defs>
+                        <path
+                          d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                          fill={`url(#pin-gradient-${location.name.replace(/\s+/g, '-')})`}
+                        />
+                      </svg>
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          bottom: '-4px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          width: '16px',
+                          height: '4px',
+                          borderRadius: '50%',
+                          background: 'rgba(0, 0, 0, 0.15)',
+                          filter: 'blur(3px)',
+                          zIndex: 0,
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: '16px',
+                          color: '#333333',
+                          mb: 0.5,
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {location.name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: '#666666',
+                          fontSize: '13px',
+                          fontWeight: 400,
+                        }}
+                      >
+                        {location.projects} projects
+                      </Typography>
+                    </Box>
+                  </LocationCard>
+                </motion.div>
               );
             })}
           </Box>
