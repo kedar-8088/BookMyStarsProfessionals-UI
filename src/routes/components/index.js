@@ -8,7 +8,6 @@ export { default as EducationBackgroundRoute } from './EducationBackgroundRoute'
 export { default as PreferencesRoute } from './PreferencesRoute';
 export { default as CompleteProfileRoute } from './CompleteProfileRoute';
 export { default as ViewProfileRoute } from './ViewProfileRoute';
-export { default as UpdateProfileRoute } from './UpdateProfileRoute';
 export { default as LoginRoute } from './LoginRoute';
 export { default as SignupRoute } from './SignupRoute';
 export { default as OtpVerificationRoute } from './OtpVerificationRoute';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Alert, Menu, MenuItem } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import EditIcon from '@mui/icons-material/Edit';
 import { Person as PersonIcon, Phone as PhoneIcon, Work as WorkIcon, CalendarToday as CalendarTodayIcon, Favorite as FavoriteIcon, Email as EmailIcon, LocationOn as LocationOnIcon, ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
@@ -9,14 +9,17 @@ import { getProfessionalsProfileById, saveOrUpdateProfessionalsProfile, updatePr
 import { sessionManager } from '../../API/authApi';
 import profileFlowManager from '../../utils/profileFlowManager';
 import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
+import { getBasicInfoById, getBasicInfoByEmail } from '../../API/basicInfoApi';
 import AuthImage from '../../components/common/AuthImage';
 import AuthVideo from '../../components/common/AuthVideo';
 import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { getSkinColor, getHairColor, getEyeColor } from '../../utils/colorMapping';
 
 const CompleteProfilePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -93,7 +96,91 @@ const CompleteProfilePage = () => {
       console.log('📡 Profile API response:', response);
       
       if (response.success && response.data.code === 1000) {
-        setProfileData(response.data.data);
+        let profileData = response.data.data;
+        console.log('📋 Profile data structure:', profileData);
+        console.log('📋 BasicInfo in profile:', profileData.basicInfo);
+        
+        // Check if basicInfo is missing or incomplete
+        if (!profileData.basicInfo || !profileData.basicInfo.fullName) {
+          console.log('⚠️ BasicInfo missing or incomplete in profile response');
+          
+          // Try to get basicInfoId from various possible locations in the profile
+          const basicInfoId = 
+            profileData.basicInfoId || 
+            profileData.basicInfo?.id || 
+            profileData.basicInfo?.basicInfoId;
+          
+          let basicInfoData = null;
+          
+          // Try fetching by ID first
+          if (basicInfoId) {
+            console.log('🔄 Fetching basic info separately with ID:', basicInfoId);
+            try {
+              const basicInfoResponse = await getBasicInfoById(basicInfoId);
+              console.log('📡 Basic Info API response:', basicInfoResponse);
+              
+              if (basicInfoResponse.success && basicInfoResponse.data) {
+                // Handle different response structures
+                if (basicInfoResponse.data.code === 200 && basicInfoResponse.data.data) {
+                  basicInfoData = basicInfoResponse.data.data;
+                } else if (basicInfoResponse.data.data) {
+                  basicInfoData = basicInfoResponse.data.data;
+                } else if (basicInfoResponse.data.id || basicInfoResponse.data.basicInfoId) {
+                  basicInfoData = basicInfoResponse.data;
+                }
+                
+                if (basicInfoData) {
+                  console.log('✅ Basic info fetched successfully by ID:', basicInfoData);
+                }
+              }
+            } catch (basicInfoError) {
+              console.error('❌ Error fetching basic info by ID:', basicInfoError);
+            }
+          }
+          
+          // If ID fetch failed, try fetching by email as fallback
+          if (!basicInfoData) {
+            const email = profileData.professionalsDto?.email || profileData.email;
+            if (email) {
+              console.log('🔄 Trying to fetch basic info by email:', email);
+              try {
+                const basicInfoResponse = await getBasicInfoByEmail(email);
+                console.log('📡 Basic Info API response (by email):', basicInfoResponse);
+                
+                if (basicInfoResponse.success && basicInfoResponse.data) {
+                  // Handle different response structures
+                  if (basicInfoResponse.data.code === 200 && basicInfoResponse.data.data) {
+                    basicInfoData = basicInfoResponse.data.data;
+                  } else if (basicInfoResponse.data.data) {
+                    basicInfoData = basicInfoResponse.data.data;
+                  } else if (basicInfoResponse.data.id || basicInfoResponse.data.basicInfoId) {
+                    basicInfoData = basicInfoResponse.data;
+                  }
+                  
+                  if (basicInfoData) {
+                    console.log('✅ Basic info fetched successfully by email:', basicInfoData);
+                  }
+                }
+              } catch (basicInfoError) {
+                console.error('❌ Error fetching basic info by email:', basicInfoError);
+              }
+            }
+          }
+          
+          // Merge basicInfo into profileData if we found it
+          if (basicInfoData) {
+            profileData = {
+              ...profileData,
+              basicInfo: basicInfoData
+            };
+          } else {
+            console.warn('⚠️ Could not fetch basic info - it may not exist or be linked to this profile');
+          }
+        } else {
+          console.log('✅ BasicInfo found in profile response');
+        }
+        
+        setProfileData(profileData);
         console.log('✅ Profile data loaded successfully');
       } else {
         const errorMessage = response.data?.message || response.data?.error || 'Failed to fetch profile data';
@@ -115,6 +202,15 @@ const CompleteProfilePage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileId]);
+
+  // Refresh profile data when navigating back to this page (location change)
+  useEffect(() => {
+    if (profileId && location.pathname === '/complete-profile') {
+      console.log('🔄 Location changed to complete-profile, refreshing profile data...');
+      fetchProfileData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   // Helper function to format date
   const formatDate = (dateString) => {
@@ -1067,19 +1163,19 @@ const CompleteProfilePage = () => {
               <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: { xs: 'center', sm: 'space-between' }, alignItems: 'center', gap: { xs: 2, sm: 1 } }}>
                 {[
                   { 
-                    color: profileData.styleProfile?.skinColor?.skinColorName === 'Deep' ? '#8B4513' : '#D2B48C', 
+                    color: getSkinColor(profileData.styleProfile?.skinColor?.skinColorName), 
                     border: '#DA498D', 
                     title: 'Skin Color', 
                     value: profileData.styleProfile?.skinColor?.skinColorName || 'N/A' 
                   },
                   { 
-                    color: profileData.styleProfile?.hairColor?.hairColorName === 'Black' ? '#000000' : '#8B4513', 
+                    color: getHairColor(profileData.styleProfile?.hairColor?.hairColorName), 
                     border: '#DA498D', 
                     title: 'Hair Color', 
                     value: profileData.styleProfile?.hairColor?.hairColorName || 'N/A' 
                   },
                   { 
-                    color: profileData.styleProfile?.eyeColor?.eyeColorName === 'blue' ? '#87CEEB' : '#000000', 
+                    color: getEyeColor(profileData.styleProfile?.eyeColor?.eyeColorName), 
                     border: '#DA498D', 
                     title: 'Eye Color', 
                     value: profileData.styleProfile?.eyeColor?.eyeColorName || 'N/A' 

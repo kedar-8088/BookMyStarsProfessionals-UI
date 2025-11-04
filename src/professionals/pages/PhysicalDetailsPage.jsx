@@ -642,13 +642,15 @@ const PhysicalDetailsPage = () => {
       const result = await profileFlowManager.savePhysicalDetails(formData);
       
       if (result.success) {
-        showSuccessAlert('Physical Details Saved!', 'Your physical details have been saved successfully! Redirecting to complete profile...');
+        showSuccessAlert('Physical Details Saved!', result.message || 'Your physical details have been saved successfully! Redirecting to complete profile...');
         setTimeout(() => {
           navigate('/complete-profile');
         }, 2000);
       } else {
         if (result.errors && result.errors.length > 0) {
           setValidationErrors(result.errors);
+        } else if (result.errorType === 'MULTIPLE_PROFILES') {
+          showErrorAlert('Multiple Profiles Detected', result.error || 'Multiple profiles found for your account. Please contact support for assistance.');
         } else {
           showErrorAlert('Save Failed', result.error || 'Failed to save physical details');
         }

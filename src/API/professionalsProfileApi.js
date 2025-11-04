@@ -52,11 +52,27 @@ const apiCall = async (endpoint, method = 'GET', data = null) => {
       result = text ? { message: text } : { error: 'Empty response from server' };
     }
     
-    return {
+    // Extract error message from various possible locations in the response
+    let errorMessage = null;
+    if (!response.ok && result) {
+      errorMessage = result.error || 
+                     result.message || 
+                     (result.data && (result.data.error || result.data.message)) ||
+                     `Server error (${response.status})`;
+    }
+    
+    // If we have an error message, include it in the response
+    const responseData = {
       success: response.ok,
       data: result,
       status: response.status
     };
+    
+    if (errorMessage) {
+      responseData.error = errorMessage;
+    }
+    
+    return responseData;
   } catch (error) {
     console.error('API call failed:', error);
     return {
