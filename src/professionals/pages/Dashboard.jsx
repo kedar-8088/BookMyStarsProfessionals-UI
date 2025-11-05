@@ -1369,7 +1369,7 @@ const Dashboard = () => {
         </motion.div>
       </Container>
 
-      {/* Project Categories Section */}
+      {/* Project Statistics Section */}
       <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -1379,101 +1379,211 @@ const Dashboard = () => {
         >
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Typography
-              variant="h4"
+              variant="h3"
               sx={{
                 fontWeight: 700,
-                fontSize: { xs: '20px', sm: '24px', md: '28px', lg: '32px' },
+                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
                 background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                mb: 2,
+                mb: 1,
+                textAlign: 'center',
               }}
             >
-              Project Categories
+              Projects
             </Typography>
             <Typography
               variant="body1"
               sx={{
                 color: '#666666',
                 fontSize: '16px',
-                mb: 4,
+                mb: 3,
+                textAlign: 'center',
               }}
             >
-              Explore projects by category
+              Overview of your project performance and achievements
             </Typography>
           </Box>
 
-          {/* Circular Categories */}
+          {/* Statistics Grid */}
           <Box
             sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: { xs: 3, sm: 4, md: 5 },
-              alignItems: 'center',
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+              gap: 3,
             }}
           >
             {[
-              { name: 'Fashion', color: '#69247C', hoverColor: '#DA498D' },
-              { name: 'Media', color: '#FF6B6B', hoverColor: '#FF8787' },
-              { name: 'Entertainment', color: '#4ECDC4', hoverColor: '#6EDDD6' },
-              { name: 'Beauty', color: '#FFB6C1', hoverColor: '#FFC0CB' },
-              { name: 'Corporate', color: '#4169E1', hoverColor: '#5A7AFF' },
-              { name: 'Music', color: '#FF8C00', hoverColor: '#FFA500' },
-              { name: 'Photography', color: '#9370DB', hoverColor: '#AB82FF' },
-              { name: 'Film', color: '#DC143C', hoverColor: '#FF1744' }
-            ].map((category, index) => {
-              const isHovered = hoveredCategory === category.name;
+              {
+                title: 'Total Projects',
+                value: '145',
+                icon: AssignmentIcon,
+                change: '+12%',
+                changeType: 'positive',
+                description: 'All time projects',
+                gradientStart: '#69247C',
+                gradientEnd: '#DA498D',
+              },
+              {
+                title: 'Active Projects',
+                value: '8',
+                icon: TrendingUpIcon,
+                change: '+2',
+                changeType: 'positive',
+                description: 'Currently in progress',
+                gradientStart: '#4ECDC4',
+                gradientEnd: '#2E9E96',
+              },
+              {
+                title: 'Completed',
+                value: '132',
+                icon: CheckCircleIcon,
+                change: '+15',
+                changeType: 'positive',
+                description: 'Successfully finished',
+                gradientStart: '#81C784',
+                gradientEnd: '#66BB6A',
+              },
+              {
+                title: 'Total Earnings',
+                value: '₹24.5L',
+                icon: MoneyIcon,
+                change: '+18%',
+                changeType: 'positive',
+                description: 'Cumulative revenue',
+                gradientStart: '#FFD54F',
+                gradientEnd: '#FFC107',
+              },
+              {
+                title: 'Avg. Project Duration',
+                value: '28 days',
+                icon: AccessTimeIcon,
+                change: '-3 days',
+                changeType: 'positive',
+                description: 'Average completion time',
+                gradientStart: '#FF8C42',
+                gradientEnd: '#FF6B00',
+              },
+              {
+                title: 'Success Rate',
+                value: '91%',
+                icon: StarIcon,
+                change: '+5%',
+                changeType: 'positive',
+                description: 'Project completion rate',
+                gradientStart: '#9370DB',
+                gradientEnd: '#7B1FA2',
+              },
+              {
+                title: 'Pending Projects',
+                value: '5',
+                icon: AssignmentIcon,
+                change: '-2',
+                changeType: 'positive',
+                description: 'Awaiting approval',
+                gradientStart: '#FF5252',
+                gradientEnd: '#D32F2F',
+              },
+              {
+                title: 'Client Satisfaction',
+                value: '4.8/5',
+                icon: FavoriteIcon,
+                change: '+0.2',
+                changeType: 'positive',
+                description: 'Average rating',
+                gradientStart: '#FF6B6B',
+                gradientEnd: '#FF5252',
+              },
+            ].map((stat, index) => {
+              const IconComponent = stat.icon;
               return (
-                <motion.div
-                  key={category.name}
-                  initial={{ opacity: 0, scale: 0 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: index * 0.1,
-                    type: "spring",
-                    stiffness: 200
-                  }}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  onMouseEnter={() => setHoveredCategory(category.name)}
-                  onMouseLeave={() => setHoveredCategory(null)}
-                >
-                  <Box
-                    sx={{
-                      width: { xs: 100, sm: 120, md: 140 },
-                      height: { xs: 100, sm: 120, md: 140 },
-                      borderRadius: '50%',
-                      background: isHovered 
-                        ? `linear-gradient(135deg, ${category.hoverColor} 0%, ${category.color} 100%)`
-                        : `linear-gradient(135deg, ${category.color} 0%, ${category.hoverColor} 100%)`,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      boxShadow: isHovered 
-                        ? `0 8px 25px ${category.color}80`
-                        : `0 4px 15px ${category.color}50`,
-                      transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
+                <Box key={stat.title}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ 
+                      duration: 0.5, 
+                      delay: index * 0.1,
+                      ease: "easeOut" 
                     }}
                   >
-                    <Typography
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: { xs: '14px', sm: '16px', md: '18px' },
-                        textAlign: 'center',
-                        px: 2,
-                      }}
-                    >
-                      {category.name}
-                    </Typography>
-                  </Box>
-                </motion.div>
+                    <ProjectCard>
+                      <CardContent sx={{ p: 3 }}>
+                        {/* Header with Icon */}
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
+                          <Box
+                            sx={{
+                              width: 56,
+                              height: 56,
+                              borderRadius: '14px',
+                              background: `linear-gradient(135deg, ${stat.gradientStart} 0%, ${stat.gradientEnd} 100%)`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              boxShadow: `0 4px 12px ${stat.gradientStart}40`,
+                            }}
+                          >
+                            <IconComponent sx={{ fontSize: 28 }} />
+                          </Box>
+                          <Chip
+                            label={stat.change}
+                            size="small"
+                            sx={{
+                              backgroundColor: stat.changeType === 'positive' ? '#e8f5e9' : '#ffebee',
+                              color: stat.changeType === 'positive' ? '#2e7d32' : '#c62828',
+                              fontWeight: 600,
+                              fontSize: '11px',
+                              height: '24px',
+                            }}
+                          />
+                        </Box>
+
+                        {/* Value */}
+                        <Typography
+                          variant="h4"
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: { xs: '24px', sm: '28px', md: '32px' },
+                            color: '#333333',
+                            mb: 0.5,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {stat.value}
+                        </Typography>
+
+                        {/* Title */}
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '16px',
+                            color: '#333333',
+                            mb: 1,
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {stat.title}
+                        </Typography>
+
+                        {/* Description */}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: '#666666',
+                            fontSize: '13px',
+                            fontWeight: 400,
+                          }}
+                        >
+                          {stat.description}
+                        </Typography>
+                      </CardContent>
+                    </ProjectCard>
+                  </motion.div>
+                </Box>
               );
             })}
           </Box>
@@ -1593,6 +1703,117 @@ const Dashboard = () => {
                     </ProjectCard>
                   </motion.div>
                 </Box>
+              );
+            })}
+          </Box>
+        </motion.div>
+      </Container>
+
+      {/* Project Categories Section */}
+      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: '20px', sm: '24px', md: '28px', lg: '32px' },
+                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                mb: 2,
+              }}
+            >
+              Project Categories
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#666666',
+                fontSize: '16px',
+                mb: 4,
+              }}
+            >
+              Explore projects by category
+            </Typography>
+          </Box>
+
+          {/* Circular Categories */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: { xs: 3, sm: 4, md: 5 },
+              alignItems: 'center',
+            }}
+          >
+            {[
+              { name: 'Fashion', color: '#69247C', hoverColor: '#DA498D' },
+              { name: 'Media', color: '#FF6B6B', hoverColor: '#FF8787' },
+              { name: 'Entertainment', color: '#4ECDC4', hoverColor: '#6EDDD6' },
+              { name: 'Beauty', color: '#FFB6C1', hoverColor: '#FFC0CB' },
+              { name: 'Corporate', color: '#4169E1', hoverColor: '#5A7AFF' },
+              { name: 'Music', color: '#FF8C00', hoverColor: '#FFA500' },
+              { name: 'Photography', color: '#9370DB', hoverColor: '#AB82FF' },
+              { name: 'Film', color: '#DC143C', hoverColor: '#FF1744' }
+            ].map((category, index) => {
+              const isHovered = hoveredCategory === category.name;
+              return (
+                <motion.div
+                  key={category.name}
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: index * 0.1,
+                    type: "spring",
+                    stiffness: 200
+                  }}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  onMouseEnter={() => setHoveredCategory(category.name)}
+                  onMouseLeave={() => setHoveredCategory(null)}
+                >
+                  <Box
+                    sx={{
+                      width: { xs: 100, sm: 120, md: 140 },
+                      height: { xs: 100, sm: 120, md: 140 },
+                      borderRadius: '50%',
+                      background: isHovered 
+                        ? `linear-gradient(135deg, ${category.hoverColor} 0%, ${category.color} 100%)`
+                        : `linear-gradient(135deg, ${category.color} 0%, ${category.hoverColor} 100%)`,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      boxShadow: isHovered 
+                        ? `0 8px 25px ${category.color}80`
+                        : `0 4px 15px ${category.color}50`,
+                      transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: { xs: '14px', sm: '16px', md: '18px' },
+                        textAlign: 'center',
+                        px: 2,
+                      }}
+                    >
+                      {category.name}
+                    </Typography>
+                  </Box>
+                </motion.div>
               );
             })}
           </Box>
