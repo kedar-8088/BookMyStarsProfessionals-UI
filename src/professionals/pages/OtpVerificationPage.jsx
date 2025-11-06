@@ -320,12 +320,17 @@ const OtpVerificationPage = () => {
           'Your profile has been created successfully with your basic information (Full Name, Email, Phone Number). Redirecting to login...'
         );
         
-        // Store session before redirecting
+        // Store session before redirecting - include firstName and lastName from signup
         const userInfo = {
           professionalsId: professionalsId,
-          userName: username
+          userName: username,
+          email: email,
+          mobileNumber: phoneNumber,
+          firstName: firstName,
+          lastName: lastName
         };
         sessionManager.setUserSession(userInfo, token);
+        console.log('✅ Session stored with firstName and lastName:', { firstName, lastName });
         
         setTimeout(() => {
           navigate('/login');
@@ -338,12 +343,17 @@ const OtpVerificationPage = () => {
           'Your email has been verified. You can complete your profile after login. Redirecting to login...'
         );
         
-        // Store session before redirecting
+        // Store session before redirecting - include firstName and lastName from signup
         const userInfo = {
           professionalsId: professionalsId,
-          userName: username
+          userName: username,
+          email: email,
+          mobileNumber: phoneNumber,
+          firstName: firstName,
+          lastName: lastName
         };
         sessionManager.setUserSession(userInfo, token);
+        console.log('✅ Session stored with firstName and lastName:', { firstName, lastName });
         
         setTimeout(() => {
           navigate('/login');

@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import { Menu as MenuIcon } from '@mui/icons-material';
+import { Menu as MenuIcon, Home as HomeIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -154,6 +154,8 @@ const LoginPage = () => {
         const username = userData.userName || userData.username || response.data.username;
         const mobileNumber = userData.mobileNumber || userData.phoneNumber || response.data.mobileNumber || response.data.phoneNumber;
         const email = userData.email || response.data.email;
+        const firstName = userData.firstName || response.data.firstName || '';
+        const lastName = userData.lastName || response.data.lastName || '';
         
         console.log('Token:', token);
         console.log('User data:', userData);
@@ -161,6 +163,8 @@ const LoginPage = () => {
         console.log('Username:', username);
         console.log('Mobile Number:', mobileNumber);
         console.log('Email:', email);
+        console.log('First Name:', firstName);
+        console.log('Last Name:', lastName);
         
         if (!token) {
           console.error('Missing token in login response:', response);
@@ -179,33 +183,85 @@ const LoginPage = () => {
           professionalsId: professionalsId,
           userName: username || userData.userName || '',
           mobileNumber: mobileNumber || '',
-          email: email || ''
+          email: email || '',
+          firstName: firstName,
+          lastName: lastName
         };
         
         // Save session first (needed for authenticated API calls)
         sessionManager.setUserSession(userInfo, token);
         
-        // If email is not in login response, try to fetch it from profile
-        if (!userInfo.email) {
-          try {
-            console.log('Email not found in login response, fetching from profile...');
-            const profileResponse = await getProfessionalsProfileByProfessional(professionalsId);
-            
-            if (profileResponse.success && profileResponse.data?.code === 1000) {
-              const profileEmail = profileResponse.data?.data?.basicInfo?.email || 
-                                  profileResponse.data?.data?.email ||
-                                  profileResponse.data?.data?.professionalsDto?.email;
-              
-              if (profileEmail) {
-                userInfo.email = profileEmail;
-                console.log('Email fetched from profile:', profileEmail);
-                // Update session with email
-                sessionManager.setUserSession(userInfo, token);
-              }
+        // If email, firstName, or lastName are not in login response, try multiple sources
+        if (!userInfo.email || !userInfo.firstName || !userInfo.lastName) {
+          // First, try to get from localStorage (stored during signup)
+          if (!userInfo.firstName) {
+            const storedFirstName = localStorage.getItem('signup_firstName');
+            if (storedFirstName) {
+              userInfo.firstName = storedFirstName;
+              console.log('✅ First name retrieved from localStorage:', storedFirstName);
             }
-          } catch (profileError) {
-            console.warn('Could not fetch email from profile:', profileError);
-            // Continue without email - not critical
+          }
+          if (!userInfo.lastName) {
+            const storedLastName = localStorage.getItem('signup_lastName');
+            if (storedLastName) {
+              userInfo.lastName = storedLastName;
+              console.log('✅ Last name retrieved from localStorage:', storedLastName);
+            }
+          }
+          if (!userInfo.email) {
+            const storedEmail = localStorage.getItem('signup_email');
+            if (storedEmail) {
+              userInfo.email = storedEmail;
+              console.log('✅ Email retrieved from localStorage:', storedEmail);
+            }
+          }
+          
+          // If still missing, try to fetch from profile API
+          if (!userInfo.email || !userInfo.firstName || !userInfo.lastName) {
+            try {
+              console.log('Missing user data, fetching from profile API...');
+              const profileResponse = await getProfessionalsProfileByProfessional(professionalsId);
+              
+              if (profileResponse.success && profileResponse.data?.code === 1000) {
+                const profileData = profileResponse.data?.data;
+                const professionalsDto = profileData?.professionalsDto;
+                
+                // Update email if missing
+                if (!userInfo.email) {
+                  const profileEmail = profileData?.basicInfo?.email || 
+                                      profileData?.email ||
+                                      professionalsDto?.email;
+                  
+                  if (profileEmail) {
+                    userInfo.email = profileEmail;
+                    console.log('✅ Email fetched from profile:', profileEmail);
+                  }
+                }
+                
+                // Update firstName and lastName if missing
+                if (!userInfo.firstName && professionalsDto?.firstName) {
+                  userInfo.firstName = professionalsDto.firstName;
+                  console.log('✅ First name fetched from profile:', professionalsDto.firstName);
+                }
+                if (!userInfo.lastName && professionalsDto?.lastName) {
+                  userInfo.lastName = professionalsDto.lastName;
+                  console.log('✅ Last name fetched from profile:', professionalsDto.lastName);
+                }
+              }
+            } catch (profileError) {
+              console.warn('Could not fetch user data from profile:', profileError);
+              // Continue without the data - not critical
+            }
+          }
+          
+          // Update session with any fetched data
+          if (userInfo.firstName || userInfo.lastName || userInfo.email) {
+            sessionManager.setUserSession(userInfo, token);
+            console.log('✅ Session updated with user data:', { 
+              firstName: userInfo.firstName, 
+              lastName: userInfo.lastName,
+              email: userInfo.email 
+            });
           }
         }
         
@@ -392,13 +448,6 @@ const LoginPage = () => {
                 >
                   Home
                 </Button>
-                <Button 
-                  color="inherit" 
-                  sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
-                  onClick={() => navigate('/features')}
-                >
-                  Features
-                </Button>
                 {/* <Button color="inherit" sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}>
                   Dummy text
                 </Button> */}
@@ -422,11 +471,73 @@ const LoginPage = () => {
             anchorEl={mobileMenuAnchor}
             open={Boolean(mobileMenuAnchor)}
             onClose={handleMobileMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            PaperProps={{
+              elevation: 8,
+              sx: {
+                mt: 1.5,
+                minWidth: 200,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'rgba(0, 0, 0, 0.08)',
+                boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.15)',
+                overflow: 'hidden',
+                '& .MuiMenuItem-root': {
+                  px: 2,
+                  py: 1.5,
+                  fontSize: '15px',
+                  fontFamily: 'Poppins',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    backgroundColor: 'rgba(218, 73, 141, 0.08)',
+                    color: '#DA498D',
+                  },
+                  '&:first-of-type': {
+                    borderTopLeftRadius: 8,
+                    borderTopRightRadius: 8,
+                  },
+                  '&:last-of-type': {
+                    borderBottomLeftRadius: 8,
+                    borderBottomRightRadius: 8,
+                  }
+                }
+              }
+            }}
             sx={{ display: { xs: 'block', md: 'none' } }}
           >
-            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/'); }}>Home</MenuItem>
-            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/features'); }}>Features</MenuItem>
-            <MenuItem onClick={handleMobileMenuClose}>Dummy text</MenuItem>
+            <MenuItem 
+              onClick={() => { handleMobileMenuClose(); navigate('/'); }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: '#333333',
+                fontWeight: 500
+              }}
+            >
+              <Box sx={{ 
+                width: 24, 
+                height: 24, 
+                borderRadius: '50%', 
+                background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white'
+              }}>
+                <HomeIcon sx={{ fontSize: 16 }} />
+              </Box>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                Home
+              </Typography>
+            </MenuItem>
           </Menu>
         </Toolbar>
       </GradientAppBar>

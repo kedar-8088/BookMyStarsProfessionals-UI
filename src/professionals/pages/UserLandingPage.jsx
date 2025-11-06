@@ -6,11 +6,10 @@ import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import { useNavigate } from 'react-router-dom';
 import { sessionManager } from '../../API/authApi';
-import { Person as PersonIcon, AccountCircle as AccountIcon, ExitToApp as LogoutIcon, Menu as MenuIcon } from '@mui/icons-material';
+import { Person as PersonIcon, ExitToApp as LogoutIcon, Menu as MenuIcon, Home as HomeIcon } from '@mui/icons-material';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 
 const ProfileNavBar = () => {
@@ -20,7 +19,6 @@ const ProfileNavBar = () => {
   // Get user data from session
   const session = sessionManager.getUserSession();
   const user = session?.user || null;
-  const userName = user?.userName || null;
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -59,10 +57,6 @@ const ProfileNavBar = () => {
             }}
           />
         </Typography>
-
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
-          <Button color="inherit" onClick={() => navigate('/')}>Home</Button>
-        </Box>
 
         <IconButton onClick={handleMenuOpen} sx={{ ml: 2, color: 'white' }}>
           <MenuIcon sx={{ fontSize: 28 }} />
@@ -135,12 +129,12 @@ const ProfileNavBar = () => {
               <PersonIcon sx={{ fontSize: 16 }} />
             </Box>
             <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
-              {userName ? `Update Profile - ${userName}` : 'Update Profile'}
+              Create Profile
             </Typography>
           </MenuItem>
           
           <MenuItem 
-            onClick={() => { handleMenuClose(); navigate('/account'); }}
+            onClick={() => { handleMenuClose(); navigate('/'); }}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -159,45 +153,47 @@ const ProfileNavBar = () => {
               justifyContent: 'center',
               color: 'white'
             }}>
-              <AccountIcon sx={{ fontSize: 16 }} />
+              <HomeIcon sx={{ fontSize: 16 }} />
             </Box>
             <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
-              Account
+              Home
             </Typography>
           </MenuItem>
           
-          <Divider sx={{ my: 0.5, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
-          
-          <MenuItem 
-            onClick={handleLogout}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
-              color: '#d32f2f',
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: 'rgba(211, 47, 47, 0.08)',
+          {session?.token && user && [
+            <Divider key="divider" sx={{ my: 0.5, borderColor: 'rgba(0, 0, 0, 0.08)' }} />,
+            <MenuItem 
+              key="logout"
+              onClick={handleLogout}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
                 color: '#d32f2f',
-              }
-            }}
-          >
-            <Box sx={{ 
-              width: 24, 
-              height: 24, 
-              borderRadius: '50%', 
-              backgroundColor: '#ffebee',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#d32f2f'
-            }}>
-              <LogoutIcon sx={{ fontSize: 16 }} />
-            </Box>
-            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
-              Logout
-            </Typography>
-          </MenuItem>
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                  color: '#d32f2f',
+                }
+              }}
+            >
+              <Box sx={{ 
+                width: 24, 
+                height: 24, 
+                borderRadius: '50%', 
+                backgroundColor: '#ffebee',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#d32f2f'
+              }}>
+                <LogoutIcon sx={{ fontSize: 16 }} />
+              </Box>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                Logout
+              </Typography>
+            </MenuItem>
+          ]}
         </Menu>
       </Toolbar>
     </AppBar>

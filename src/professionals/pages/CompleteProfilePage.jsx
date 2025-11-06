@@ -147,7 +147,10 @@ const CompleteProfilePage = () => {
                 const basicInfoResponse = await getBasicInfoByEmail(email);
                 console.log('📡 Basic Info API response (by email):', basicInfoResponse);
                 
-                if (basicInfoResponse.success && basicInfoResponse.data) {
+                // Handle 404 as "not found" - this is expected if basicInfo doesn't exist yet
+                if (basicInfoResponse.status === 404) {
+                  console.log('ℹ️ Basic info not found for this email (404) - user may need to complete basic info step');
+                } else if (basicInfoResponse.success && basicInfoResponse.data) {
                   // Handle different response structures
                   if (basicInfoResponse.data.code === 200 && basicInfoResponse.data.data) {
                     basicInfoData = basicInfoResponse.data.data;
@@ -162,7 +165,12 @@ const CompleteProfilePage = () => {
                   }
                 }
               } catch (basicInfoError) {
-                console.error('❌ Error fetching basic info by email:', basicInfoError);
+                // Only log as error if it's not a 404 (not found is expected)
+                if (basicInfoError.status !== 404 && basicInfoError.response?.status !== 404) {
+                  console.error('❌ Error fetching basic info by email:', basicInfoError);
+                } else {
+                  console.log('ℹ️ Basic info not found for this email - user may need to complete basic info step');
+                }
               }
             }
           }
@@ -173,8 +181,11 @@ const CompleteProfilePage = () => {
               ...profileData,
               basicInfo: basicInfoData
             };
+            console.log('✅ Basic info merged into profile data');
           } else {
-            console.warn('⚠️ Could not fetch basic info - it may not exist or be linked to this profile');
+            console.log('ℹ️ Basic info not found - this is normal if the user hasn\'t completed the basic info step yet');
+            // Set basicInfo to null explicitly so the page knows it doesn't exist
+            profileData.basicInfo = null;
           }
         } else {
           console.log('✅ BasicInfo found in profile response');

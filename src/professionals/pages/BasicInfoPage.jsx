@@ -272,12 +272,41 @@ const BasicInfoPage = () => {
         console.log('Session data:', session);
         console.log('Profile initialization result:', initResult);
 
+        // Fetch master data FIRST before setting form data
+        await fetchMasterData();
+
+        // Helper function to get fullName from firstName + lastName, with fallback
+        const getFullNameFromSession = (fallbackValue = '') => {
+          const currentSession = sessionManager.getUserSession();
+          if (currentSession && currentSession.user) {
+            const firstName = currentSession.user.firstName || '';
+            const lastName = currentSession.user.lastName || '';
+            console.log('🔍 getFullNameFromSession - firstName:', firstName, 'lastName:', lastName);
+            if (firstName && lastName) {
+              const combined = `${firstName} ${lastName}`.trim();
+              console.log('✅ Using firstName + lastName:', combined);
+              return combined;
+            } else if (firstName || lastName) {
+              const single = (firstName || lastName).trim();
+              console.log('⚠️ Using only one name:', single);
+              return single;
+            }
+          }
+          // Only use fallback if it has multiple words (likely a real name, not a username)
+          if (fallbackValue && fallbackValue.trim().split(/\s+/).length > 1) {
+            console.log('ℹ️ Using fallback fullName:', fallbackValue);
+            return fallbackValue;
+          }
+          console.log('ℹ️ No firstName/lastName found, returning empty string');
+          return '';
+        };
+
         // Load existing basic info if available
         if (initResult.hasExistingProfile && profileFlowManager.profileData.basicInfo) {
           const existingData = profileFlowManager.profileData.basicInfo;
           
           setFormData({
-            fullName: existingData.fullName || '',
+            fullName: getFullNameFromSession(existingData.fullName || ''),
             email: existingData.email || '',
             phoneNo: cleanPhoneNumber(existingData.phoneNo),
             category: existingData.category?.categoryId || '',
@@ -299,7 +328,7 @@ const BasicInfoPage = () => {
             const existingData = loadResult.data;
             
             setFormData({
-              fullName: existingData.fullName || '',
+              fullName: getFullNameFromSession(existingData.fullName || ''),
               email: existingData.email || '',
               phoneNo: cleanPhoneNumber(existingData.phoneNo),
               category: existingData.category?.categoryId || '',
@@ -319,22 +348,24 @@ const BasicInfoPage = () => {
               console.log('🔍 Email value:', session.user.email);
               console.log('🔍 Mobile number value:', session.user.mobileNumber);
               console.log('🔍 Phone number value:', session.user.phoneNumber);
+              console.log('🔍 First name value:', session.user.firstName);
+              console.log('🔍 Last name value:', session.user.lastName);
               
               // Try to get phone number from multiple possible fields
               const phoneNumber = session.user.mobileNumber || session.user.phoneNumber || session.user.phone || '';
               
+              // Combine firstName and lastName for fullName, fallback to empty string
+              const fullName = getFullNameFromSession('');
+              
               setFormData(prev => ({
                 ...prev,
-                fullName: session.user.userName || '',
+                fullName: fullName,
                 email: session.user.email || '',
                 phoneNo: cleanPhoneNumber(phoneNumber)
               }));
             }
           }
         }
-
-        // Fetch master data
-        await fetchMasterData();
       } catch (error) {
         console.error('Page initialization failed:', error);
         showErrorAlert('Initialization Error', 'Failed to initialize page');

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Box, Button, IconButton, useMediaQuery, useTheme, Menu, MenuItem } from '@mui/material';
-import { KeyboardArrowDown, Menu as MenuIcon, Logout as LogoutIcon } from '@mui/icons-material';
+import { Menu as MenuIcon, Logout as LogoutIcon, Login as LoginIcon, PersonAdd as PersonAddIcon, Person as PersonIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { motion, useMotionValue, useTransform, animate, useScroll } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -16,8 +16,6 @@ const LandingHeader = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [anchorEl2, setAnchorEl2] = React.useState(null);
   const [mobileMenuAnchor, setMobileMenuAnchor] = React.useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -35,22 +33,6 @@ const LandingHeader = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleClick2 = (event) => {
-    setAnchorEl2(event.currentTarget);
-  };
-
-  const handleClose2 = () => {
-    setAnchorEl2(null);
-  };
 
   const handleMobileMenuOpen = (event) => {
     setMobileMenuAnchor(event.currentTarget);
@@ -165,141 +147,6 @@ const LandingHeader = () => {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <motion.div
-                whileHover={{ scale: 1.1, y: -2 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Button 
-                  color="inherit" 
-                  sx={{ 
-                    color: 'white', 
-                    fontWeight: 400, 
-                    fontSize: '14px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: '-100%',
-                      width: '100%',
-                      height: '100%',
-                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-                      transition: 'left 0.5s'
-                    },
-                    '&:hover::before': {
-                      left: '100%'
-                    }
-                  }}
-                  onClick={() => navigate('/')}
-                >
-                  Home
-                </Button>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.1, y: -2 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Button 
-                  color="inherit" 
-                  sx={{ 
-                    color: 'white', 
-                    fontWeight: 400, 
-                    fontSize: '14px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: '-100%',
-                      width: '100%',
-                      height: '100%',
-                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-                      transition: 'left 0.5s'
-                    },
-                    '&:hover::before': {
-                      left: '100%'
-                    }
-                  }}
-                  onClick={() => navigate('/features')}
-                >
-                  Features
-                </Button>
-              </motion.div>
-              
-              <motion.div
-                whileHover={{ scale: 1.1, y: -2 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Button
-                  color="inherit"
-                  onClick={handleClick2}
-                  endIcon={<KeyboardArrowDown />}
-                  sx={{ 
-                    color: 'white', 
-                    fontWeight: 400, 
-                    fontSize: '14px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: '-100%',
-                      width: '100%',
-                      height: '100%',
-                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-                      transition: 'left 0.5s'
-                    },
-                    '&:hover::before': {
-                      left: '100%'
-                    }
-                  }}
-                >
-                  Find Work
-                </Button>
-              </motion.div>
-              <Menu
-                anchorEl={anchorEl2}
-                open={Boolean(anchorEl2)}
-                onClose={handleClose2}
-              >
-                <MenuItem onClick={handleClose2}>Browse Jobs</MenuItem>
-                <MenuItem onClick={handleClose2}>Create Profile</MenuItem>
-              </Menu>
-
-              <motion.div
-                whileHover={{ scale: 1.1, y: -2 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Button 
-                  color="inherit" 
-                  sx={{ 
-                    color: 'white', 
-                    fontWeight: 400, 
-                    fontSize: '14px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: '-100%',
-                      width: '100%',
-                      height: '100%',
-                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-                      transition: 'left 0.5s'
-                    },
-                    '&:hover::before': {
-                      left: '100%'
-                    }
-                  }}
-                >
-                  About us
-                </Button>
-              </motion.div>
-              
               {/* Login/Logout Section */}
               {isLoggedIn ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 2 }}>
@@ -450,50 +297,161 @@ const LandingHeader = () => {
           anchorEl={mobileMenuAnchor}
           open={Boolean(mobileMenuAnchor)}
           onClose={handleMobileMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          PaperProps={{
+            elevation: 8,
+            sx: {
+              mt: 1.5,
+              minWidth: 200,
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'rgba(0, 0, 0, 0.08)',
+              boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.15)',
+              overflow: 'hidden',
+              '& .MuiMenuItem-root': {
+                px: 2,
+                py: 1.5,
+                fontSize: '15px',
+                fontFamily: 'Poppins',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  backgroundColor: 'rgba(218, 73, 141, 0.08)',
+                  color: '#DA498D',
+                },
+                '&:first-of-type': {
+                  borderTopLeftRadius: 8,
+                  borderTopRightRadius: 8,
+                },
+                '&:last-of-type': {
+                  borderBottomLeftRadius: 8,
+                  borderBottomRightRadius: 8,
+                }
+              }
+            }
+          }}
           sx={{ display: { xs: 'block', md: 'none' } }}
         >
-          <motion.div
-            whileHover={{ x: 5 }}
-            transition={{ duration: 0.2 }}
-          >
-            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/'); }}>Home</MenuItem>
-          </motion.div>
-          <motion.div
-            whileHover={{ x: 5 }}
-            transition={{ duration: 0.2 }}
-          >
-            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/features'); }}>Features</MenuItem>
-          </motion.div>
-          <motion.div
-            whileHover={{ x: 5 }}
-            transition={{ duration: 0.2 }}
-          >
-            <MenuItem onClick={handleMobileMenuClose}>Find Work</MenuItem>
-          </motion.div>
-          <motion.div
-            whileHover={{ x: 5 }}
-            transition={{ duration: 0.2 }}
-          >
-            <MenuItem onClick={handleMobileMenuClose}>About us</MenuItem>
-          </motion.div>
           {isLoggedIn ? [
-            <motion.div key="welcome" whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
-              <MenuItem onClick={handleMobileMenuClose}>
+            <MenuItem 
+              key="welcome"
+              onClick={handleMobileMenuClose}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: '#333333',
+                fontWeight: 500
+              }}
+            >
+              <Box sx={{ 
+                width: 24, 
+                height: 24, 
+                borderRadius: '50%', 
+                background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white'
+              }}>
+                <PersonIcon sx={{ fontSize: 16 }} />
+              </Box>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
                 Welcome, {userData?.userName || 'User'}
-              </MenuItem>
-            </motion.div>,
-            <motion.div key="logout" whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
-              <MenuItem onClick={() => { handleMobileMenuClose(); handleLogoutClick(); }}>
+              </Typography>
+            </MenuItem>,
+            <MenuItem 
+              key="logout"
+              onClick={() => { handleMobileMenuClose(); handleLogoutClick(); }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: '#d32f2f',
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                  color: '#d32f2f',
+                }
+              }}
+            >
+              <Box sx={{ 
+                width: 24, 
+                height: 24, 
+                borderRadius: '50%', 
+                backgroundColor: '#ffebee',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#d32f2f'
+              }}>
+                <LogoutIcon sx={{ fontSize: 16 }} />
+              </Box>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
                 Logout
-              </MenuItem>
-            </motion.div>
+              </Typography>
+            </MenuItem>
           ] : [
-            <motion.div key="login" whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
-              <MenuItem onClick={() => { handleMobileMenuClose(); handleLoginClick(); }}>Login</MenuItem>
-            </motion.div>,
-            <motion.div key="signup" whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
-              <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/signup'); }}>Sign Up</MenuItem>
-            </motion.div>
+            <MenuItem 
+              key="login"
+              onClick={() => { handleMobileMenuClose(); handleLoginClick(); }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: '#333333',
+                fontWeight: 500
+              }}
+            >
+              <Box sx={{ 
+                width: 24, 
+                height: 24, 
+                borderRadius: '50%', 
+                background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white'
+              }}>
+                <LoginIcon sx={{ fontSize: 16 }} />
+              </Box>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                Login
+              </Typography>
+            </MenuItem>,
+            <MenuItem 
+              key="signup"
+              onClick={() => { handleMobileMenuClose(); navigate('/signup'); }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: '#333333',
+                fontWeight: 500
+              }}
+            >
+              <Box sx={{ 
+                width: 24, 
+                height: 24, 
+                borderRadius: '50%', 
+                background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white'
+              }}>
+                <PersonAddIcon sx={{ fontSize: 16 }} />
+              </Box>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                Sign Up
+              </Typography>
+            </MenuItem>
           ]}
         </Menu>
       </Toolbar>

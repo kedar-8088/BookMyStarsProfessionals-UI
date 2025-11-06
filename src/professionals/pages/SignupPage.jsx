@@ -3,7 +3,7 @@ import {  Box, Container,  Typography,  TextField,  Button,  Checkbox, FormContr
 } from '@mui/material';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import { Menu as MenuIcon } from '@mui/icons-material';
+import { Menu as MenuIcon, Home as HomeIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -129,6 +129,7 @@ const SignupPage = () => {
     try {
       const registerData = {
         email: formData.email,
+        firstName: formData.firstName,
         lastName: formData.lastName,
         password: formData.password,
         phoneNumber: formData.phoneNumber,
@@ -144,6 +145,11 @@ const SignupPage = () => {
           'Registration Successful!', 
           'Your account has been created and an OTP has been sent to your email. Please verify your email to complete registration.'
         );
+        // Store firstName and lastName in localStorage as backup
+        localStorage.setItem('signup_firstName', formData.firstName);
+        localStorage.setItem('signup_lastName', formData.lastName);
+        localStorage.setItem('signup_email', formData.email);
+        
         setTimeout(() => {
           navigate('/otp-verification', { 
             state: { 
@@ -384,13 +390,6 @@ const SignupPage = () => {
                 >
                   Home
                 </Button>
-                <Button 
-                  color="inherit" 
-                  sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
-                  onClick={() => navigate('/features')}
-                >
-                  Features
-                </Button>
                 {/* <Button color="inherit" sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}>
                   Dummy text
                 </Button> */}
@@ -414,11 +413,73 @@ const SignupPage = () => {
             anchorEl={mobileMenuAnchor}
             open={Boolean(mobileMenuAnchor)}
             onClose={handleMobileMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            PaperProps={{
+              elevation: 8,
+              sx: {
+                mt: 1.5,
+                minWidth: 200,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'rgba(0, 0, 0, 0.08)',
+                boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.15)',
+                overflow: 'hidden',
+                '& .MuiMenuItem-root': {
+                  px: 2,
+                  py: 1.5,
+                  fontSize: '15px',
+                  fontFamily: 'Poppins',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    backgroundColor: 'rgba(218, 73, 141, 0.08)',
+                    color: '#DA498D',
+                  },
+                  '&:first-of-type': {
+                    borderTopLeftRadius: 8,
+                    borderTopRightRadius: 8,
+                  },
+                  '&:last-of-type': {
+                    borderBottomLeftRadius: 8,
+                    borderBottomRightRadius: 8,
+                  }
+                }
+              }
+            }}
             sx={{ display: { xs: 'block', md: 'none' } }}
           >
-            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/'); }}>Home</MenuItem>
-            <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/features'); }}>Features</MenuItem>
-            <MenuItem onClick={handleMobileMenuClose}>Dummy text</MenuItem>
+            <MenuItem 
+              onClick={() => { handleMobileMenuClose(); navigate('/'); }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: '#333333',
+                fontWeight: 500
+              }}
+            >
+              <Box sx={{ 
+                width: 24, 
+                height: 24, 
+                borderRadius: '50%', 
+                background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white'
+              }}>
+                <HomeIcon sx={{ fontSize: 16 }} />
+              </Box>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                Home
+              </Typography>
+            </MenuItem>
           </Menu>
         </Toolbar>
       </GradientAppBar>

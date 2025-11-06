@@ -224,6 +224,8 @@ const Dashboard = () => {
 
   const session = sessionManager.getUserSession();
   const user = session?.user || null;
+  const [userFirstName, setUserFirstName] = useState('');
+  const [userLastName, setUserLastName] = useState('');
 
   // Carousel slides with different images and overlay text
   const slides = [
@@ -233,6 +235,50 @@ const Dashboard = () => {
   ];
   const [currentSlide, setCurrentSlide] = useState(0);
   const [hoveredCategory, setHoveredCategory] = useState(null);
+
+  // Fetch user firstName and lastName from session or profile
+  useEffect(() => {
+    const fetchUserNames = async () => {
+      // First, check if firstName and lastName are already in the user session
+      if (user?.firstName) {
+        setUserFirstName(user.firstName);
+      }
+      if (user?.lastName) {
+        setUserLastName(user.lastName);
+      }
+
+      // If not in session and we have a professionalsId, fetch from profile
+      if ((!user?.firstName || !user?.lastName) && user?.professionalsId) {
+        try {
+          const response = await getProfessionalsProfileByProfessional(user.professionalsId);
+          if (response.success && response.data?.code === 1000) {
+            const profileData = response.data.data;
+            // Check if firstName and lastName are in professionalsDto
+            if (profileData?.professionalsDto?.firstName && !user?.firstName) {
+              setUserFirstName(profileData.professionalsDto.firstName);
+            }
+            if (profileData?.professionalsDto?.lastName && !user?.lastName) {
+              setUserLastName(profileData.professionalsDto.lastName);
+            }
+            // If firstName or lastName not in professionalsDto, check if fullName exists in basicInfo and split it
+            if ((!profileData?.professionalsDto?.firstName || !profileData?.professionalsDto?.lastName) && profileData?.basicInfo?.fullName) {
+              const nameParts = profileData.basicInfo.fullName.trim().split(' ');
+              if (nameParts.length > 0 && !user?.firstName && !profileData?.professionalsDto?.firstName) {
+                setUserFirstName(nameParts[0]);
+              }
+              if (nameParts.length > 1 && !user?.lastName && !profileData?.professionalsDto?.lastName) {
+                setUserLastName(nameParts.slice(1).join(' '));
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user names:', error);
+        }
+      }
+    };
+
+    fetchUserNames();
+  }, [user]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -465,257 +511,203 @@ const Dashboard = () => {
         </Container>
       </Box>
 
-      {/* Welcome headline */}
-      <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <Box 
-            sx={{ 
-              mt: 5, 
-              mb: 4, 
-              textAlign: 'center',
-              position: 'relative',
-              py: 3
-            }}
+      {/* Welcome headline - Only show when logged in */}
+      {session?.token && user && (
+        <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              position: 'relative',
-              px: 0,
-              py: 2,
-              width: '100%'
-            }}
-          >
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ 
-                y: [0, -20, 0],
-                opacity: 1
-              }}
-              transition={{ 
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              style={{ 
-                width: '100%',
+            <Box 
+              sx={{ 
+                mt: 5, 
+                mb: 4, 
                 textAlign: 'center',
-                position: 'relative'
+                position: 'relative',
+                py: 3
               }}
             >
-              <Typography
-                variant="h1"
-                sx={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: { xs: '32px', sm: '42px', md: '52px', lg: '60px' },
-                  lineHeight: 1.1,
-                  mb: 1,
-                  position: 'relative',
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                position: 'relative',
+                px: 0,
+                py: 2,
+                width: '100%'
+              }}
+            >
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  y: [0, -20, 0],
+                  opacity: 1
+                }}
+                transition={{ 
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                style={{ 
+                  width: '100%',
                   textAlign: 'center',
-                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 50%, #69247C 100%)',
-                  backgroundSize: '200% auto',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  animation: 'gradient 3s ease infinite',
-                  '@keyframes gradient': {
-                    '0%': {
-                      backgroundPosition: '0% 50%',
-                    },
-                    '50%': {
-                      backgroundPosition: '100% 50%',
-                    },
-                    '100%': {
-                      backgroundPosition: '0% 50%',
-                    },
-                  },
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(105, 36, 124, 0.1) 0%, rgba(218, 73, 141, 0.1) 100%)',
-                    borderRadius: '20px',
-                    zIndex: -1,
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                  },
-                  '&:hover::before': {
-                    opacity: 1,
-                  },
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  letterSpacing: '-0.02em',
+                  position: 'relative'
                 }}
               >
-                Welcome to your dashboard!
-              </Typography>
-            </motion.div>
-            
-            <Box
-              sx={{
-                width: '60px',
-                height: '4px',
-                background: 'linear-gradient(90deg, transparent 0%, #69247C 50%, transparent 100%)',
-                borderRadius: '2px',
-                mt: 1.5,
-                mb: 2
-              }}
-            />
-            
-            <Typography 
-              sx={{ 
-                color: '#666666', 
-                fontSize: { xs: '15px', sm: '16px', md: '17px' },
-                fontWeight: 400,
-                maxWidth: '600px',
-                textAlign: 'center',
-                mx: 'auto',
-                lineHeight: 1.6,
-                transition: 'color 0.3s ease-in-out',
-                '&:hover': {
-                  color: '#333333',
-                }
-              }}
-            >
-              Your profile summary is below. Edit your profile anytime from the profile menu.
-            </Typography>
-          </Box>
-        </Box>
-        </motion.div>
-      </Container>
-
-      <Container maxWidth={false} sx={{ pt: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        >
-          <Paper 
-            sx={{ 
-              p: 4, 
-              borderRadius: '12px',
-              backgroundColor: 'white',
-              width: '100%',
-              maxWidth: '100%',
-              border: '1px solid #DA498D',
-              boxShadow: 'none',
-            }} 
-            elevation={0}
-          >
-          {/* Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                backgroundColor: '#69247C',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mr: 2,
-                flexShrink: 0,
-              }}
-            >
-              <AccountCircleIcon 
-                sx={{ 
-                  fontSize: 24, 
-                  color: 'white',
-                }} 
+                <Typography
+                  variant="h1"
+                  sx={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 700,
+                    fontSize: { xs: '32px', sm: '42px', md: '52px', lg: '60px' },
+                    lineHeight: 1.1,
+                    mb: 1,
+                    position: 'relative',
+                    textAlign: 'center',
+                    background: 'linear-gradient(135deg, #69247C 0%, #DA498D 50%, #69247C 100%)',
+                    backgroundSize: '200% auto',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    animation: 'gradient 3s ease infinite',
+                    '@keyframes gradient': {
+                      '0%': {
+                        backgroundPosition: '0% 50%',
+                      },
+                      '50%': {
+                        backgroundPosition: '100% 50%',
+                      },
+                      '100%': {
+                        backgroundPosition: '0% 50%',
+                      },
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'linear-gradient(135deg, rgba(105, 36, 124, 0.1) 0%, rgba(218, 73, 141, 0.1) 100%)',
+                      borderRadius: '20px',
+                      zIndex: -1,
+                      opacity: 0,
+                      transition: 'opacity 0.3s ease',
+                    },
+                    '&:hover::before': {
+                      opacity: 1,
+                    },
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  Welcome to your dashboard!
+                </Typography>
+              </motion.div>
+              
+              <Box
+                sx={{
+                  width: '60px',
+                  height: '4px',
+                  background: 'linear-gradient(90deg, transparent 0%, #69247C 50%, transparent 100%)',
+                  borderRadius: '2px',
+                  mt: 1.5,
+                  mb: 2
+                }}
               />
+              
+              <Typography 
+                sx={{ 
+                  color: '#666666', 
+                  fontSize: { xs: '15px', sm: '16px', md: '17px' },
+                  fontWeight: 400,
+                  maxWidth: '600px',
+                  textAlign: 'center',
+                  mx: 'auto',
+                  lineHeight: 1.6,
+                  transition: 'color 0.3s ease-in-out',
+                  '&:hover': {
+                    color: '#333333',
+                  }
+                }}
+              >
+                Your profile summary is below. Edit your profile anytime from the profile menu.
+              </Typography>
             </Box>
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                fontWeight: 700,
-                fontSize: { xs: '20px', sm: '24px', md: '28px' },
-                color: '#333333',
-              }}
-            >
-              Your Information
-            </Typography>
           </Box>
+          </motion.div>
+        </Container>
+      )}
 
-          {!user ? (
-            <Typography sx={{ mb: 2, color: '#666666' }}>
-              No user data found in session. Please login.
-            </Typography>
-          ) : (
+      {/* User Information Box - Only show when logged in */}
+      {session?.token && user && (
+        <Container maxWidth={false} sx={{ pt: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <Paper 
+              sx={{ 
+                p: 4, 
+                borderRadius: '12px',
+                backgroundColor: 'white',
+                width: '100%',
+                maxWidth: '100%',
+                border: '1px solid #DA498D',
+                boxShadow: 'none',
+              }} 
+              elevation={0}
+            >
+            {/* Header */}
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  backgroundColor: '#69247C',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mr: 2,
+                  flexShrink: 0,
+                }}
+              >
+                <AccountCircleIcon 
+                  sx={{ 
+                    fontSize: 24, 
+                    color: 'white',
+                  }} 
+                />
+              </Box>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 700,
+                  fontSize: { xs: '20px', sm: '24px', md: '28px' },
+                  color: '#333333',
+                }}
+              >
+                {userFirstName || userLastName 
+                  ? `${userFirstName} ${userLastName}`.trim() + "'s"
+                  : user?.userName 
+                    ? `${user.userName}'s`
+                    : 'Your'}
+              </Typography>
+            </Box>
+
             <Box 
               sx={{ 
                 display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
                 gap: 4,
                 justifyContent: 'space-between'
               }}
             >
-              {/* Professionals ID */}
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Box 
-                  sx={{ 
-                    p: 2,
-                    borderRadius: '8px',
-                    transition: 'all 0.3s ease-in-out',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      backgroundColor: 'rgba(218, 73, 141, 0.08)',
-                      transform: 'translateX(4px)',
-                      '& .field-icon': {
-                        color: '#DA498D',
-                        transform: 'scale(1.1)',
-                      },
-                      '& .field-label': {
-                        color: '#DA498D',
-                      },
-                    },
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
-                    <PersonIcon 
-                      className="field-icon"
-                      sx={{ 
-                        fontSize: 18, 
-                        color: '#666666', 
-                        mr: 1,
-                        transition: 'all 0.3s ease-in-out',
-                      }} 
-                    />
-                    <Typography 
-                      variant="caption" 
-                      className="field-label"
-                      sx={{ 
-                        color: '#666666', 
-                        fontWeight: 600,
-                        fontSize: '0.75rem',
-                        transition: 'color 0.3s ease-in-out',
-                      }}
-                    >
-                      Professionals ID
-                    </Typography>
-                  </Box>
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      fontWeight: 500, 
-                      color: '#333333',
-                      fontSize: '0.95rem'
-                    }}
-                  >
-                    {user.professionalsId || '—'}
-                  </Typography>
-                </Box>
-              </Box>
-
               {/* Username */}
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Box 
@@ -888,10 +880,10 @@ const Dashboard = () => {
                 </Box>
               </Box>
             </Box>
-          )}
-        </Paper>
-        </motion.div>
-      </Container>
+            </Paper>
+          </motion.div>
+        </Container>
+      )}
 
       {/* Opportunities Section with Categories */}
       <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
