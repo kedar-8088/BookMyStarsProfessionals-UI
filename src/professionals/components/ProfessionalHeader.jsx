@@ -27,6 +27,8 @@ const ProfessionalHeader = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [mobileMenuAnchor, setMobileMenuAnchor] = React.useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -66,6 +68,13 @@ const ProfessionalHeader = () => {
     };
   }, []);
 
+  // Reset mobile menu anchor when switching from mobile to desktop
+  useEffect(() => {
+    if (!isMobile && mobileMenuAnchor) {
+      setMobileMenuAnchor(null);
+    }
+  }, [isMobile, mobileMenuAnchor]);
+
   const handleLogoutClick = () => {
     console.log('Logout button clicked');
     sessionManager.clearUserSession();
@@ -84,12 +93,18 @@ const ProfessionalHeader = () => {
 
       {/* Main Navigation Bar */}
       <GradientAppBar position="static">
-        <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, sm: 3 } }}>
+        <Toolbar sx={{ 
+          justifyContent: 'space-between', 
+          px: { xs: 1, sm: 2, md: 3 },
+          minHeight: { xs: 56, sm: 64, md: 70 },
+          gap: { xs: 1, sm: 2 }
+        }}>
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
+            style={{ flexShrink: 0 }}
           >
             <Typography 
               variant={isMobile ? "h6" : "h5"} 
@@ -102,15 +117,15 @@ const ProfessionalHeader = () => {
                 src={BookMyStarsLogo}
                 alt="BookMyStars Logo"
                 sx={{
-                  height: { xs: 40, sm: 48, md: 56 },
+                  height: { xs: 36, sm: 44, md: 52, lg: 56 },
                   width: 'auto',
-                  maxHeight: 56,
-                  maxWidth: 180,
+                  maxHeight: { xs: 40, sm: 48, md: 56 },
+                  maxWidth: { xs: 140, sm: 160, md: 180 },
                   display: 'block',
                   objectFit: 'contain',
                   backgroundColor: '#fff', // White background
                   borderRadius: '6px',    // Rounded corners
-                  p: 0.5,                 // Padding
+                  p: { xs: 0.3, sm: 0.4, md: 0.5 }, // Responsive padding
                 }}
               />
             </Typography>
@@ -122,18 +137,38 @@ const ProfessionalHeader = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+              style={{ flex: 1, display: 'flex', justifyContent: 'center' }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: { md: 2, lg: 4 },
+                flexWrap: 'nowrap'
+              }}>
                 <Button 
                   color="inherit" 
-                  sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
+                  startIcon={<HomeIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
+                  sx={{ 
+                    color: 'white', 
+                    fontWeight: 400, 
+                    fontSize: { md: '13px', lg: '14px' },
+                    minWidth: { md: 'auto', lg: 64 },
+                    px: { md: 1.5, lg: 2 }
+                  }}
                   onClick={() => navigate('/')}
                 >
                   Home
                 </Button>
                 <Button 
                   color="inherit" 
-                  sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
+                  startIcon={<DashboardIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
+                  sx={{ 
+                    color: 'white', 
+                    fontWeight: 400, 
+                    fontSize: { md: '13px', lg: '14px' },
+                    minWidth: { md: 'auto', lg: 64 },
+                    px: { md: 1.5, lg: 2 }
+                  }}
                   onClick={() => navigate('/dashboard')}
                 >
                   Dashboard
@@ -143,29 +178,80 @@ const ProfessionalHeader = () => {
           )}
 
           {/* Action Buttons */}
-          {isLoggedIn && (
+          {!isLoggedIn && !isMobile && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+              style={{ flexShrink: 0 }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography sx={{ color: 'white', fontSize: '14px', fontWeight: 500 }}>
-                  Welcome, {userData?.userName || 'User'}
+              <Button
+                variant="contained"
+                onClick={handleJoinNowClick}
+                startIcon={<PersonAddIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
+                sx={{
+                  backgroundColor: 'white',
+                  color: '#69247C',
+                  fontWeight: 500,
+                  fontSize: { md: '13px', lg: '14px' },
+                  px: { md: 2, lg: 3 },
+                  py: { md: 0.75, lg: 1 },
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  whiteSpace: 'nowrap',
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5',
+                  },
+                }}
+              >
+                <Box component="span" sx={{ display: { md: 'none', lg: 'inline' } }}>
+                  Join as Professional
+                </Box>
+                <Box component="span" sx={{ display: { md: 'inline', lg: 'none' } }}>
+                  Join
+                </Box>
+              </Button>
+            </motion.div>
+          )}
+          {isLoggedIn && !isMobile && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+              style={{ flexShrink: 0 }}
+            >
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: { md: 1, lg: 2 },
+                flexWrap: 'nowrap'
+              }}>
+                <Typography sx={{ 
+                  color: 'white', 
+                  fontSize: { md: '12px', lg: '14px' }, 
+                  fontWeight: 500,
+                  display: { md: 'block', lg: 'block' },
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: { md: 120, lg: 200 }
+                }}>
+                  {isTablet ? 'Welcome' : `Welcome, ${userData?.userName || 'User'}`}
                 </Typography>
                 <Button
                   variant="contained"
                   onClick={handleLogoutClick}
-                  startIcon={<LogoutIcon />}
+                  startIcon={<LogoutIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
                   sx={{
                     backgroundColor: 'white',
                     color: '#69247C',
                     fontWeight: 500,
-                    fontSize: '14px',
-                    px: 3,
-                    py: 1,
+                    fontSize: { md: '13px', lg: '14px' },
+                    px: { md: 2, lg: 3 },
+                    py: { md: 0.75, lg: 1 },
                     borderRadius: 2,
                     textTransform: 'none',
+                    whiteSpace: 'nowrap',
                     '&:hover': {
                       backgroundColor: '#f5f5f5',
                     },
@@ -177,44 +263,54 @@ const ProfessionalHeader = () => {
             </motion.div>
           )}
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Right */}
           {isMobile && (
-            <IconButton
-              color="inherit"
-              onClick={handleMobileMenuOpen}
-              sx={{ color: 'white' }}
-            >
-              <MenuIcon />
-            </IconButton>
+            <Box sx={{ marginLeft: 'auto', flexShrink: 0 }}>
+              <IconButton
+                color="inherit"
+                onClick={handleMobileMenuOpen}
+                sx={{ 
+                  color: 'white',
+                  padding: { xs: 1, sm: 1.5 },
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  }
+                }}
+              >
+                <MenuIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
+              </IconButton>
+            </Box>
           )}
 
           {/* Mobile Menu */}
-          <Menu
-            anchorEl={mobileMenuAnchor}
-            open={Boolean(mobileMenuAnchor)}
-            onClose={handleMobileMenuClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
+          {isMobile && (
+            <Menu
+              anchorEl={mobileMenuAnchor}
+              open={Boolean(mobileMenuAnchor)}
+              onClose={handleMobileMenuClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
             PaperProps={{
               elevation: 8,
               sx: {
-                mt: 1.5,
-                minWidth: 200,
+                mt: { xs: 1, sm: 1.5 },
+                minWidth: { xs: 180, sm: 200 },
+                maxWidth: { xs: '85vw', sm: 300 },
                 borderRadius: 2,
                 border: '1px solid',
                 borderColor: 'rgba(0, 0, 0, 0.08)',
                 boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.15)',
                 overflow: 'hidden',
                 '& .MuiMenuItem-root': {
-                  px: 2,
-                  py: 1.5,
-                  fontSize: '15px',
+                  px: { xs: 1.5, sm: 2 },
+                  py: { xs: 1.25, sm: 1.5 },
+                  fontSize: { xs: '14px', sm: '15px' },
                   fontFamily: 'Poppins',
                   transition: 'all 0.2s ease-in-out',
                   '&:hover': {
@@ -245,18 +341,19 @@ const ProfessionalHeader = () => {
               }}
             >
               <Box sx={{ 
-                width: 24, 
-                height: 24, 
+                width: { xs: 22, sm: 24 }, 
+                height: { xs: 22, sm: 24 }, 
                 borderRadius: '50%', 
                 background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'white'
+                color: 'white',
+                flexShrink: 0
               }}>
-                <HomeIcon sx={{ fontSize: 16 }} />
+                <HomeIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />
               </Box>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '15px' } }}>
                 Home
               </Typography>
             </MenuItem>
@@ -272,18 +369,19 @@ const ProfessionalHeader = () => {
               }}
             >
               <Box sx={{ 
-                width: 24, 
-                height: 24, 
+                width: { xs: 22, sm: 24 }, 
+                height: { xs: 22, sm: 24 }, 
                 borderRadius: '50%', 
                 background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'white'
+                color: 'white',
+                flexShrink: 0
               }}>
-                <DashboardIcon sx={{ fontSize: 16 }} />
+                <DashboardIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />
               </Box>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '15px' } }}>
                 Dashboard
               </Typography>
             </MenuItem>
@@ -301,18 +399,27 @@ const ProfessionalHeader = () => {
                 }}
               >
                 <Box sx={{ 
-                  width: 24, 
-                  height: 24, 
+                  width: { xs: 22, sm: 24 }, 
+                  height: { xs: 22, sm: 24 }, 
                   borderRadius: '50%', 
                   background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white'
+                  color: 'white',
+                  flexShrink: 0
                 }}>
-                  <PersonIcon sx={{ fontSize: 16 }} />
+                  <PersonIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />
                 </Box>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                <Typography sx={{ 
+                  fontFamily: 'Poppins', 
+                  fontWeight: 500,
+                  fontSize: { xs: '14px', sm: '15px' },
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: { xs: 150, sm: 200 }
+                }}>
                   Welcome, {userData?.userName || 'User'}
                 </Typography>
               </MenuItem>,
@@ -332,18 +439,19 @@ const ProfessionalHeader = () => {
                 }}
               >
                 <Box sx={{ 
-                  width: 24, 
-                  height: 24, 
+                  width: { xs: 22, sm: 24 }, 
+                  height: { xs: 22, sm: 24 }, 
                   borderRadius: '50%', 
                   backgroundColor: '#ffebee',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#d32f2f'
+                  color: '#d32f2f',
+                  flexShrink: 0
                 }}>
-                  <LogoutIcon sx={{ fontSize: 16 }} />
+                  <LogoutIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />
                 </Box>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '15px' } }}>
                   Logout
                 </Typography>
               </MenuItem>
@@ -360,23 +468,25 @@ const ProfessionalHeader = () => {
                 }}
               >
                 <Box sx={{ 
-                  width: 24, 
-                  height: 24, 
+                  width: { xs: 22, sm: 24 }, 
+                  height: { xs: 22, sm: 24 }, 
                   borderRadius: '50%', 
                   background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white'
+                  color: 'white',
+                  flexShrink: 0
                 }}>
-                  <PersonAddIcon sx={{ fontSize: 16 }} />
+                  <PersonAddIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />
                 </Box>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '15px' } }}>
                   Join as Professional
                 </Typography>
               </MenuItem>
             ]}
-          </Menu>
+            </Menu>
+          )}
         </Toolbar>
       </GradientAppBar>
     </Box>

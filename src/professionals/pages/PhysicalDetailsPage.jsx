@@ -776,19 +776,6 @@ const PhysicalDetailsPage = () => {
         </Box>
       )}
 
-      {/* Debug Panel - Only show in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <Box sx={{ p: 2, backgroundColor: '#f5f5f5', border: '1px solid #ddd', borderRadius: 1, m: 2 }}>
-          <Typography variant="h6" sx={{ mb: 1, color: '#666' }}>Debug Info:</Typography>
-          <Typography variant="body2" sx={{ color: '#666' }}>
-            Genders loaded: {genders.length} | Selected: {selectedGender} | Form Gender ID: {formData.gender}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#666' }}>
-            Loading states: Genders: {loadingGenders ? 'Yes' : 'No'} | Skin: {loadingSkinColors ? 'Yes' : 'No'} | Eye: {loadingEyeColors ? 'Yes' : 'No'}
-          </Typography>
-        </Box>
-      )}
-      
       {/* Showcase Your Style Section */}
       <motion.div
         ref={showcaseRef}
@@ -1190,7 +1177,7 @@ const PhysicalDetailsPage = () => {
                     <FormControl fullWidth>
                       <InputLabel>Shoe size</InputLabel>
                       <Select
-                        value={formData.shoeSize}
+                        value={formData.shoeSize && shoeSizes.length > 0 && shoeSizes.some(ss => String(ss.shoeSizeId) === String(formData.shoeSize)) ? formData.shoeSize : ''}
                         onChange={(e) => handleFormDataChange('shoeSize', e.target.value)}
                         label="Shoe size"
                       >
@@ -1205,7 +1192,7 @@ const PhysicalDetailsPage = () => {
                     <FormControl fullWidth>
                       <InputLabel>Body Type</InputLabel>
                       <Select
-                        value={formData.bodyType}
+                        value={formData.bodyType && bodyTypes.length > 0 && bodyTypes.some(bt => String(bt.bodyTypeId) === String(formData.bodyType)) ? formData.bodyType : ''}
                         onChange={(e) => handleFormDataChange('bodyType', e.target.value)}
                         label="Body Type"
                       >

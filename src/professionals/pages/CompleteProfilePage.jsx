@@ -3,8 +3,12 @@ import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Al
 import { useNavigate, useLocation } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import EditIcon from '@mui/icons-material/Edit';
-import { Person as PersonIcon, Phone as PhoneIcon, Work as WorkIcon, CalendarToday as CalendarTodayIcon, Favorite as FavoriteIcon, Email as EmailIcon, LocationOn as LocationOnIcon, ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
+import { Person as PersonIcon, Phone as PhoneIcon, Work as WorkIcon, CalendarToday as CalendarTodayIcon, Favorite as FavoriteIcon, Email as EmailIcon, LocationOn as LocationOnIcon, ArrowDropDown as ArrowDropDownIcon, Language as LanguageIcon } from '@mui/icons-material';
 import menImage from '../../assets/images/Men.jpg';
+import instagramIcon from '../../assets/images/instagram.png';
+import facebookIcon from '../../assets/images/facebook.png';
+import youtubeIcon from '../../assets/images/youtube.png';
+import linkedinIcon from '../../assets/images/linkedin.png';
 import { getProfessionalsProfileById, saveOrUpdateProfessionalsProfile, updateProfessionalsProfile } from '../../API/professionalsProfileApi';
 import { sessionManager } from '../../API/authApi';
 import profileFlowManager from '../../utils/profileFlowManager';
@@ -15,7 +19,9 @@ import AuthVideo from '../../components/common/AuthVideo';
 import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import axios from 'axios';
 import { getSkinColor, getHairColor, getEyeColor } from '../../utils/colorMapping';
+import { BaseUrl } from '../../BaseUrl';
 
 const CompleteProfilePage = () => {
   const navigate = useNavigate();
@@ -424,14 +430,60 @@ const CompleteProfilePage = () => {
         `;
       };
 
-      // Profile Header
+      // Helper function to convert image to base64
+      const getImageAsBase64 = async (filePath) => {
+        if (!filePath) return null;
+        try {
+          const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+          const response = await axios.get(`${BaseUrl}/file/downloadFile/?filePath=${encodeURIComponent(filePath)}`, {
+            headers: {
+              Authorization: `Bearer ${user?.accessToken}`
+            },
+            responseType: 'blob'
+          });
+          
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(response.data);
+          });
+        } catch (error) {
+          console.error('Error fetching image:', error);
+          return null;
+        }
+      };
+
+      // Fetch profile image
+      let profileImageBase64 = null;
+      if (profileData?.basicInfo?.filePath) {
+        profileImageBase64 = await getImageAsBase64(profileData.basicInfo.filePath);
+      }
+
+      // Profile Header with Image
       const header = document.createElement('div');
       header.style.marginBottom = '30px';
       header.style.textAlign = 'center';
-      header.innerHTML = `
-        <h1 style="font-size: 28px; font-weight: 700; color: #69247C; margin-bottom: 10px;">Complete Profile</h1>
+      
+      let headerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;">
+      `;
+      
+      if (profileImageBase64) {
+        headerHTML += `
+          <img src="${profileImageBase64}" alt="Profile" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid #DA498D; object-fit: cover;" />
+        `;
+      }
+      
+      headerHTML += `
+          <div style="flex: 1;">
+            <h2 style="font-size: 20px; font-weight: 600; color: #333333; margin: 0;">${getFullName()}</h2>
+          </div>
+        </div>
         <div style="border-bottom: 3px solid #DA498D; margin: 20px 0;"></div>
       `;
+      
+      header.innerHTML = headerHTML;
       pdfContent.appendChild(header);
 
       // Basic Details Section
@@ -449,7 +501,7 @@ const CompleteProfilePage = () => {
       `;
       pdfContent.appendChild(createSection('Basic Details', basicDetailsContent));
 
-      // Physical Details Section
+      // Style Profile Details Section
       let physicalDetailsContent = `
         <div style="margin-bottom: 15px;">
           <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
@@ -470,7 +522,7 @@ const CompleteProfilePage = () => {
           </div>
         </div>
       `;
-      pdfContent.appendChild(createSection('Physical Details', physicalDetailsContent));
+      pdfContent.appendChild(createSection('Style Profile Details', physicalDetailsContent));
 
       // Photos Section (excluding videos)
       const photos = profileData.showcase?.files?.filter(file => file.isImage) || [];
@@ -487,7 +539,7 @@ const CompleteProfilePage = () => {
         pdfContent.appendChild(createSection('Photos', photosContent));
       }
 
-      // Social Media Presence Section
+      // Social Media Section
       const socialPresence = profileData.showcase?.socialPresence || [];
       if (socialPresence.length > 0) {
         let socialContent = `
@@ -495,7 +547,7 @@ const CompleteProfilePage = () => {
             ${socialPresence.map((url, index) => createInfoRow(`Link ${index + 1}`, url)).join('')}
           </div>
         `;
-        pdfContent.appendChild(createSection('Social Media Presence', socialContent));
+        pdfContent.appendChild(createSection('Social Media', socialContent));
       }
 
       // Languages Section
@@ -674,7 +726,17 @@ const CompleteProfilePage = () => {
       document.body.appendChild(pdfContent);
 
       // Wait for images to load
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const images = pdfContent.querySelectorAll('img');
+      const imagePromises = Array.from(images).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = resolve; // Continue even if image fails to load
+          setTimeout(resolve, 3000); // Timeout after 3 seconds
+        });
+      });
+      await Promise.all(imagePromises);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Additional buffer
 
       // Generate PDF
       const canvas = await html2canvas(pdfContent, {
@@ -1122,16 +1184,16 @@ const CompleteProfilePage = () => {
           </Box>
         </Box>
 
-        {/* Physical Details Section */}
+        {/* Style Profile Details Section */}
         <Box sx={{ 
           mt: { xs: 3, sm: 4 },
           maxWidth: '1200px',
           mx: 'auto'
         }}>
-          {/* Physical Details Header */}
+          {/* Style Profile Details Header */}
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, px: { xs: 2, sm: 3, md: 4 } }}>
             <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
-              Physical Details
+              Style Profile Details
             </Typography>
             <IconButton size="small" onClick={handleEditPhysicalDetails}>
               <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '18px', sm: '20px' } }} />
@@ -1214,18 +1276,23 @@ const CompleteProfilePage = () => {
           </Box>
         </Box>
 
-        {/* Build Your Portfolio Section */}
-        <Box sx={{ mt: { xs: 3, sm: 4 }, maxWidth: '1200px', mx: 'auto', px: { xs: 2, sm: 3, md: 4 } }}>
-          {/* Build Your Portfolio Header */}
-          <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', mb: 2 }}>
-            Build Your Portfolio
-          </Typography>
+        {/* Show Case Section */}
+        <Box sx={{ mt: { xs: 3, sm: 4 }, maxWidth: '1200px', mx: 'auto' }}>
+          {/* Show Case Header */}
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, px: { xs: 2, sm: 3, md: 4 } }}>
+            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+              Show Case
+            </Typography>
+            <IconButton size="small" onClick={handleEditShowcase}>
+              <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '18px', sm: '20px' } }} />
+            </IconButton>
+          </Box>
 
           {/* Divider Line */}
-          <Box sx={{ borderBottom: '2px solid #69247C', mb: 4 }} />
+          <Box sx={{ borderBottom: '2px solid #69247C', mb: 4, mx: { xs: 2, sm: 3, md: 4 } }} />
 
           {/* Videos Section */}
-          <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: 4, px: { xs: 2, sm: 3, md: 4 } }}>
             {(() => {
               const videos = profileData.showcase?.files?.filter(file => file.isVideo) || [];
               const hasMoreVideos = videos.length > 5;
@@ -1319,7 +1386,7 @@ const CompleteProfilePage = () => {
           </Box>
 
           {/* Photos Section */}
-          <Box>
+          <Box sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
             {(() => {
               const photos = profileData.showcase?.files?.filter(file => file.isImage) || [];
               const hasMorePhotos = photos.length > 5;
@@ -1407,33 +1474,39 @@ const CompleteProfilePage = () => {
             })()}
           </Box>
 
-          {/* Social Media Presence Section - Next Row */}
-          <Box sx={{ mt: 4 }}>
+          {/* Social Media Section */}
+          <Box sx={{ 
+            mt: { xs: 3, sm: 4 },
+            maxWidth: '1200px',
+            mx: 'auto'
+          }}>
+            <Box sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
-                  Social Media Presence
+                  Social Media
                 </Typography>
                 <IconButton size="small" onClick={handleEditShowcase}>
                   <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
                 </IconButton>
               </Box>
 
+              {/* Divider Line */}
               <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
 
               {/* Social Media Box */}
-              <Box sx={{ border: '1px solid', borderImage: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%) 1', borderRadius: '8px', p: { xs: 1.5, sm: 2 }, backgroundColor: 'white' }}>
                 <Grid container spacing={2}>
                   {profileData.showcase?.socialPresence?.map((url, index) => {
-                    const platform = url.includes('instagram') ? 'instagram' : 
-                                   url.includes('youtube') ? 'youtube' : 
-                                   url.includes('facebook') ? 'facebook' : 
-                                   url.includes('linkedin') ? 'linkedin' : 'portfolio';
+                    const urlLower = url.toLowerCase();
+                    const platform = urlLower.includes('instagram') ? 'instagram' : 
+                                   urlLower.includes('youtube') ? 'youtube' : 
+                                   urlLower.includes('facebook') ? 'facebook' : 
+                                   urlLower.includes('linkedin') ? 'linkedin' : 'portfolio';
                     
                     const platformConfig = {
-                      instagram: { color: 'linear-gradient(135deg, #E4405F 0%, #F77737 100%)', borderRadius: '8px', icon: 'instagram' },
-                      youtube: { color: '#FF0000', borderRadius: '4px', icon: 'youtube' },
-                      facebook: { color: '#1877F2', borderRadius: '4px', icon: 'facebook' },
-                      linkedin: { color: '#0077B5', borderRadius: '4px', icon: 'linkedin' },
+                      instagram: { color: 'transparent', borderRadius: '50%', icon: 'instagram' },
+                      youtube: { color: 'transparent', borderRadius: '50%', icon: 'youtube' },
+                      facebook: { color: 'transparent', borderRadius: '50%', icon: 'facebook' },
+                      linkedin: { color: 'transparent', borderRadius: '50%', icon: 'linkedin' },
                       portfolio: { color: '#000000', borderRadius: '4px', icon: 'portfolio' }
                     };
                     
@@ -1441,30 +1514,88 @@ const CompleteProfilePage = () => {
                     
                     return (
                       <Grid size={{ xs: 12, sm: 6 }} key={index}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1.5, sm: 2 } }}>
-                          <Box sx={{ width: { xs: '28px', sm: '32px' }, height: { xs: '28px', sm: '32px' }, borderRadius: config.borderRadius, background: config.color, display: 'flex', alignItems: 'center', justifyContent: 'center', mr: { xs: 1.5, sm: 2 }, flexShrink: 0 }}>
+                        <Box 
+                          component="a"
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            mb: { xs: 1.5, sm: 2 },
+                            textDecoration: 'none',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              opacity: 0.8
+                            }
+                          }}
+                        >
+                          <Box sx={{ width: { xs: '28px', sm: '32px' }, height: { xs: '28px', sm: '32px' }, borderRadius: config.borderRadius, background: config.color, display: 'flex', alignItems: 'center', justifyContent: 'center', mr: { xs: 1.5, sm: 2 }, flexShrink: 0, overflow: 'hidden' }}>
                             {config.icon === 'instagram' && (
-                              <Box sx={{ width: '16px', height: '16px', border: '2px solid white', borderRadius: '4px', position: 'relative' }}>
-                                <Box sx={{ position: 'absolute', top: '2px', left: '2px', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'white' }} />
-                              </Box>
+                              <Box
+                                component="img"
+                                src={instagramIcon}
+                                alt="Instagram"
+                                sx={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover'
+                                }}
+                              />
                             )}
                             {config.icon === 'youtube' && (
-                              <Box sx={{ width: 0, height: 0, borderLeft: '8px solid white', borderTop: '6px solid transparent', borderBottom: '6px solid transparent', marginLeft: '2px' }} />
+                              <Box
+                                component="img"
+                                src={youtubeIcon}
+                                alt="YouTube"
+                                sx={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover'
+                                }}
+                              />
                             )}
                             {config.icon === 'facebook' && (
-                              <Typography sx={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>f</Typography>
+                              <Box
+                                component="img"
+                                src={facebookIcon}
+                                alt="Facebook"
+                                sx={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover'
+                                }}
+                              />
                             )}
                             {config.icon === 'linkedin' && (
-                              <Typography sx={{ color: 'white', fontSize: '12px', fontWeight: 'bold' }}>in</Typography>
+                              <Box
+                                component="img"
+                                src={linkedinIcon}
+                                alt="LinkedIn"
+                                sx={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover'
+                                }}
+                              />
                             )}
                             {config.icon === 'portfolio' && (
-                              <Box sx={{ width: '16px', height: '12px', border: '2px solid white', borderRadius: '2px', position: 'relative' }}>
-                                <Box sx={{ position: 'absolute', top: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
-                                <Box sx={{ position: 'absolute', bottom: '2px', left: '2px', right: '2px', height: '1px', backgroundColor: 'white' }} />
-                              </Box>
+                              <LanguageIcon sx={{ color: 'white', fontSize: { xs: '18px', sm: '20px' } }} />
                             )}
                           </Box>
-                          <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '12px', sm: '14px' }, color: '#333333', wordBreak: 'break-word' }}>
+                          <Typography 
+                            sx={{ 
+                              fontFamily: 'Poppins', 
+                              fontWeight: 500, 
+                              fontSize: { xs: '12px', sm: '14px' }, 
+                              color: '#69247C', 
+                              wordBreak: 'break-word',
+                              '&:hover': {
+                                textDecoration: 'underline',
+                                color: '#DA498D'
+                              }
+                            }}
+                          >
                             {url}
                           </Typography>
                         </Box>
@@ -1479,21 +1610,27 @@ const CompleteProfilePage = () => {
                     </Grid>
                   )}
                 </Grid>
-              </Box>
+            </Box>
           </Box>
 
           {/* Languages Section */}
-          <Box sx={{ mt: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
-                Languages
-              </Typography>
-              <IconButton size="small" onClick={handleEditShowcase}>
-                <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
-              </IconButton>
-            </Box>
+          <Box sx={{ 
+            mt: { xs: 3, sm: 4 },
+            maxWidth: '1200px',
+            mx: 'auto'
+          }}>
+            <Box sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                  Languages
+                </Typography>
+                <IconButton size="small" onClick={handleEditShowcase}>
+                  <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
+                </IconButton>
+              </Box>
 
-            <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white' }}>
+              {/* Divider Line */}
+              <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
               <Box sx={{ display: 'flex', gap: { xs: 1.5, sm: 2 }, flexWrap: 'wrap' }}>
                 {profileData.showcase?.languages?.map((language, index) => (
                   <Box key={language.languageId} sx={{ background: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)', borderRadius: '20px', px: { xs: 1.5, sm: 2 }, py: { xs: 0.75, sm: 1 }, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -1515,8 +1652,12 @@ const CompleteProfilePage = () => {
           </Box>
 
           {/* Educational Background Section */}
-          <Box sx={{ mt: { xs: 3, sm: 4 }, px: { xs: 2, sm: 3, md: 4 } }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ 
+            mt: { xs: 3, sm: 4 },
+            maxWidth: '1200px',
+            mx: 'auto'
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, px: { xs: 2, sm: 3, md: 4 } }}>
               <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                 Educational Background
               </Typography>
@@ -1525,10 +1666,21 @@ const CompleteProfilePage = () => {
               </IconButton>
             </Box>
 
-            <Box sx={{ borderBottom: '2px solid #69247C', mb: 4 }} />
+            {/* Divider Line */}
+            <Box sx={{ borderBottom: '2px solid #69247C', mb: 4, mx: { xs: 2, sm: 3, md: 4 } }} />
 
-            {/* Work Experience Cards - Same Row */}
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 2, sm: 3 }, flexWrap: 'wrap' }}>
+            {/* Work/Experience Section */}
+            <Box sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                  Work/Experience
+                </Typography>
+              </Box>
+
+              <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
+
+              {/* Work Experience Cards - Same Row */}
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 2, sm: 3 }, flexWrap: 'wrap' }}>
               {profileData.workExperiences?.map((experience, index) => (
                 <Box key={experience.id} sx={{ flex: 1, minWidth: { xs: '100%', md: '300px' }, width: { xs: '100%', md: 'auto' } }}>
                   <Box sx={{ border: '1px solid', borderImage: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%) 1', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white', position: 'relative' }}>
@@ -1563,13 +1715,21 @@ const CompleteProfilePage = () => {
                   </Typography>
                 </Box>
               )}
+              </Box>
             </Box>
 
             {/* Education Section */}
-            <Box sx={{ mt: 4 }}>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#333333', mb: 2 }}>
-                Education
-              </Typography>
+            <Box sx={{ mt: 4, px: { xs: 2, sm: 3, md: 4 } }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                  Education
+                </Typography>
+                <IconButton size="small" onClick={handleEditEducation}>
+                  <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
+                </IconButton>
+              </Box>
+
+              <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
 
               <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white' }}>
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: { xs: 'flex-start', sm: 'space-between' }, flexWrap: 'wrap', gap: { xs: 2, sm: 2 } }}>
@@ -1606,62 +1766,8 @@ const CompleteProfilePage = () => {
               </Box>
             </Box>
 
-            {/* Skills Section */}
-            <Box sx={{ mt: { xs: 3, sm: 4 } }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
-                  Skills
-                </Typography>
-                <IconButton size="small" onClick={handleEditEducation}>
-                  <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '16px', sm: '18px' } }} />
-                </IconButton>
-              </Box>
-              
-              <Box sx={{ borderBottom: '1px solid #DA498D', mb: 3 }} />
-
-              {/* Rate Your Skills Section */}
-              <Box sx={{ mb: { xs: '24px', sm: '32px' } }}>
-                <Grid container spacing={2}>
-                  {profileData.professionalSkills?.map((skill, index) => (
-                    <Grid size={{ xs: 12, sm: 6 }} key={skill.id}>
-                      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', p: { xs: 1.5, sm: 2 }, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF', gap: { xs: 1, sm: 0 } }}>
-                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '16px' }, color: '#444444', flex: 1, mb: { xs: 1, sm: 0 } }}>
-                          {skill.skillName}
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mx: { xs: 0, sm: 2 }, width: { xs: '100%', sm: 'auto' }, justifyContent: { xs: 'space-between', sm: 'flex-start' } }}>
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Box key={star} sx={{ p: 0.25, cursor: 'pointer' }}>
-                              <Typography sx={{ fontSize: { xs: '16px', sm: '20px' }, color: star <= skill.rating ? '#FFD700' : '#D9D9D9', lineHeight: 1 }}>
-                                {star <= skill.rating ? '★' : '☆'}
-                              </Typography>
-                            </Box>
-                          ))}
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <IconButton sx={{ p: 0.5, color: '#DA498D' }}>
-                            <Box sx={{ width: '16px', height: '16px', borderRadius: '50%', border: '1px solid #DA498D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <Typography sx={{ color: '#DA498D', fontSize: '10px', fontWeight: 'bold' }}>×</Typography>
-                            </Box>
-                          </IconButton>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  ))}
-                  {(!profileData.professionalSkills || profileData.professionalSkills.length === 0) && (
-                    <Grid size={12}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF' }}>
-                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', color: '#666666' }}>
-                          No skills added yet
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  )}
-                </Grid>
-              </Box>
-            </Box>
-
             {/* Certifications Section */}
-            <Box sx={{ mt: { xs: 3, sm: 4 } }}>
+            <Box sx={{ mt: { xs: 3, sm: 4 }, px: { xs: 2, sm: 3, md: 4 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Certifications
@@ -1671,7 +1777,7 @@ const CompleteProfilePage = () => {
                 </IconButton>
               </Box>
 
-              <Box sx={{ borderBottom: '1px solid #DA498D', mb: 3 }} />
+              <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
 
               <Box sx={{ border: '1px solid #DA498D', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white' }}>
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 2, sm: 3 }, flexWrap: 'wrap' }}>
@@ -1747,6 +1853,60 @@ const CompleteProfilePage = () => {
                     </Box>
                   )}
                 </Box>
+              </Box>
+            </Box>
+
+            {/* Skills Section */}
+            <Box sx={{ mt: { xs: 3, sm: 4 }, px: { xs: 2, sm: 3, md: 4 } }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
+                  Skills
+                </Typography>
+                <IconButton size="small" onClick={handleEditEducation}>
+                  <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '16px', sm: '18px' } }} />
+                </IconButton>
+              </Box>
+              
+              <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
+
+              {/* Rate Your Skills Section */}
+              <Box sx={{ mb: { xs: '24px', sm: '32px' } }}>
+                <Grid container spacing={2}>
+                  {profileData.professionalSkills?.map((skill, index) => (
+                    <Grid size={{ xs: 12, sm: 6 }} key={skill.id}>
+                      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', p: { xs: 1.5, sm: 2 }, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF', gap: { xs: 1, sm: 0 } }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '16px' }, color: '#444444', flex: 1, mb: { xs: 1, sm: 0 } }}>
+                          {skill.skillName}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mx: { xs: 0, sm: 2 }, width: { xs: '100%', sm: 'auto' }, justifyContent: { xs: 'space-between', sm: 'flex-start' } }}>
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Box key={star} sx={{ p: 0.25, cursor: 'pointer' }}>
+                              <Typography sx={{ fontSize: { xs: '16px', sm: '20px' }, color: star <= skill.rating ? '#FFD700' : '#D9D9D9', lineHeight: 1 }}>
+                                {star <= skill.rating ? '★' : '☆'}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <IconButton sx={{ p: 0.5, color: '#DA498D' }}>
+                            <Box sx={{ width: '16px', height: '16px', borderRadius: '50%', border: '1px solid #DA498D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Typography sx={{ color: '#DA498D', fontSize: '10px', fontWeight: 'bold' }}>×</Typography>
+                            </Box>
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  ))}
+                  {(!profileData.professionalSkills || profileData.professionalSkills.length === 0) && (
+                    <Grid size={12}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4, backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E9ECEF' }}>
+                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: '16px', color: '#666666' }}>
+                          No skills added yet
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  )}
+                </Grid>
               </Box>
             </Box>
 

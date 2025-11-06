@@ -208,6 +208,7 @@ const LandingHeader = () => {
                     <Button
                       variant="contained"
                       onClick={handleLoginClick}
+                      startIcon={<LoginIcon />}
                       sx={{
                         backgroundColor: 'white',
                         color: '#69247C',
@@ -239,6 +240,7 @@ const LandingHeader = () => {
                     <Button
                       variant="outlined"
                       onClick={() => navigate('/signup')}
+                      startIcon={<PersonAddIcon />}
                       sx={{
                         borderColor: 'white',
                         color: 'white',

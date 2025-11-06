@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Box, Button, IconButton, useMediaQuery, useTheme, Menu, MenuItem } from '@mui/material';
-import { Menu as MenuIcon, Logout as LogoutIcon, Person as PersonIcon } from '@mui/icons-material';
+import { Menu as MenuIcon, Logout as LogoutIcon, Person as PersonIcon, Dashboard as DashboardIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -112,6 +112,7 @@ const BasicInfoNavbar = () => {
               <Button
                 color="inherit"
                 onClick={() => navigate('/dashboard')}
+                startIcon={<DashboardIcon />}
                 sx={{
                   color: 'white',
                   fontWeight: 400,
@@ -170,15 +171,17 @@ const BasicInfoNavbar = () => {
             </motion.div>
           )}
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Right */}
           {isMobile && (
-            <IconButton
-              color="inherit"
-              onClick={handleMobileMenuOpen}
-              sx={{ color: 'white' }}
-            >
-              <MenuIcon />
-            </IconButton>
+            <Box sx={{ marginLeft: 'auto' }}>
+              <IconButton
+                color="inherit"
+                onClick={handleMobileMenuOpen}
+                sx={{ color: 'white' }}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Box>
           )}
 
           {/* Mobile Menu */}
@@ -200,7 +203,7 @@ const BasicInfoNavbar = () => {
             )}
             {isLoggedIn && userData && (
               <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/dashboard'); }}>
-                <PersonIcon sx={{ mr: 1, fontSize: 18 }} />
+                <DashboardIcon sx={{ mr: 1, fontSize: 18 }} />
                 Dashboard
               </MenuItem>
             )}

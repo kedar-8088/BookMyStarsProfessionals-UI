@@ -139,6 +139,11 @@ const CategoryChip = styled(Chip)(({ theme, selected }) => ({
   color: selected ? 'white' : '#666666',
   cursor: 'pointer',
   transition: 'all 0.3s ease',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '12px',
+    padding: theme.spacing(0.5, 1.5),
+    height: '32px',
+  },
   '&:hover': {
     backgroundColor: selected ? '#DA498D' : 'rgba(218, 73, 141, 0.08)',
     color: selected ? 'white' : '#DA498D',
@@ -448,8 +453,8 @@ const Dashboard = () => {
       <ProfileNavBar />
 
       {/* Banner (same as Basic Info page) */}
-      <Box sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
-        <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+      <Box sx={{ py: { xs: 1.5, sm: 2.5, md: 3, lg: 4 } }}>
+        <Container maxWidth={false} sx={{ px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
           <CarouselContainer>
             {/* Slides (absolute positioned) */}
             {slides.map((slide, idx) => (
@@ -513,19 +518,19 @@ const Dashboard = () => {
 
       {/* Welcome headline - Only show when logged in */}
       {session?.token && user && (
-        <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+        <Container maxWidth={false} sx={{ px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           >
             <Box 
               sx={{ 
-                mt: 5, 
-                mb: 4, 
+                mt: { xs: 3, sm: 4, md: 5 }, 
+                mb: { xs: 3, sm: 3.5, md: 4 }, 
                 textAlign: 'center',
                 position: 'relative',
-                py: 3
+                py: { xs: 2, sm: 2.5, md: 3 }
               }}
             >
             <Box
@@ -643,17 +648,17 @@ const Dashboard = () => {
 
       {/* User Information Box - Only show when logged in */}
       {session?.token && user && (
-        <Container maxWidth={false} sx={{ pt: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+        <Container maxWidth={false} sx={{ pt: { xs: 3, sm: 4, md: 5, lg: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            viewport={{ once: false, amount: 0.1 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           >
             <Paper 
               sx={{ 
-                p: 4, 
-                borderRadius: '12px',
+                p: { xs: 2, sm: 3, md: 4 }, 
+                borderRadius: { xs: '8px', sm: '10px', md: '12px' },
                 backgroundColor: 'white',
                 width: '100%',
                 maxWidth: '100%',
@@ -663,23 +668,23 @@ const Dashboard = () => {
               elevation={0}
             >
             {/* Header */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 2.5, md: 3 } }}>
               <Box
                 sx={{
-                  width: 40,
-                  height: 40,
+                  width: { xs: 32, sm: 36, md: 40 },
+                  height: { xs: 32, sm: 36, md: 40 },
                   borderRadius: '50%',
                   backgroundColor: '#69247C',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  mr: 2,
+                  mr: { xs: 1.5, sm: 2 },
                   flexShrink: 0,
                 }}
               >
                 <AccountCircleIcon 
                   sx={{ 
-                    fontSize: 24, 
+                    fontSize: { xs: 20, sm: 22, md: 24 }, 
                     color: 'white',
                   }} 
                 />
@@ -688,8 +693,9 @@ const Dashboard = () => {
                 variant="h4" 
                 sx={{ 
                   fontWeight: 700,
-                  fontSize: { xs: '20px', sm: '24px', md: '28px' },
+                  fontSize: { xs: '18px', sm: '20px', md: '24px', lg: '28px' },
                   color: '#333333',
+                  wordBreak: 'break-word',
                 }}
               >
                 {userFirstName || userLastName 
@@ -704,7 +710,7 @@ const Dashboard = () => {
               sx={{ 
                 display: 'grid',
                 gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
-                gap: 4,
+                gap: { xs: 2, sm: 3, md: 4 },
                 justifyContent: 'space-between'
               }}
             >
@@ -712,8 +718,8 @@ const Dashboard = () => {
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Box 
                   sx={{ 
-                    p: 2,
-                    borderRadius: '8px',
+                    p: { xs: 1.5, sm: 1.75, md: 2 },
+                    borderRadius: { xs: '6px', sm: '8px' },
                     transition: 'all 0.3s ease-in-out',
                     cursor: 'pointer',
                     '&:hover': {
@@ -729,14 +735,15 @@ const Dashboard = () => {
                     },
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, sm: 1.25, md: 1.5 } }}>
                     <PersonIcon 
                       className="field-icon"
                       sx={{ 
-                        fontSize: 18, 
+                        fontSize: { xs: 16, sm: 17, md: 18 }, 
                         color: '#666666', 
-                        mr: 1,
+                        mr: { xs: 0.75, sm: 1 },
                         transition: 'all 0.3s ease-in-out',
+                        flexShrink: 0,
                       }} 
                     />
                     <Typography 
@@ -745,7 +752,7 @@ const Dashboard = () => {
                       sx={{ 
                         color: '#666666', 
                         fontWeight: 600,
-                        fontSize: '0.75rem',
+                        fontSize: { xs: '0.7rem', sm: '0.72rem', md: '0.75rem' },
                         transition: 'color 0.3s ease-in-out',
                       }}
                     >
@@ -757,7 +764,8 @@ const Dashboard = () => {
                     sx={{ 
                       fontWeight: 500, 
                       color: '#333333',
-                      fontSize: '0.95rem'
+                      fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' },
+                      wordBreak: 'break-word',
                     }}
                   >
                     {user.userName || '—'}
@@ -769,8 +777,8 @@ const Dashboard = () => {
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Box 
                   sx={{ 
-                    p: 2,
-                    borderRadius: '8px',
+                    p: { xs: 1.5, sm: 1.75, md: 2 },
+                    borderRadius: { xs: '6px', sm: '8px' },
                     transition: 'all 0.3s ease-in-out',
                     cursor: 'pointer',
                     '&:hover': {
@@ -786,14 +794,15 @@ const Dashboard = () => {
                     },
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, sm: 1.25, md: 1.5 } }}>
                     <EmailIcon 
                       className="field-icon"
                       sx={{ 
-                        fontSize: 18, 
+                        fontSize: { xs: 16, sm: 17, md: 18 }, 
                         color: '#666666', 
-                        mr: 1,
+                        mr: { xs: 0.75, sm: 1 },
                         transition: 'all 0.3s ease-in-out',
+                        flexShrink: 0,
                       }} 
                     />
                     <Typography 
@@ -802,7 +811,7 @@ const Dashboard = () => {
                       sx={{ 
                         color: '#666666', 
                         fontWeight: 600,
-                        fontSize: '0.75rem',
+                        fontSize: { xs: '0.7rem', sm: '0.72rem', md: '0.75rem' },
                         transition: 'color 0.3s ease-in-out',
                       }}
                     >
@@ -814,7 +823,7 @@ const Dashboard = () => {
                     sx={{ 
                       fontWeight: 500, 
                       color: '#333333',
-                      fontSize: '0.95rem',
+                      fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' },
                       wordBreak: 'break-word'
                     }}
                   >
@@ -827,8 +836,8 @@ const Dashboard = () => {
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Box 
                   sx={{ 
-                    p: 2,
-                    borderRadius: '8px',
+                    p: { xs: 1.5, sm: 1.75, md: 2 },
+                    borderRadius: { xs: '6px', sm: '8px' },
                     transition: 'all 0.3s ease-in-out',
                     cursor: 'pointer',
                     '&:hover': {
@@ -844,14 +853,15 @@ const Dashboard = () => {
                     },
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, sm: 1.25, md: 1.5 } }}>
                     <PhoneIcon 
                       className="field-icon"
                       sx={{ 
-                        fontSize: 18, 
+                        fontSize: { xs: 16, sm: 17, md: 18 }, 
                         color: '#666666', 
-                        mr: 1,
+                        mr: { xs: 0.75, sm: 1 },
                         transition: 'all 0.3s ease-in-out',
+                        flexShrink: 0,
                       }} 
                     />
                     <Typography 
@@ -860,7 +870,7 @@ const Dashboard = () => {
                       sx={{ 
                         color: '#666666', 
                         fontWeight: 600,
-                        fontSize: '0.75rem',
+                        fontSize: { xs: '0.7rem', sm: '0.72rem', md: '0.75rem' },
                         transition: 'color 0.3s ease-in-out',
                       }}
                     >
@@ -872,7 +882,7 @@ const Dashboard = () => {
                     sx={{ 
                       fontWeight: 500, 
                       color: '#333333',
-                      fontSize: '0.95rem'
+                      fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' }
                     }}
                   >
                     {user.mobileNumber || '—'}
@@ -886,14 +896,14 @@ const Dashboard = () => {
       )}
 
       {/* Opportunities Section with Categories */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+      <Container maxWidth={false} sx={{ mt: { xs: 4, sm: 6, md: 8 }, mb: { xs: 4, sm: 5, md: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          viewport={{ once: false, amount: 0.1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <Box sx={{ mb: 4, textAlign: 'center' }}>
+          <Box sx={{ mb: { xs: 3, sm: 3.5, md: 4 }, textAlign: 'center' }}>
           <motion.div
             animate={{
               y: [0, -20, 0]
@@ -908,13 +918,14 @@ const Dashboard = () => {
               variant="h3"
               sx={{
                 fontWeight: 700,
-                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+                fontSize: { xs: '20px', sm: '24px', md: '28px', lg: '32px', xl: '36px' },
                 background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                mb: 1,
+                mb: { xs: 0.5, sm: 1 },
                 textAlign: 'center',
+                px: { xs: 1, sm: 0 },
               }}
             >
               Journey to New Opportunities
@@ -924,22 +935,35 @@ const Dashboard = () => {
             variant="body1"
             sx={{
               color: '#666666',
-              fontSize: '16px',
-              mb: 3,
+              fontSize: { xs: '13px', sm: '14px', md: '15px', lg: '16px' },
+              mb: { xs: 2, sm: 2.5, md: 3 },
               textAlign: 'center',
+              px: { xs: 1, sm: 0 },
             }}
           >
             Discover job opportunities across various industries. Filter by category to find the perfect match.
           </Typography>
 
           {/* Category Filters */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 4, justifyContent: 'center' }}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: { xs: 1, sm: 1.25, md: 1.5 }, 
+            mb: { xs: 3, sm: 3.5, md: 4 }, 
+            justifyContent: 'center',
+            px: { xs: 1, sm: 0 }
+          }}>
             {categories.map((category) => (
               <CategoryChip
                 key={category}
                 label={category}
                 selected={selectedCategory === category}
                 onClick={() => setSelectedCategory(category)}
+                sx={{
+                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                  padding: { xs: '4px 12px', sm: '6px 16px', md: '8px 20px' },
+                  height: { xs: '32px', sm: '36px', md: '40px' },
+                }}
               />
             ))}
           </Box>
@@ -949,8 +973,8 @@ const Dashboard = () => {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-            gap: 3,
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' },
+            gap: { xs: 2, sm: 2.5, md: 3 },
           }}
         >
           {filteredOpportunities.map((opportunity, index) => {
@@ -966,38 +990,43 @@ const Dashboard = () => {
             return (
               <Box key={opportunity.id}>
                 <motion.div
-                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 20, scale: 0.98 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, amount: 0.3 }}
+                  viewport={{ once: false, amount: 0.1 }}
                   transition={{ 
-                    duration: 0.5, 
-                    delay: index * 0.1,
+                    duration: 0.3, 
+                    delay: index * 0.05,
                     ease: "easeOut" 
                   }}
                 >
                   <OpportunityCard
                     onClick={() => navigate(opportunity.link)}
                   >
-                  <CardContent sx={{ p: 3 }}>
+                  <CardContent sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
                     {/* Header with Icon and Type Badge */}
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: { xs: 1.5, sm: 2 } }}>
                       <Box
                         sx={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: '12px',
+                          width: { xs: 40, sm: 44, md: 48 },
+                          height: { xs: 40, sm: 44, md: 48 },
+                          borderRadius: { xs: '10px', sm: '12px' },
                           background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           color: 'white',
+                          flexShrink: 0,
                         }}
                       >
-                        <IconComponent sx={{ fontSize: 24 }} />
+                        <IconComponent sx={{ fontSize: { xs: 20, sm: 22, md: 24 } }} />
                       </Box>
                       <OpportunityTypeBadge
                         bgcolor={typeColors[opportunity.type]?.bg || '#f0f0f0'}
                         color={typeColors[opportunity.type]?.color || '#666666'}
+                        sx={{
+                          fontSize: { xs: '10px', sm: '11px', md: '12px' },
+                          padding: { xs: '3px 8px', sm: '4px 10px', md: '4px 12px' },
+                        }}
                       >
                         {opportunity.type}
                       </OpportunityTypeBadge>
@@ -1008,11 +1037,11 @@ const Dashboard = () => {
                       variant="h6"
                       sx={{
                         fontWeight: 700,
-                        fontSize: '18px',
+                        fontSize: { xs: '15px', sm: '16px', md: '17px', lg: '18px' },
                         color: '#333333',
-                        mb: 1.5,
+                        mb: { xs: 1, sm: 1.5 },
                         lineHeight: 1.3,
-                        minHeight: '46px',
+                        minHeight: { xs: '40px', sm: '44px', md: '46px' },
                       }}
                     >
                       {opportunity.title}
@@ -1024,30 +1053,30 @@ const Dashboard = () => {
                       sx={{
                         color: '#69247C',
                         fontWeight: 600,
-                        mb: 2,
-                        fontSize: '14px',
+                        mb: { xs: 1.5, sm: 2 },
+                        fontSize: { xs: '12px', sm: '13px', md: '14px' },
                       }}
                     >
                       {opportunity.company}
                     </Typography>
 
                     {/* Details */}
-                    <Box sx={{ mb: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <LocationOnIcon sx={{ fontSize: 16, color: '#666666', mr: 1 }} />
-                        <Typography variant="body2" sx={{ color: '#666666', fontSize: '13px' }}>
+                    <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 0.75, sm: 1 } }}>
+                        <LocationOnIcon sx={{ fontSize: { xs: 14, sm: 15, md: 16 }, color: '#666666', mr: { xs: 0.75, sm: 1 }, flexShrink: 0 }} />
+                        <Typography variant="body2" sx={{ color: '#666666', fontSize: { xs: '11px', sm: '12px', md: '13px' }, wordBreak: 'break-word' }}>
                           {opportunity.location}
                         </Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <MoneyIcon sx={{ fontSize: 16, color: '#666666', mr: 1 }} />
-                        <Typography variant="body2" sx={{ color: '#666666', fontSize: '13px' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 0.75, sm: 1 } }}>
+                        <MoneyIcon sx={{ fontSize: { xs: 14, sm: 15, md: 16 }, color: '#666666', mr: { xs: 0.75, sm: 1 }, flexShrink: 0 }} />
+                        <Typography variant="body2" sx={{ color: '#666666', fontSize: { xs: '11px', sm: '12px', md: '13px' }, wordBreak: 'break-word' }}>
                           {opportunity.salary}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <AccessTimeIcon sx={{ fontSize: 16, color: '#666666', mr: 1 }} />
-                        <Typography variant="body2" sx={{ color: '#666666', fontSize: '13px' }}>
+                        <AccessTimeIcon sx={{ fontSize: { xs: 14, sm: 15, md: 16 }, color: '#666666', mr: { xs: 0.75, sm: 1 }, flexShrink: 0 }} />
+                        <Typography variant="body2" sx={{ color: '#666666', fontSize: { xs: '11px', sm: '12px', md: '13px' } }}>
                           {opportunity.posted}
                         </Typography>
                       </Box>
@@ -1059,7 +1088,7 @@ const Dashboard = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        pt: 2,
+                        pt: { xs: 1.5, sm: 2 },
                         borderTop: '1px solid #f0f0f0',
                       }}
                     >
@@ -1069,7 +1098,7 @@ const Dashboard = () => {
                         sx={{
                           color: '#666666',
                           fontWeight: 600,
-                          fontSize: '14px',
+                          fontSize: { xs: '12px', sm: '13px', md: '14px' },
                           transition: 'color 0.3s ease',
                         }}
                       >
@@ -1077,9 +1106,10 @@ const Dashboard = () => {
                       </Typography>
                       <ArrowForwardIcon
                         sx={{
-                          fontSize: 18,
+                          fontSize: { xs: 16, sm: 17, md: 18 },
                           color: '#666666',
                           transition: 'all 0.3s ease',
+                          flexShrink: 0,
                         }}
                       />
                     </Box>
@@ -1106,22 +1136,22 @@ const Dashboard = () => {
       </Container>
 
       {/* Static Banner Section */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+      <Container maxWidth={false} sx={{ mt: { xs: 4, sm: 6, md: 8 }, mb: { xs: 4, sm: 5, md: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          viewport={{ once: false, amount: 0.1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <StaticBannerCard>
+          <StaticBannerCard sx={{ padding: { xs: 2.5, sm: 3, md: 4 } }}>
             <Box sx={{ position: 'relative', zIndex: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <TrendingUpIcon sx={{ fontSize: 40, mr: 2, opacity: 0.9 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1.5, sm: 2 }, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
+                <TrendingUpIcon sx={{ fontSize: { xs: 32, sm: 36, md: 40 }, mr: { xs: 1.5, sm: 2 }, opacity: 0.9, flexShrink: 0 }} />
                 <Typography
                   variant="h4"
                   sx={{
                     fontWeight: 700,
-                    fontSize: { xs: '24px', sm: '28px', md: '32px' },
+                    fontSize: { xs: '20px', sm: '24px', md: '28px', lg: '32px' },
                   }}
                 >
                   Boost Your Career
@@ -1131,8 +1161,8 @@ const Dashboard = () => {
                 variant="h5"
                 sx={{
                   fontWeight: 600,
-                  mb: 2,
-                  fontSize: { xs: '18px', sm: '20px', md: '24px' },
+                  mb: { xs: 1.5, sm: 2 },
+                  fontSize: { xs: '16px', sm: '18px', md: '20px', lg: '24px' },
                   opacity: 0.95,
                 }}
               >
@@ -1141,8 +1171,8 @@ const Dashboard = () => {
               <Typography
                 variant="body1"
                 sx={{
-                  mb: 3,
-                  fontSize: { xs: '14px', sm: '16px' },
+                  mb: { xs: 2, sm: 2.5, md: 3 },
+                  fontSize: { xs: '13px', sm: '14px', md: '15px', lg: '16px' },
                   opacity: 0.9,
                   lineHeight: 1.6,
                 }}
@@ -1155,9 +1185,10 @@ const Dashboard = () => {
                   backgroundColor: 'white',
                   color: '#69247C',
                   fontWeight: 600,
-                  px: 4,
-                  py: 1.5,
+                  px: { xs: 3, sm: 3.5, md: 4 },
+                  py: { xs: 1, sm: 1.25, md: 1.5 },
                   borderRadius: '8px',
+                  fontSize: { xs: '13px', sm: '14px', md: '15px' },
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     transform: 'translateY(-2px)',
@@ -1199,24 +1230,24 @@ const Dashboard = () => {
       </Container>
 
       {/* Projects Section */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+      <Container maxWidth={false} sx={{ mt: { xs: 4, sm: 6, md: 8 }, mb: { xs: 4, sm: 5, md: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          viewport={{ once: false, amount: 0.1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <Box sx={{ mb: 4, textAlign: 'center' }}>
+          <Box sx={{ mb: { xs: 3, sm: 3.5, md: 4 }, textAlign: 'center' }}>
             <Typography
               variant="h3"
               sx={{
                 fontWeight: 700,
-                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+                fontSize: { xs: '20px', sm: '24px', md: '28px', lg: '32px', xl: '36px' },
                 background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                mb: 1,
+                mb: { xs: 0.5, sm: 1 },
                 textAlign: 'center',
               }}
             >
@@ -1226,9 +1257,10 @@ const Dashboard = () => {
               variant="body1"
               sx={{
                 color: '#666666',
-                fontSize: '16px',
-                mb: 3,
+                fontSize: { xs: '13px', sm: '14px', md: '15px', lg: '16px' },
+                mb: { xs: 2, sm: 2.5, md: 3 },
                 textAlign: 'center',
+                px: { xs: 1, sm: 0 },
               }}
             >
               Track your active projects and their progress. Stay on top of deadlines and deliverables.
@@ -1239,8 +1271,8 @@ const Dashboard = () => {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-              gap: 3,
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' },
+              gap: { xs: 2, sm: 2.5, md: 3 },
             }}
           >
             {projects.map((project, index) => {
@@ -1248,33 +1280,34 @@ const Dashboard = () => {
               return (
                 <Box key={project.id}>
                   <motion.div
-                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, amount: 0.3 }}
+                    viewport={{ once: false, amount: 0.1 }}
                     transition={{ 
-                      duration: 0.5, 
-                      delay: index * 0.1,
+                      duration: 0.3, 
+                      delay: index * 0.05,
                       ease: "easeOut" 
                     }}
                   >
                     <ProjectCard>
-                      <CardContent sx={{ p: 3 }}>
+                      <CardContent sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
                         {/* Header with Icon */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1.5, sm: 2 } }}>
                           <Box
                             sx={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: '12px',
+                              width: { xs: 40, sm: 44, md: 48 },
+                              height: { xs: 40, sm: 44, md: 48 },
+                              borderRadius: { xs: '10px', sm: '12px' },
                               background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               color: 'white',
-                              mr: 2,
+                              mr: { xs: 1.5, sm: 2 },
+                              flexShrink: 0,
                             }}
                           >
-                            <IconComponent sx={{ fontSize: 24 }} />
+                            <IconComponent sx={{ fontSize: { xs: 20, sm: 22, md: 24 } }} />
                           </Box>
                           <Box sx={{ flex: 1 }}>
                             <Chip
@@ -1286,7 +1319,8 @@ const Dashboard = () => {
                                 color: project.status === 'Active' ? '#2e7d32' : 
                                        project.status === 'In Progress' ? '#1565c0' : '#e65100',
                                 fontWeight: 600,
-                                fontSize: '11px',
+                                fontSize: { xs: '10px', sm: '11px' },
+                                height: { xs: '22px', sm: '24px' },
                               }}
                             />
                           </Box>
@@ -1297,9 +1331,9 @@ const Dashboard = () => {
                           variant="h6"
                           sx={{
                             fontWeight: 700,
-                            fontSize: '18px',
+                            fontSize: { xs: '15px', sm: '16px', md: '17px', lg: '18px' },
                             color: '#333333',
-                            mb: 1,
+                            mb: { xs: 0.75, sm: 1 },
                             lineHeight: 1.3,
                           }}
                         >
@@ -1312,20 +1346,20 @@ const Dashboard = () => {
                           sx={{
                             color: '#69247C',
                             fontWeight: 600,
-                            mb: 2,
-                            fontSize: '14px',
+                            mb: { xs: 1.5, sm: 2 },
+                            fontSize: { xs: '12px', sm: '13px', md: '14px' },
                           }}
                         >
                           {project.client}
                         </Typography>
 
                         {/* Progress */}
-                        <Box sx={{ mb: 2 }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                            <Typography variant="caption" sx={{ color: '#666666', fontSize: '12px' }}>
+                        <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: { xs: 0.75, sm: 1 } }}>
+                            <Typography variant="caption" sx={{ color: '#666666', fontSize: { xs: '11px', sm: '12px' } }}>
                               Progress
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#69247C', fontWeight: 600, fontSize: '12px' }}>
+                            <Typography variant="caption" sx={{ color: '#69247C', fontWeight: 600, fontSize: { xs: '11px', sm: '12px' } }}>
                               {project.progress}%
                             </Typography>
                           </Box>
@@ -1333,7 +1367,7 @@ const Dashboard = () => {
                             variant="determinate"
                             value={project.progress}
                             sx={{
-                              height: 8,
+                              height: { xs: 6, sm: 7, md: 8 },
                               borderRadius: '4px',
                               backgroundColor: '#f0f0f0',
                               '& .MuiLinearProgress-bar': {
@@ -1345,9 +1379,9 @@ const Dashboard = () => {
                         </Box>
 
                         {/* Deadline */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', pt: 2, borderTop: '1px solid #f0f0f0' }}>
-                          <AccessTimeIcon sx={{ fontSize: 16, color: '#666666', mr: 1 }} />
-                          <Typography variant="body2" sx={{ color: '#666666', fontSize: '13px' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', pt: { xs: 1.5, sm: 2 }, borderTop: '1px solid #f0f0f0' }}>
+                          <AccessTimeIcon sx={{ fontSize: { xs: 14, sm: 15, md: 16 }, color: '#666666', mr: { xs: 0.75, sm: 1 }, flexShrink: 0 }} />
+                          <Typography variant="body2" sx={{ color: '#666666', fontSize: { xs: '11px', sm: '12px', md: '13px' } }}>
                             {project.deadline}
                           </Typography>
                         </Box>

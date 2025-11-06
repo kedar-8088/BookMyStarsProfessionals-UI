@@ -385,6 +385,7 @@ const SignupPage = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Button 
                   color="inherit" 
+                  startIcon={<HomeIcon />}
                   sx={{ color: 'white', fontWeight: 400, fontSize: '14px' }}
                   onClick={() => navigate('/')}
                 >
