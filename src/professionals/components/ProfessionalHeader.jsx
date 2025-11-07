@@ -7,15 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { sessionManager } from '../../API/authApi';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 
-const TopBar = styled(Box)(({ theme }) => ({
-  backgroundColor: '#f5f5f5',
-  padding: '8px 24px',
-  borderBottom: '1px solid #e0e0e0',
-  [theme.breakpoints.down('md')]: {
-    padding: '6px 16px',
-  },
-}));
-
 const GradientAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
   boxShadow: 'none',
@@ -159,20 +150,22 @@ const ProfessionalHeader = () => {
                 >
                   Home
                 </Button>
-                <Button 
-                  color="inherit" 
-                  startIcon={<DashboardIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
-                  sx={{ 
-                    color: 'white', 
-                    fontWeight: 400, 
-                    fontSize: { md: '13px', lg: '14px' },
-                    minWidth: { md: 'auto', lg: 64 },
-                    px: { md: 1.5, lg: 2 }
-                  }}
-                  onClick={() => navigate('/dashboard')}
-                >
-                  Dashboard
-                </Button>
+                {isLoggedIn && (
+                  <Button 
+                    color="inherit" 
+                    startIcon={<DashboardIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
+                    sx={{ 
+                      color: 'white', 
+                      fontWeight: 400, 
+                      fontSize: { md: '13px', lg: '14px' },
+                      minWidth: { md: 'auto', lg: 64 },
+                      px: { md: 1.5, lg: 2 }
+                    }}
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    Dashboard
+                  </Button>
+                )}
               </Box>
             </motion.div>
           )}
@@ -358,33 +351,35 @@ const ProfessionalHeader = () => {
               </Typography>
             </MenuItem>
             
-            <MenuItem 
-              onClick={() => { handleMobileMenuClose(); navigate('/dashboard'); }}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.5,
-                color: '#333333',
-                fontWeight: 500
-              }}
-            >
-              <Box sx={{ 
-                width: { xs: 22, sm: 24 }, 
-                height: { xs: 22, sm: 24 }, 
-                borderRadius: '50%', 
-                background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                flexShrink: 0
-              }}>
-                <DashboardIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />
-              </Box>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '15px' } }}>
-                Dashboard
-              </Typography>
-            </MenuItem>
+            {isLoggedIn && (
+              <MenuItem 
+                onClick={() => { handleMobileMenuClose(); navigate('/dashboard'); }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  color: '#333333',
+                  fontWeight: 500
+                }}
+              >
+                <Box sx={{ 
+                  width: { xs: 22, sm: 24 }, 
+                  height: { xs: 22, sm: 24 }, 
+                  borderRadius: '50%', 
+                  background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  flexShrink: 0
+                }}>
+                  <DashboardIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />
+                </Box>
+                <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '15px' } }}>
+                  Dashboard
+                </Typography>
+              </MenuItem>
+            )}
             
             {isLoggedIn ? [
               <MenuItem 

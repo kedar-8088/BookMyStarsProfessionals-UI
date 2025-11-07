@@ -1,5 +1,6 @@
 import React from 'react';
 import { Hero, CardsSection, LandingHeader } from '../../components';
+import HomeFooter from '../../components/layout/HomeFooter';
 
 const HomeRoute = () => {
   return (
@@ -7,6 +8,7 @@ const HomeRoute = () => {
       <LandingHeader />
       <Hero />
       <CardsSection />
+      <HomeFooter />
     </>
   );
 };

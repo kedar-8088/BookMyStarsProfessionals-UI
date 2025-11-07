@@ -9,7 +9,6 @@ import FeaturedJobsSection from '../components/FeaturedJobsSection';
 import ExploreCategoriesSection from '../components/ExploreCategoriesSection';
 import SimpleBanner from '../components/SimpleBanner';
 import StatisticsSection from '../components/StatisticsSection';
-import HeroSection from '../components/HeroSection';
 import LatestArticlesSection from '../components/LatestArticlesSection';
 import BookmystarsBanner from '../components/BookmystarsBanner';
 import Footer from '../components/Footer';
@@ -23,7 +22,6 @@ const ProfessionalPage = () => {
   const exploreCategoriesRef = useRef(null);
   const simpleBannerRef = useRef(null);
   const statisticsRef = useRef(null);
-  const heroRef = useRef(null);
   const latestArticlesRef = useRef(null);
   const bookmystarsRef = useRef(null);
   const footerRef = useRef(null);
@@ -36,7 +34,6 @@ const ProfessionalPage = () => {
   const exploreCategoriesInView = useInView(exploreCategoriesRef, { once: true, margin: "-50px" });
   const simpleBannerInView = useInView(simpleBannerRef, { once: true, margin: "-50px" });
   const statisticsInView = useInView(statisticsRef, { once: true, margin: "-50px" });
-  const heroInView = useInView(heroRef, { once: true, margin: "-50px" });
   const latestArticlesInView = useInView(latestArticlesRef, { once: true, margin: "-50px" });
   const bookmystarsInView = useInView(bookmystarsRef, { once: true, margin: "-50px" });
   const footerInView = useInView(footerRef, { once: true, margin: "-50px" });
@@ -148,17 +145,7 @@ const ProfessionalPage = () => {
           <StatisticsSection />
         </motion.div>
         
-                    {/* Hero Section */}
-                    <motion.div
-                      ref={heroRef}
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                      transition={{ duration: 0.4, delay: 0.1 }}
-                    >
-                      <HeroSection />
-                    </motion.div>
-                    
-                    {/* Latest Articles Section */}
+        {/* Latest Articles Section */}
                     <Container 
                       maxWidth="xl"
                       sx={{ 

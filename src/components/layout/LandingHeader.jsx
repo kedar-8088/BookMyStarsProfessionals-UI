@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Box, Button, IconButton, useMediaQuery, useTheme, Menu, MenuItem } from '@mui/material';
-import { Menu as MenuIcon, Logout as LogoutIcon, Login as LoginIcon, PersonAdd as PersonAddIcon, Person as PersonIcon } from '@mui/icons-material';
+import { Menu as MenuIcon, Logout as LogoutIcon, Login as LoginIcon, PersonAdd as PersonAddIcon, Person as PersonIcon, ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { motion, useMotionValue, useTransform, animate, useScroll } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,7 @@ const LandingHeader = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileMenuAnchor, setMobileMenuAnchor] = React.useState(null);
+  const [loginMenuAnchor, setLoginMenuAnchor] = React.useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
   const { scrollY } = useScroll();
@@ -40,6 +41,14 @@ const LandingHeader = () => {
 
   const handleMobileMenuClose = () => {
     setMobileMenuAnchor(null);
+  };
+
+  const handleLoginMenuOpen = (event) => {
+    setLoginMenuAnchor(event.currentTarget);
+  };
+
+  const handleLoginMenuClose = () => {
+    setLoginMenuAnchor(null);
   };
 
   // Check authentication status on component mount
@@ -69,8 +78,10 @@ const LandingHeader = () => {
     };
   }, []);
 
-  const handleLoginClick = () => {
-    navigate('/login');
+  const handleLoginClick = (userType = 'professional') => {
+    handleLoginMenuClose();
+    // Navigate to login with user type as query parameter
+    navigate(`/login?type=${userType}`);
   };
 
   const handleLogoutClick = () => {
@@ -207,7 +218,8 @@ const LandingHeader = () => {
                   >
                     <Button
                       variant="contained"
-                      onClick={handleLoginClick}
+                      onClick={handleLoginMenuOpen}
+                      endIcon={<ArrowDropDownIcon sx={{ fontSize: '20px' }} />}
                       startIcon={<LoginIcon />}
                       sx={{
                         backgroundColor: 'white',
@@ -227,6 +239,103 @@ const LandingHeader = () => {
                     >
                       Login
                     </Button>
+                    <Menu
+                      anchorEl={loginMenuAnchor}
+                      open={Boolean(loginMenuAnchor)}
+                      onClose={handleLoginMenuClose}
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                      }}
+                      PaperProps={{
+                        elevation: 8,
+                        sx: {
+                          mt: 1,
+                          minWidth: 220,
+                          borderRadius: 2,
+                          border: '1px solid',
+                          borderColor: 'rgba(0, 0, 0, 0.08)',
+                          boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.15)',
+                          overflow: 'hidden',
+                          '& .MuiMenuItem-root': {
+                            px: 2,
+                            py: 1.5,
+                            fontSize: '15px',
+                            fontFamily: 'Poppins',
+                            transition: 'all 0.2s ease-in-out',
+                            '&:hover': {
+                              backgroundColor: 'rgba(218, 73, 141, 0.08)',
+                              color: '#DA498D',
+                            },
+                            '&:first-of-type': {
+                              borderTopLeftRadius: 8,
+                              borderTopRightRadius: 8,
+                            },
+                            '&:last-of-type': {
+                              borderBottomLeftRadius: 8,
+                              borderBottomRightRadius: 8,
+                            }
+                          }
+                        }
+                      }}
+                    >
+                      <MenuItem 
+                        onClick={() => handleLoginClick('professional')}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          color: '#333333',
+                          fontWeight: 500
+                        }}
+                      >
+                        <Box sx={{ 
+                          width: 24, 
+                          height: 24, 
+                          borderRadius: '50%', 
+                          background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white'
+                        }}>
+                          <PersonIcon sx={{ fontSize: 16 }} />
+                        </Box>
+                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                          Login as Professional
+                        </Typography>
+                      </MenuItem>
+                      <MenuItem 
+                        onClick={() => handleLoginClick('hiring-talent')}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          color: '#333333',
+                          fontWeight: 500
+                        }}
+                      >
+                        <Box sx={{ 
+                          width: 24, 
+                          height: 24, 
+                          borderRadius: '50%', 
+                          background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white'
+                        }}>
+                          <PersonIcon sx={{ fontSize: 16 }} />
+                        </Box>
+                        <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                          Login as Hiring Talent
+                        </Typography>
+                      </MenuItem>
+                    </Menu>
                   </motion.div>
                   <motion.div
                     whileHover={{ scale: 1.05, y: -2 }}
@@ -401,8 +510,8 @@ const LandingHeader = () => {
             </MenuItem>
           ] : [
             <MenuItem 
-              key="login"
-              onClick={() => { handleMobileMenuClose(); handleLoginClick(); }}
+              key="login-professional"
+              onClick={() => { handleMobileMenuClose(); handleLoginClick('professional'); }}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -421,10 +530,37 @@ const LandingHeader = () => {
                 justifyContent: 'center',
                 color: 'white'
               }}>
-                <LoginIcon sx={{ fontSize: 16 }} />
+                <PersonIcon sx={{ fontSize: 16 }} />
               </Box>
               <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
-                Login
+                Login as Professional
+              </Typography>
+            </MenuItem>,
+            <MenuItem 
+              key="login-hiring"
+              onClick={() => { handleMobileMenuClose(); handleLoginClick('hiring-talent'); }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                color: '#333333',
+                fontWeight: 500
+              }}
+            >
+              <Box sx={{ 
+                width: 24, 
+                height: 24, 
+                borderRadius: '50%', 
+                background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white'
+              }}>
+                <PersonIcon sx={{ fontSize: 16 }} />
+              </Box>
+              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
+                Login as Hiring Talent
               </Typography>
             </MenuItem>,
             <MenuItem 

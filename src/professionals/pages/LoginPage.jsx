@@ -30,8 +30,8 @@ import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import LoginIcon from '@mui/icons-material/Login';
 import SecurityIcon from '@mui/icons-material/Security';
-import loginRegisterImage from '../../assets/images/login&register.png';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
+import loginBackground from '../../../dist/assets/film-596009.jpg';
 import { loginProfessional, sessionManager } from '../../API/authApi';
 import { getProfessionalsProfileByProfessional } from '../../API/professionalsProfileApi';
 
@@ -545,58 +545,40 @@ const LoginPage = () => {
       
       <Box sx={{ 
         minHeight: '100vh',
-        backgroundColor: '#FFFFFF',
+        width: '100%',
+        backgroundImage: `linear-gradient(rgba(105, 36, 124, 0.65), rgba(105, 36, 124, 0.65)), url(${loginBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         display: 'flex',
         alignItems: 'center',
-        py: 0,
+        justifyContent: 'center',
+        py: { xs: 3, sm: 4, md: 6 },
         px: 0
       }}>
         <Container 
-          maxWidth="xl"
+          maxWidth="sm"
           sx={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             minHeight: { xs: 'auto', md: '80vh' },
             width: '100%',
-            gap: 0,
             px: { xs: 1, sm: 2, md: 0 }
           }}
         >
-          {/* Left Side - Image */}
-          <Box sx={{ 
-            display: { xs: 'none', md: 'flex' },
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '100vh',
-            backgroundColor: '#f8f9fa',
-            position: 'relative'
-          }}>
-            <Box
-              component="img"
-              src={loginRegisterImage}
-              alt="Login & Register"
-              sx={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center'
-              }}
-            />
-          </Box>
-
-          {/* Right Side - Login Form */}
+          {/* Login Form */}
           <Box sx={{ 
             width: { xs: '100%', md: '500px' },
-            height: { xs: 'auto', md: '80vh' },
+            height: { xs: 'auto', md: 'auto' },
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             px: { xs: 2, sm: 3, md: 4, lg: 6 },
             py: { xs: 3, sm: 4 },
             backgroundColor: '#FFFFFF',
-            borderRadius: { xs: '8px', md: '0' },
-            boxShadow: { xs: '0 4px 20px rgba(0, 0, 0, 0.1)', md: 'none' }
+            borderRadius: { xs: '8px', md: '8px' },
+            boxShadow: { xs: '0 4px 20px rgba(0, 0, 0, 0.1)', md: '0 4px 20px rgba(0, 0, 0, 0.1)' }
           }}>
               {/* Header */}
               <Box sx={{ mb: { xs: 3, sm: 4 } }}>
@@ -871,6 +853,40 @@ const LoginPage = () => {
                   {loading ? 'Signing in...' : 'Sign in'}
                 </Button>
 
+                {/* Sign Up Link */}
+                <Box sx={{ textAlign: 'center', mt: 2, mb: 3 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: 'Poppins',
+                      fontWeight: 400,
+                      fontSize: { xs: '13px', sm: '14px' },
+                      color: '#000000'
+                    }}
+                  >
+                    Don't have an account yet?{' '}
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontWeight: 600,
+                        fontSize: { xs: '13px', sm: '14px' },
+                        color: '#DA498D',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        '&:hover': {
+                          color: '#E94E8B'
+                        }
+                      }}
+                      onClick={() => navigate('/signup')}
+                    >
+                      Sign up now
+                      <PersonIcon sx={{ fontSize: 16 }} />
+                    </Typography>
+                  </Typography>
+                </Box>
 
                 {/* Divider with "Or" */}
                 <Box sx={{ 
@@ -946,41 +962,6 @@ const LoginPage = () => {
                 >
                   Continue with Apple
                 </Button>
-
-                {/* Sign Up Link */}
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography
-                    sx={{
-                      fontFamily: 'Poppins',
-                      fontWeight: 400,
-                      fontSize: { xs: '13px', sm: '14px' },
-                      color: '#000000'
-                    }}
-                  >
-                    Don't have an account yet?{' '}
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontFamily: 'Poppins',
-                        fontWeight: 600,
-                        fontSize: { xs: '13px', sm: '14px' },
-                        color: '#DA498D',
-                        cursor: 'pointer',
-                        textDecoration: 'underline',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        '&:hover': {
-                          color: '#E94E8B'
-                        }
-                      }}
-                      onClick={() => navigate('/signup')}
-                    >
-                      <PersonIcon sx={{ fontSize: 16 }} />
-                      Sign up now
-                    </Typography>
-                  </Typography>
-                </Box>
                </Box>
              </Box>
            </Container>

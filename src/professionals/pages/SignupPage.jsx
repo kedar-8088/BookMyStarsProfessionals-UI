@@ -17,8 +17,8 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SecurityIcon from '@mui/icons-material/Security';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { registerProfessional } from '../../API/authApi';
-import loginRegisterImage from '../../assets/images/login&register.png';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
+import signupBackground from '../../../dist/assets/film-596009.jpg';
 
 const GradientAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
@@ -487,59 +487,40 @@ const SignupPage = () => {
       
       <Box sx={{ 
         minHeight: '100vh',
-        backgroundColor: '#FFFFFF',
+        width: '100%',
+        backgroundImage: `linear-gradient(rgba(105, 36, 124, 0.65), rgba(105, 36, 124, 0.65)), url(${signupBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         py: 4,
         px: 0
       }}>
         <Container 
-          maxWidth="xl"
+          maxWidth="sm"
           sx={{
             display: 'flex',
-            alignItems: 'stretch',
-            minHeight: { xs: 'auto', md: '100vh' },
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: { xs: 'auto', md: '80vh' },
             width: '100%',
-            gap: 0,
             px: { xs: 1, sm: 2, md: 0 }
           }}
         >
-          {/* Left Side - Image */}
-          <Box sx={{ 
-            display: { xs: 'none', md: 'flex' },
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '100vh',
-            backgroundColor: '#f8f9fa',
-            position: 'relative'
-          }}>
-            <Box
-              component="img"
-              src={loginRegisterImage}
-              alt="Signup & Register"
-              sx={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center'
-              }}
-            />
-          </Box>
-
-          {/* Right Side - Signup Form */}
+          {/* Signup Form */}
           <Box sx={{ 
             width: { xs: '100%', md: '500px' },
-            height: { xs: 'auto', md: '100vh' },
+            height: { xs: 'auto', md: 'auto' },
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             px: { xs: 2, sm: 3, md: 4, lg: 6 },
             py: { xs: 3, sm: 4 },
             backgroundColor: '#FFFFFF',
-            borderRadius: { xs: '8px', md: '0' },
-            boxShadow: { xs: '0 4px 20px rgba(0, 0, 0, 0.1)', md: 'none' },
-            overflow: 'auto'
+            borderRadius: { xs: '8px', md: '8px' },
+            boxShadow: { xs: '0 4px 20px rgba(0, 0, 0, 0.1)', md: '0 4px 20px rgba(0, 0, 0, 0.1)' }
           }}>
               {/* Header */}
               <Box sx={{ 
@@ -692,7 +673,7 @@ const SignupPage = () => {
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <PersonIcon sx={{ color: '#9C27B0' }} />
+                            <PersonIcon sx={{ color: '#69247C' }} />
                           </InputAdornment>
                         ),
                       }}
@@ -700,17 +681,15 @@ const SignupPage = () => {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '8px',
                           height: { xs: '44px', sm: '48px' },
-                          backgroundColor: '#FFFFFF',
                           '& fieldset': {
-                            borderColor: '#E0E0E0',
+                            borderColor: '#E94E8B',
                             borderWidth: '1px'
                           },
                           '&:hover fieldset': {
-                            borderColor: '#9C27B0',
+                            borderColor: '#E94E8B',
                           },
                           '&.Mui-focused fieldset': {
-                            borderColor: '#9C27B0',
-                            borderWidth: '2px'
+                            borderColor: '#E94E8B',
                           },
                         },
                         '& .MuiInputBase-input': {
@@ -751,7 +730,7 @@ const SignupPage = () => {
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <PersonIcon sx={{ color: '#9C27B0' }} />
+                            <PersonIcon sx={{ color: '#69247C' }} />
                           </InputAdornment>
                         ),
                       }}
@@ -759,17 +738,15 @@ const SignupPage = () => {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '8px',
                           height: { xs: '44px', sm: '48px' },
-                          backgroundColor: '#FFFFFF',
                           '& fieldset': {
-                            borderColor: '#E0E0E0',
+                            borderColor: '#E94E8B',
                             borderWidth: '1px'
                           },
                           '&:hover fieldset': {
-                            borderColor: '#9C27B0',
+                            borderColor: '#E94E8B',
                           },
                           '&.Mui-focused fieldset': {
-                            borderColor: '#9C27B0',
-                            borderWidth: '2px'
+                            borderColor: '#E94E8B',
                           },
                         },
                         '& .MuiInputBase-input': {
@@ -811,7 +788,7 @@ const SignupPage = () => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <EmailIcon sx={{ color: '#9C27B0' }} />
+                          <EmailIcon sx={{ color: '#69247C' }} />
                         </InputAdornment>
                       ),
                     }}
@@ -819,17 +796,15 @@ const SignupPage = () => {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '8px',
                         height: { xs: '44px', sm: '48px' },
-                        backgroundColor: '#FFFFFF',
                         '& fieldset': {
-                          borderColor: '#E0E0E0',
+                          borderColor: '#69247C',
                           borderWidth: '1px'
                         },
                         '&:hover fieldset': {
-                          borderColor: '#9C27B0',
+                          borderColor: '#69247C',
                         },
                         '&.Mui-focused fieldset': {
-                          borderColor: '#9C27B0',
-                          borderWidth: '2px'
+                          borderColor: '#69247C',
                         },
                       },
                       '& .MuiInputBase-input': {
@@ -870,7 +845,7 @@ const SignupPage = () => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <PhoneIcon sx={{ color: '#9C27B0' }} />
+                          <PhoneIcon sx={{ color: '#69247C' }} />
                         </InputAdornment>
                       ),
                     }}
@@ -878,17 +853,15 @@ const SignupPage = () => {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '8px',
                         height: { xs: '44px', sm: '48px' },
-                        backgroundColor: '#FFFFFF',
                         '& fieldset': {
-                          borderColor: '#E0E0E0',
+                          borderColor: '#69247C',
                           borderWidth: '1px'
                         },
                         '&:hover fieldset': {
-                          borderColor: '#9C27B0',
+                          borderColor: '#69247C',
                         },
                         '&.Mui-focused fieldset': {
-                          borderColor: '#9C27B0',
-                          borderWidth: '2px'
+                          borderColor: '#69247C',
                         },
                       },
                       '& .MuiInputBase-input': {
@@ -929,7 +902,7 @@ const SignupPage = () => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <PersonIcon sx={{ color: '#9C27B0' }} />
+                          <PersonIcon sx={{ color: '#69247C' }} />
                         </InputAdornment>
                       ),
                     }}
@@ -937,17 +910,15 @@ const SignupPage = () => {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '8px',
                         height: { xs: '44px', sm: '48px' },
-                        backgroundColor: '#FFFFFF',
                         '& fieldset': {
-                          borderColor: '#E0E0E0',
+                          borderColor: '#69247C',
                           borderWidth: '1px'
                         },
                         '&:hover fieldset': {
-                          borderColor: '#9C27B0',
+                          borderColor: '#69247C',
                         },
                         '&.Mui-focused fieldset': {
-                          borderColor: '#9C27B0',
-                          borderWidth: '2px'
+                          borderColor: '#69247C',
                         },
                       },
                       '& .MuiInputBase-input': {
@@ -988,7 +959,7 @@ const SignupPage = () => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <LockIcon sx={{ color: '#9C27B0' }} />
+                          <LockIcon sx={{ color: '#69247C' }} />
                         </InputAdornment>
                       ),
                       endAdornment: (
@@ -997,7 +968,7 @@ const SignupPage = () => {
                           onClick={togglePasswordVisibility}
                           edge="end"
                           sx={{ 
-                            color: '#9C27B0',
+                            color: '#69247C',
                             '&:hover': {
                               backgroundColor: 'transparent'
                             }
@@ -1008,23 +979,21 @@ const SignupPage = () => {
                       </InputAdornment>
                     ),
                   }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '8px',
-                      height: { xs: '44px', sm: '48px' },
-                      backgroundColor: '#FFFFFF',
-                      '& fieldset': {
-                        borderColor: '#E0E0E0',
-                        borderWidth: '1px'
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '8px',
+                        height: { xs: '44px', sm: '48px' },
+                        '& fieldset': {
+                          borderColor: '#69247C',
+                          borderWidth: '1px'
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#69247C',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#69247C',
+                        },
                       },
-                      '&:hover fieldset': {
-                        borderColor: '#9C27B0',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#9C27B0',
-                        borderWidth: '2px'
-                      },
-                    },
                     '& .MuiInputBase-input': {
                       fontFamily: 'Poppins',
                       fontSize: { xs: '13px', sm: '14px' },
@@ -1047,9 +1016,9 @@ const SignupPage = () => {
                         checked={agreeToTerms}
                         onChange={(e) => setAgreeToTerms(e.target.checked)}
                         sx={{
-                          color: '#9C27B0',
+                          color: '#69247C',
                           '&.Mui-checked': {
-                            color: '#9C27B0',
+                            color: '#69247C',
                           },
                           '& .MuiSvgIcon-root': {
                             fontSize: 20,
@@ -1074,7 +1043,7 @@ const SignupPage = () => {
                             fontFamily: 'Poppins',
                             fontWeight: 600,
                             fontSize: { xs: '13px', sm: '14px' },
-                            color: '#9C27B0',
+                            color: '#69247C',
                             cursor: 'pointer',
                             textDecoration: 'underline',
                             '&:hover': {
@@ -1145,15 +1114,50 @@ const SignupPage = () => {
                     fontSize: { xs: '14px', sm: '15px', md: '16px' },
                     textTransform: 'none',
                     mb: 3,
-                    boxShadow: '0 4px 12px rgba(105, 36, 124, 0.3)',
+                    boxShadow: 'none',
                     '&:hover': {
-                      background: loading ? 'rgba(105, 36, 124, 0.6)' : 'linear-gradient(90deg, #5a1f6b 0%, #c73d7a 100%)',
-                      boxShadow: '0 6px 16px rgba(105, 36, 124, 0.4)'
+                      background: loading ? 'rgba(105, 36, 124, 0.6)' : 'linear-gradient(90deg, #5a1f6a 0%, #c43d7a 100%)',
+                      boxShadow: 'none'
                     },
                   }}
                 >
                   {loading ? 'Creating Account...' : 'Get Started'}
                 </Button>
+
+                {/* Login Link */}
+                <Box sx={{ textAlign: 'center', mt: 2, mb: 3 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: 'Poppins',
+                      fontWeight: 400,
+                      fontSize: { xs: '13px', sm: '14px' },
+                      color: '#000000'
+                    }}
+                  >
+                    Already a member?{' '}
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontWeight: 600,
+                        fontSize: { xs: '13px', sm: '14px' },
+                        color: '#DA498D',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        '&:hover': {
+                          color: '#E94E8B'
+                        }
+                      }}
+                      onClick={() => navigate('/login')}
+                    >
+                      Login now
+                      <PersonIcon sx={{ fontSize: 16 }} />
+                    </Typography>
+                  </Typography>
+                </Box>
 
                 {/* Divider with "Or" */}
                 <Box sx={{ 
@@ -1188,7 +1192,7 @@ const SignupPage = () => {
                   sx={{
                     height: { xs: '44px', sm: '48px' },
                     borderRadius: '8px',
-                    border: '1px solid #E0E0E0',
+                    border: '1px solid #000000',
                     fontFamily: 'Poppins',
                     fontWeight: 500,
                     fontSize: { xs: '13px', sm: '14px' },
@@ -1198,11 +1202,11 @@ const SignupPage = () => {
                     backgroundColor: '#FFFFFF',
                     '&:hover': {
                       backgroundColor: '#F5F5F5',
-                      border: '1px solid #E0E0E0'
+                      border: '1px solid #000000'
                     }
                   }}
                 >
-                  Or Sign in with Google
+                  Continue with Google
                 </Button>
 
                 {/* Apple Signup Button */}
@@ -1213,7 +1217,7 @@ const SignupPage = () => {
                   sx={{
                     height: { xs: '44px', sm: '48px' },
                     borderRadius: '8px',
-                    border: '1px solid #E0E0E0',
+                    border: '1px solid #000000',
                     fontFamily: 'Poppins',
                     fontWeight: 500,
                     fontSize: { xs: '13px', sm: '14px' },
@@ -1223,47 +1227,12 @@ const SignupPage = () => {
                     backgroundColor: '#FFFFFF',
                     '&:hover': {
                       backgroundColor: '#F5F5F5',
-                      border: '1px solid #E0E0E0'
+                      border: '1px solid #000000'
                     }
                   }}
                 >
-                  Or Sign in with Apple
+                  Continue with Apple
                 </Button>
-
-                {/* Login Link */}
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography
-                    sx={{
-                      fontFamily: 'Poppins',
-                      fontWeight: 400,
-                      fontSize: { xs: '13px', sm: '14px' },
-                      color: '#000000'
-                    }}
-                  >
-                    Already a member?{' '}
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontFamily: 'Poppins',
-                        fontWeight: 600,
-                        fontSize: { xs: '13px', sm: '14px' },
-                        color: '#9C27B0',
-                        cursor: 'pointer',
-                        textDecoration: 'underline',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        '&:hover': {
-                          color: '#7B1FA2'
-                        }
-                      }}
-                      onClick={() => navigate('/login')}
-                    >
-                      <PersonIcon sx={{ fontSize: 16 }} />
-                      Login now
-                    </Typography>
-                  </Typography>
-                </Box>
               </Box>
             </Box>
           </Container>
