@@ -31,7 +31,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LoginIcon from '@mui/icons-material/Login';
 import SecurityIcon from '@mui/icons-material/Security';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
-import loginBackground from '../../../dist/assets/film-596009.jpg';
+import loginBackground from '../../assets/images/film-596009.jpg';
 import { loginProfessional, sessionManager } from '../../API/authApi';
 import { getProfessionalsProfileByProfessional } from '../../API/professionalsProfileApi';
 

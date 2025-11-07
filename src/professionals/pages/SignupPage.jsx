@@ -18,7 +18,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { registerProfessional } from '../../API/authApi';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
-import signupBackground from '../../../dist/assets/film-596009.jpg';
+import signupBackground from '../../assets/images/film-596009.jpg';
 
 const GradientAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
