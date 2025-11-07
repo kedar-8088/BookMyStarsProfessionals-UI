@@ -91,17 +91,14 @@ const FeaturedJobsSection = () => {
       {/* Job Cards */}
       <Box sx={{ 
         display: 'grid',
-        gridTemplateColumns: { 
-          xs: '1fr', 
-          sm: 'repeat(2, 1fr)', 
-          md: 'repeat(3, 1fr)' 
+        gridTemplateColumns: {
+          xs: 'repeat(auto-fit, minmax(260px, 1fr))'
         },
         gap: { xs: 2, sm: 2.5, md: 3 },
         justifyContent: 'center',
-        alignItems: 'start',
+        alignItems: 'stretch',
         maxWidth: { xs: '100%', sm: 800, md: 1000, lg: 1200 },
-        mx: 'auto',
-        gridAutoRows: '1fr'
+        mx: 'auto'
       }}>
         {jobs.map((job, index) => (
           <motion.div
@@ -114,19 +111,24 @@ const FeaturedJobsSection = () => {
             <Card
               sx={{
                 width: '100%',
-                maxWidth: { xs: 350, sm: 380, md: 400, lg: 420 },
-                height: { xs: 'auto', sm: 380, md: 400, lg: 412 },
-                borderRadius: { xs: '16px', sm: '20px', md: '23px' },
-                border: '1px solid #E0E0E0',
-                boxShadow: { 
-                  xs: '0 2px 12px rgba(0,0,0,0.08)', 
-                  sm: '0 4px 16px rgba(0,0,0,0.1)', 
-                  md: '0 4px 20px rgba(0,0,0,0.1)' 
+                maxWidth: '100%',
+                height: '100%',
+                borderRadius: { xs: '18px', sm: '22px', md: '24px' },
+                border: '1px solid rgba(105, 36, 124, 0.12)',
+                backgroundColor: '#FFFFFF',
+                boxShadow: {
+                  xs: '0 10px 24px rgba(105,36,124,0.08)',
+                  sm: '0 12px 28px rgba(105,36,124,0.12)',
+                  md: '0 16px 32px rgba(105,36,124,0.16)'
                 },
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                minHeight: { xs: 'auto', sm: 380, md: 400, lg: 412 }
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-6px)',
+                  boxShadow: '0 18px 36px rgba(105,36,124,0.18)'
+                }
               }}
             >
               {/* Header with Gradient Background */}
@@ -153,11 +155,11 @@ const FeaturedJobsSection = () => {
               {/* Card Content */}
               <CardContent sx={{ 
                 flex: 1, 
-                p: { xs: 2, sm: 3 }, 
+                p: { xs: 2.5, sm: 3 }, 
                 display: 'flex', 
                 flexDirection: 'column',
                 height: '100%',
-                justifyContent: 'space-between'
+                gap: { xs: 2, sm: 2.5 }
               }}>
                 {/* Job Title */}
                 <Typography
@@ -219,7 +221,8 @@ const FeaturedJobsSection = () => {
                   display: 'flex', 
                   gap: 1, 
                   mb: { xs: 2, sm: 2.5 }, 
-                  flexWrap: 'wrap' 
+                  flexWrap: 'wrap',
+                  justifyContent: { xs: 'flex-start', sm: 'flex-start' }
                 }}>
                   {job.tags.map((tag, tagIndex) => (
                     <Chip
@@ -240,18 +243,29 @@ const FeaturedJobsSection = () => {
                 </Box>
 
                 {/* Location and Button */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between', 
-                  mt: 'auto',
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  gap: { xs: 2, sm: 0 }
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                      xs: '1fr',
+                      sm: 'minmax(0, 1fr) auto'
+                    },
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: { xs: 2, sm: 1.5 },
+                    mt: 'auto'
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      justifyContent: 'flex-start'
+                    }}
+                  >
                     <LocationOn sx={{ 
                       color: '#DA498D', 
-                      mr: 1, 
                       fontSize: { xs: '16px', sm: '18px', md: '20px' } 
                     }} />
                     <Typography
@@ -270,27 +284,50 @@ const FeaturedJobsSection = () => {
                     </Typography>
                   </Box>
                   
-                  <Button
-                    variant="contained"
+                  <Box
                     sx={{
-                      background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                      color: 'white',
-                      borderRadius: '8px',
-                      px: { xs: 2, sm: 3 },
-                      py: { xs: 1.5, sm: 1 },
-                      fontFamily: 'Poppins',
-                      fontWeight: 500,
-                      fontSize: { xs: '14px', sm: '15px', md: '16px' },
-                      textTransform: 'none',
-                      width: { xs: '100%', sm: 'auto' },
-                      minWidth: { xs: 'auto', sm: 120 },
-                      '&:hover': {
-                        background: 'linear-gradient(90deg, #5A1F6C 0%, #C9397D 100%)'
-                      }
+                      display: 'flex',
+                      justifyContent: { xs: 'center', sm: 'flex-end' }
                     }}
                   >
-                    Audition Now
-                  </Button>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+                        color: 'white',
+                        borderRadius: '999px',
+                        px: { xs: 3, sm: 3.25 },
+                        py: { xs: 1.25, sm: 1.1 },
+                        fontFamily: 'Poppins',
+                        fontWeight: 700,
+                        fontSize: { xs: '15px', sm: '15px', md: '16px' },
+                        textTransform: 'none',
+                        width: { xs: '100%', sm: 'auto' },
+                        minWidth: { xs: 'auto', sm: 135, md: 145 },
+                        letterSpacing: '0.03em',
+                        boxShadow: '0 14px 32px rgba(105, 36, 124, 0.3)',
+                        border: '2px solid rgba(255,255,255,0.9)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'linear-gradient(120deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 55%)',
+                          opacity: 0.6,
+                          pointerEvents: 'none'
+                        },
+                        '&:hover': {
+                          background: 'linear-gradient(90deg, #5A1F6C 0%, #C9397D 100%)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 20px 36px rgba(105,36,124,0.35)'
+                        }
+                      }}
+                    >
+                      Audition Now
+                    </Button>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
@@ -310,7 +347,7 @@ const FeaturedJobsSection = () => {
             fontFamily: 'Poppins',
             fontWeight: 600,
             fontStyle: 'normal',
-            fontSize: '24px',
+            fontSize: { xs: '18px', sm: '20px', md: '22px' },
             lineHeight: '140%',
             letterSpacing: '0%',
             color: '#69247C',

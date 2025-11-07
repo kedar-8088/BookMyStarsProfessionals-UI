@@ -17,9 +17,10 @@ const GradientAppBar = styled(AppBar)(({ theme }) => ({
 const ProfessionalHeader = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isCompactDesktop = useMediaQuery(theme.breakpoints.between('sm', 'lg'));
+  const showButtonIcons = !isTablet;
   const [mobileMenuAnchor, setMobileMenuAnchor] = React.useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -84,12 +85,17 @@ const ProfessionalHeader = () => {
 
       {/* Main Navigation Bar */}
       <GradientAppBar position="static">
-        <Toolbar sx={{ 
-          justifyContent: 'space-between', 
-          px: { xs: 1, sm: 2, md: 3 },
-          minHeight: { xs: 56, sm: 64, md: 70 },
-          gap: { xs: 1, sm: 2 }
-        }}>
+        <Toolbar
+          disableGutters
+          sx={{
+            width: '100%',
+            px: { xs: 1.5, sm: 2.5, md: 3, lg: 4 },
+            minHeight: { xs: 60, sm: 66, md: 72 },
+            gap: { xs: 1, sm: 1.5, md: 2.5 },
+            rowGap: { xs: 1, sm: 1.5 },
+            flexWrap: { xs: 'wrap', sm: 'nowrap', md: 'nowrap' }
+          }}
+        >
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -98,7 +104,7 @@ const ProfessionalHeader = () => {
             style={{ flexShrink: 0 }}
           >
             <Typography 
-              variant={isMobile ? "h6" : "h5"} 
+              variant={isMobile ? "subtitle1" : (isTablet ? "subtitle1" : (isCompactDesktop ? "h6" : "h5"))} 
               component="div" 
               sx={{ fontWeight: 600, color: 'white' }}
             >
@@ -108,10 +114,10 @@ const ProfessionalHeader = () => {
                 src={BookMyStarsLogo}
                 alt="BookMyStars Logo"
                 sx={{
-                  height: { xs: 36, sm: 44, md: 52, lg: 56 },
+                  height: { xs: 36, sm: 42, md: 50, lg: 56 },
                   width: 'auto',
-                  maxHeight: { xs: 40, sm: 48, md: 56 },
-                  maxWidth: { xs: 140, sm: 160, md: 180 },
+                  maxHeight: { xs: 40, sm: 46, md: 56 },
+                  maxWidth: { xs: 140, sm: 150, md: 180 },
                   display: 'block',
                   objectFit: 'contain',
                   backgroundColor: '#fff', // White background
@@ -128,23 +134,26 @@ const ProfessionalHeader = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-              style={{ flex: 1, display: 'flex', justifyContent: 'center' }}
+              style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}
             >
               <Box sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                gap: { md: 2, lg: 4 },
-                flexWrap: 'nowrap'
+                gap: { sm: 1.5, md: 2, lg: 4 },
+                flexWrap: 'nowrap',
+                justifyContent: 'flex-end'
               }}>
                 <Button 
                   color="inherit" 
-                  startIcon={<HomeIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
+                  startIcon={showButtonIcons ? <HomeIcon sx={{ fontSize: { sm: 18, md: 18, lg: 20 } }} /> : null}
                   sx={{ 
                     color: 'white', 
                     fontWeight: 400, 
-                    fontSize: { md: '13px', lg: '14px' },
-                    minWidth: { md: 'auto', lg: 64 },
-                    px: { md: 1.5, lg: 2 }
+                    fontSize: { sm: '12px', md: '13px', lg: '14px' },
+                    minWidth: { sm: 64, md: 'auto', lg: 64 },
+                    px: { sm: 1.5, md: 1.5, lg: 2 },
+                    py: { sm: 0.5, md: 0.75 },
+                    mt: { sm: 0.5, md: 0 }
                   }}
                   onClick={() => navigate('/')}
                 >
@@ -153,13 +162,15 @@ const ProfessionalHeader = () => {
                 {isLoggedIn && (
                   <Button 
                     color="inherit" 
-                    startIcon={<DashboardIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
+                    startIcon={showButtonIcons ? <DashboardIcon sx={{ fontSize: { sm: 18, md: 18, lg: 20 } }} /> : null}
                     sx={{ 
                       color: 'white', 
-                      fontWeight: 400, 
-                      fontSize: { md: '13px', lg: '14px' },
-                      minWidth: { md: 'auto', lg: 64 },
-                      px: { md: 1.5, lg: 2 }
+                    fontWeight: 400, 
+                      fontSize: { sm: '12px', md: '13px', lg: '14px' },
+                      minWidth: { sm: 64, md: 'auto', lg: 64 },
+                      px: { sm: 1.5, md: 1.5, lg: 2 },
+                      py: { sm: 0.5, md: 0.75 },
+                      mt: { sm: 0.5, md: 0 }
                     }}
                     onClick={() => navigate('/dashboard')}
                   >
@@ -181,14 +192,14 @@ const ProfessionalHeader = () => {
               <Button
                 variant="contained"
                 onClick={handleJoinNowClick}
-                startIcon={<PersonAddIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
+                startIcon={showButtonIcons ? <PersonAddIcon sx={{ fontSize: { sm: 18, md: 18, lg: 20 } }} /> : null}
                 sx={{
                   backgroundColor: 'white',
                   color: '#69247C',
                   fontWeight: 500,
-                  fontSize: { md: '13px', lg: '14px' },
-                  px: { md: 2, lg: 3 },
-                  py: { md: 0.75, lg: 1 },
+                  fontSize: { sm: '12px', md: '13px', lg: '14px' },
+                  px: { sm: 1.75, md: 2, lg: 3 },
+                  py: { sm: 0.6, md: 0.75, lg: 1 },
                   borderRadius: 2,
                   textTransform: 'none',
                   whiteSpace: 'nowrap',
@@ -197,10 +208,10 @@ const ProfessionalHeader = () => {
                   },
                 }}
               >
-                <Box component="span" sx={{ display: { md: 'none', lg: 'inline' } }}>
+                <Box component="span" sx={{ display: { xs: 'none', md: 'none', lg: 'inline' } }}>
                   Join as Professional
                 </Box>
-                <Box component="span" sx={{ display: { md: 'inline', lg: 'none' } }}>
+                <Box component="span" sx={{ display: { xs: 'inline', md: 'inline', lg: 'none' } }}>
                   Join
                 </Box>
               </Button>
@@ -221,7 +232,7 @@ const ProfessionalHeader = () => {
               }}>
                 <Typography sx={{ 
                   color: 'white', 
-                  fontSize: { md: '12px', lg: '14px' }, 
+                  fontSize: { sm: '12px', md: '12px', lg: '14px' }, 
                   fontWeight: 500,
                   display: { md: 'block', lg: 'block' },
                   whiteSpace: 'nowrap',
@@ -229,19 +240,19 @@ const ProfessionalHeader = () => {
                   textOverflow: 'ellipsis',
                   maxWidth: { md: 120, lg: 200 }
                 }}>
-                  {isTablet ? 'Welcome' : `Welcome, ${userData?.userName || 'User'}`}
+                  {isCompactDesktop ? 'Welcome' : `Welcome, ${userData?.userName || 'User'}`}
                 </Typography>
                 <Button
                   variant="contained"
                   onClick={handleLogoutClick}
-                  startIcon={<LogoutIcon sx={{ fontSize: { md: 18, lg: 20 } }} />}
+                  startIcon={showButtonIcons ? <LogoutIcon sx={{ fontSize: { sm: 18, md: 18, lg: 20 } }} /> : null}
                   sx={{
                     backgroundColor: 'white',
                     color: '#69247C',
                     fontWeight: 500,
-                    fontSize: { md: '13px', lg: '14px' },
-                    px: { md: 2, lg: 3 },
-                    py: { md: 0.75, lg: 1 },
+                    fontSize: { sm: '12px', md: '13px', lg: '14px' },
+                    px: { sm: 1.75, md: 2, lg: 3 },
+                    py: { sm: 0.6, md: 0.75, lg: 1 },
                     borderRadius: 2,
                     textTransform: 'none',
                     whiteSpace: 'nowrap',

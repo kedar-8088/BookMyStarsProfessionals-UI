@@ -1,35 +1,89 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip,
-  Stack
-} from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Typography, Chip } from '@mui/material';
+import { sessionManager } from '../../API/authApi';
+import profileFlowManager from '../../utils/profileFlowManager';
+import { getProfessionalSkillsByProfileId } from '../../API/professionalSkillsApi';
 
 const OpportunitiesCard = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [location, setLocation] = useState('');
-  const [category, setCategory] = useState('');
-  const [experience, setExperience] = useState('');
-  const [projectType, setProjectType] = useState('');
+  const defaultOptions = useMemo(
+    () => [
+      'Acting', 'Modeling', 'Filmmaking', 'Photography', 'Music',
+      'Dancing', 'Voice Acting', 'Stunt Work', 'Production',
+      'Editing', 'Directing', 'Casting'
+    ],
+    []
+  );
+
+  const [options, setOptions] = useState(defaultOptions);
   const [selectedOption, setSelectedOption] = useState(0);
 
-  const options = [
-    'Acting', 'Modeling', 'Filmmaking', 'Photography', 'Music',
-    'Dancing', 'Writing', 'Voice Acting', 'Stunt Work', 'Production',
-    'Editing', 'Directing', 'Casting', 'Events'
-  ];
+  useEffect(() => {
+    let isMounted = true;
 
-  const handleSearch = () => {
-    console.log('Searching for:', searchTerm);
-  };
+    const loadSkills = async () => {
+      try {
+        if (!sessionManager.isLoggedIn()) {
+          return;
+        }
+
+        let profileId = sessionManager.getProfessionalsProfileId();
+
+        if (!profileId) {
+          const initResult = await profileFlowManager.initialize();
+
+          profileId =
+            sessionManager.getProfessionalsProfileId() ||
+            initResult.profileId;
+
+          if (!profileId) {
+            const profileResult = await profileFlowManager.createOrGetProfile();
+            if (profileResult?.success && profileResult.profileId) {
+              profileId = profileResult.profileId;
+              sessionManager.setProfessionalsProfileId(profileId);
+            }
+          }
+        }
+
+        if (!profileId) {
+          return;
+        }
+
+        const skillsResponse = await getProfessionalSkillsByProfileId(profileId);
+
+        const skillNames = Array.isArray(skillsResponse?.data)
+          ? skillsResponse.data
+              .map(skill => skill?.skillName?.trim())
+              .filter(Boolean)
+          : Array.isArray(skillsResponse?.data?.data)
+            ? skillsResponse.data.data
+                .map(skill => skill?.skillName?.trim())
+                .filter(Boolean)
+            : [];
+
+        if (isMounted && skillNames.length > 0) {
+          const uniqueSkills = Array.from(new Set(skillNames));
+          setOptions(uniqueSkills);
+          setSelectedOption(prev => (prev < uniqueSkills.length ? prev : 0));
+        }
+      } catch (error) {
+        console.warn('Unable to load professional skills for opportunities list:', error);
+      } finally {
+        // No-op: we silently fall back to default options on error
+      }
+    };
+
+    loadSkills();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedOption >= options.length) {
+      setSelectedOption(0);
+    }
+  }, [options, selectedOption]);
 
   const handleOptionClick = (index) => {
     setSelectedOption(index);
@@ -75,85 +129,62 @@ const OpportunitiesCard = () => {
       {/* The search bar and filter dropdowns have been removed as per request. */}
 
       {/* Option Buttons */}
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        gap: { xs: 1, sm: 2 },
-        alignItems: 'center'
-      }}>
-        {/* First Row */}
-        <Stack 
-          direction="row" 
-          spacing={{ xs: 0.5, sm: 1 }} 
-          flexWrap="wrap"
-          justifyContent="center"
-          sx={{ width: '100%' }}
-        >
-          {options.slice(0, 7).map((option, index) => (
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: 'repeat(2, minmax(0, 1fr))',
+            sm: 'repeat(3, minmax(0, 1fr))',
+            md: 'repeat(4, minmax(0, 1fr))',
+            lg: 'repeat(5, minmax(0, 1fr))',
+            xl: 'repeat(6, minmax(0, 1fr))'
+          },
+          gap: { xs: 1, sm: 1.5, md: 2 },
+          alignItems: 'stretch',
+          justifyItems: 'center',
+          maxWidth: { xs: '100%', sm: 560, md: 720, lg: 920, xl: 1080 },
+          mx: 'auto'
+        }}
+      >
+        {options.map((option, index) => {
+          const isSelected = selectedOption === index;
+          return (
             <Chip
               key={index}
               label={option}
               onClick={() => handleOptionClick(index)}
               sx={{
-                width: { xs: 100, sm: 120, md: 130, lg: 141 },
-                height: { xs: 40, sm: 45, md: 50, lg: 55 },
-                backgroundColor: '#FFFFFF',
-                color: selectedOption === index ? '#FFFFFF' : '#E94E8B',
-                border: '2px solid',
-                borderColor: selectedOption === index ? 'transparent' : '#DA498D',
-                borderRadius: { xs: '20px', sm: '24px', md: '28px' },
-                opacity: 1,
-                fontSize: { xs: '10px', sm: '11px', md: '12px', lg: '13px' },
-                background: selectedOption === index 
+                width: '100%',
+                maxWidth: { xs: 140, sm: 160, md: 180 },
+                minHeight: { xs: 36, sm: 40, md: 44, lg: 48 },
+                background: isSelected
                   ? 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)'
                   : '#FFFFFF',
+                color: isSelected ? '#FFFFFF' : '#E94E8B',
+                border: '2px solid',
+                borderColor: isSelected ? 'transparent' : '#DA498D',
+                borderRadius: { xs: '999px', sm: '999px' },
+                fontFamily: 'Poppins',
+                fontWeight: 500,
+                fontSize: { xs: '11px', sm: '12px', md: '13px', lg: '14px' },
+                letterSpacing: '0.02em',
+                justifyContent: 'center',
+                px: { xs: 0.5, sm: 1, md: 1.5 },
+                boxShadow: isSelected
+                  ? '0 10px 24px rgba(218, 73, 141, 0.25)'
+                  : '0 4px 12px rgba(0, 0, 0, 0.05)',
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  background: selectedOption === index 
+                  background: isSelected
                     ? 'linear-gradient(90deg, #C9397D 0%, #59236C 100%)'
-                    : '#F8F8F8',
-                  borderColor: selectedOption === index ? 'transparent' : '#C9397D'
+                    : 'linear-gradient(90deg, rgba(218,73,141,0.12) 0%, rgba(105,36,124,0.12) 100%)',
+                  borderColor: isSelected ? 'transparent' : '#C9397D',
+                  boxShadow: '0 12px 26px rgba(218, 73, 141, 0.2)'
                 }
               }}
             />
-          ))}
-        </Stack>
-
-        {/* Second Row */}
-        <Stack 
-          direction="row" 
-          spacing={{ xs: 0.5, sm: 1 }} 
-          flexWrap="wrap"
-          justifyContent="center"
-          sx={{ width: '100%' }}
-        >
-          {options.slice(7, 14).map((option, index) => (
-            <Chip
-              key={index + 7}
-              label={option}
-              onClick={() => handleOptionClick(index + 7)}
-              sx={{
-                width: { xs: 100, sm: 120, md: 130, lg: 141 },
-                height: { xs: 40, sm: 45, md: 50, lg: 55 },
-                backgroundColor: '#FFFFFF',
-                color: selectedOption === index + 7 ? '#FFFFFF' : '#E94E8B',
-                border: '2px solid',
-                borderColor: selectedOption === index + 7 ? 'transparent' : '#DA498D',
-                borderRadius: { xs: '20px', sm: '24px', md: '28px' },
-                opacity: 1,
-                fontSize: { xs: '10px', sm: '11px', md: '12px', lg: '13px' },
-                background: selectedOption === index + 7 
-                  ? 'linear-gradient(90deg, #DA498D 0%, #69247C 100%)'
-                  : '#FFFFFF',
-                '&:hover': {
-                  background: selectedOption === index + 7 
-                    ? 'linear-gradient(90deg, #C9397D 0%, #59236C 100%)'
-                    : '#F8F8F8',
-                  borderColor: selectedOption === index + 7 ? 'transparent' : '#C9397D'
-                }
-              }}
-            />
-          ))}
-        </Stack>
+          );
+        })}
       </Box>
     </Box>
   );
