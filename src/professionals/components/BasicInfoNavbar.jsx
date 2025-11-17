@@ -100,35 +100,7 @@ const BasicInfoNavbar = () => {
             </Typography>
           </motion.div>
           
-          {/* Dashboard - Center */}
-          {!isMobile && isLoggedIn && (
-            <Box
-              sx={{
-                position: 'absolute',
-                left: '50%',
-                transform: 'translateX(-50%)',
-              }}
-            >
-              <Button
-                color="inherit"
-                onClick={() => navigate('/dashboard')}
-                startIcon={<DashboardIcon />}
-                sx={{
-                  color: 'white',
-                  fontWeight: 400,
-                  fontSize: '14px',
-                  textTransform: 'none',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  },
-                }}
-              >
-                Dashboard
-              </Button>
-            </Box>
-          )}
-          
-          {/* User Info and Logout - Right */}
+          {/* User Info, Dashboard and Logout - Right */}
           {!isMobile && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -145,6 +117,22 @@ const BasicInfoNavbar = () => {
                         {userData.userName || userData.firstName || 'User'}
                       </Typography>
                     </Box>
+                    <Button
+                      color="inherit"
+                      onClick={() => navigate('/dashboard')}
+                      startIcon={<DashboardIcon />}
+                      sx={{
+                        color: 'white',
+                        fontWeight: 400,
+                        fontSize: '14px',
+                        textTransform: 'none',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        },
+                      }}
+                    >
+                      Dashboard
+                    </Button>
                     <Button
                       variant="contained"
                       onClick={handleLogout}

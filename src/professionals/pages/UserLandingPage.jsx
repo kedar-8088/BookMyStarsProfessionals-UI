@@ -129,7 +129,7 @@ const ProfileNavBar = () => {
               <PersonIcon sx={{ fontSize: 16 }} />
             </Box>
             <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
-              Create Profile
+               Profile
             </Typography>
           </MenuItem>
           

@@ -9,6 +9,7 @@ import instagramIcon from '../../assets/images/instagram.png';
 import facebookIcon from '../../assets/images/facebook.png';
 import youtubeIcon from '../../assets/images/youtube.png';
 import linkedinIcon from '../../assets/images/linkedin.png';
+import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 import { getProfessionalsProfileById, saveOrUpdateProfessionalsProfile, updateProfessionalsProfile } from '../../API/professionalsProfileApi';
 import { sessionManager } from '../../API/authApi';
 import profileFlowManager from '../../utils/profileFlowManager';
@@ -454,19 +455,44 @@ const CompleteProfilePage = () => {
         }
       };
 
-      // Fetch profile image
+      // Helper function to convert local image file to base64
+      const getLocalImageAsBase64 = async (imageSrc) => {
+        try {
+          const response = await fetch(imageSrc);
+          const blob = await response.blob();
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        } catch (error) {
+          console.error('Error converting local image to base64:', error);
+          return null;
+        }
+      };
+
+      // Fetch profile image and logo
       let profileImageBase64 = null;
       if (profileData?.basicInfo?.filePath) {
         profileImageBase64 = await getImageAsBase64(profileData.basicInfo.filePath);
       }
 
-      // Profile Header with Image
+      // Convert logo to base64
+      let logoBase64 = null;
+      try {
+        logoBase64 = await getLocalImageAsBase64(BookMyStarsLogo);
+      } catch (error) {
+        console.error('Error loading logo:', error);
+      }
+
+      // Profile Header with Image and Logo
       const header = document.createElement('div');
       header.style.marginBottom = '30px';
-      header.style.textAlign = 'center';
       
       let headerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; width: 100%;">
+          <div style="display: flex; align-items: center; gap: 20px; flex: 1;">
       `;
       
       if (profileImageBase64) {
@@ -476,9 +502,22 @@ const CompleteProfilePage = () => {
       }
       
       headerHTML += `
-          <div style="flex: 1;">
-            <h2 style="font-size: 20px; font-weight: 600; color: #333333; margin: 0;">${getFullName()}</h2>
+            <div style="flex: 1;">
+              <h2 style="font-size: 20px; font-weight: 600; color: #333333; margin: 0;">${getFullName()}</h2>
+            </div>
           </div>
+      `;
+      
+      // Add logo on the right side
+      if (logoBase64) {
+        headerHTML += `
+          <div style="display: flex; align-items: center; justify-content: flex-end;">
+            <img src="${logoBase64}" alt="BookMyStars Logo" style="max-height: 60px; max-width: 180px; height: auto; width: auto; object-fit: contain; background-color: #fff; border-radius: 6px; padding: 4px;" />
+          </div>
+        `;
+      }
+      
+      headerHTML += `
         </div>
         <div style="border-bottom: 3px solid #DA498D; margin: 20px 0;"></div>
       `;
@@ -524,16 +563,34 @@ const CompleteProfilePage = () => {
       `;
       pdfContent.appendChild(createSection('Style Profile Details', physicalDetailsContent));
 
-      // Photos Section (excluding videos)
+      // Photos Section (excluding videos) - Show minimum 6 photos (or all if less than 6)
       const photos = profileData.showcase?.files?.filter(file => file.isImage) || [];
       if (photos.length > 0) {
+        // Limit to first 6 photos for PDF (minimum 6 requirement)
+        const photosToShow = photos.slice(0, 6);
+        
+        // Load all photos as base64
+        const photoPromises = photosToShow.map(photo => getImageAsBase64(photo.filePath));
+        const photoBase64Array = await Promise.all(photoPromises);
+        
         let photosContent = `
           <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
-            ${photos.map((photo, index) => `
-              <div style="flex: 1; min-width: 30%; max-width: 32%; border: 1px solid #DA498D; border-radius: 8px; padding: 10px; text-align: center;">
-                <div style="color: #666666; font-size: 12px; margin-top: 5px;">Photo ${index + 1}</div>
-              </div>
-            `).join('')}
+            ${photoBase64Array.map((photoBase64, index) => {
+              if (photoBase64) {
+                return `
+                  <div style="flex: 1; min-width: 30%; max-width: 32%; border: 1px solid #DA498D; border-radius: 8px; padding: 10px; text-align: center; overflow: hidden;">
+                    <img src="${photoBase64}" alt="Photo ${index + 1}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; margin-bottom: 5px;" />
+                    <div style="color: #666666; font-size: 12px;">Photo ${index + 1}</div>
+                  </div>
+                `;
+              } else {
+                return `
+                  <div style="flex: 1; min-width: 30%; max-width: 32%; border: 1px solid #DA498D; border-radius: 8px; padding: 10px; text-align: center; min-height: 150px; display: flex; align-items: center; justify-content: center;">
+                    <div style="color: #666666; font-size: 12px;">Photo ${index + 1} (Failed to load)</div>
+                  </div>
+                `;
+              }
+            }).join('')}
           </div>
         `;
         pdfContent.appendChild(createSection('Photos', photosContent));

@@ -231,6 +231,8 @@ const Dashboard = () => {
   const user = session?.user || null;
   const [userFirstName, setUserFirstName] = useState('');
   const [userLastName, setUserLastName] = useState('');
+  const [profileCompletion, setProfileCompletion] = useState(0);
+  const [profileData, setProfileData] = useState(null);
 
   // Carousel slides with different images and overlay text
   const slides = [
@@ -241,9 +243,55 @@ const Dashboard = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
-  // Fetch user firstName and lastName from session or profile
+  // Function to calculate profile completion percentage
+  // Each section is worth 20%. If a section is complete, it contributes the full 20%.
+  const calculateProfileCompletion = (profile) => {
+    if (!profile) return 0;
+
+    let completion = 0;
+
+    // Basic Info (20%) - Section is complete if it exists and has essential fields
+    const basicInfo = profile.basicInfo;
+    if (basicInfo && basicInfo.fullName && basicInfo.email && basicInfo.phoneNo && basicInfo.category) {
+      completion += 20;
+    }
+
+    // Physical Details (20%) - Section is complete if it exists and has essential fields
+    const styleProfile = profile.styleProfile;
+    if (styleProfile && (styleProfile.height || styleProfile.weight || styleProfile.bodyType)) {
+      completion += 20;
+    }
+
+    // Showcase (20%) - Section is complete if it has files OR social presence OR languages
+    const showcase = profile.showcase;
+    const hasFiles = showcase?.files && showcase.files.length > 0;
+    const hasSocialPresence = showcase?.socialPresence && showcase.socialPresence.length > 0;
+    const hasLanguages = showcase?.languages && showcase.languages.length > 0;
+    if (hasFiles || hasSocialPresence || hasLanguages) {
+      completion += 20;
+    }
+
+    // Education Background (20%) - Section is complete if it has education OR work experience
+    const hasEducation = profile.educations && profile.educations.length > 0;
+    const hasWorkExperience = profile.workExperience && profile.workExperience.length > 0;
+    if (hasEducation || hasWorkExperience) {
+      completion += 20;
+    }
+
+    // Preferences (20%) - Section is complete if it has attire preferences AND job type preferences
+    const preferences = profile.preferences;
+    const hasAttire = preferences && (preferences.casualWear || preferences.traditional || preferences.partyWestern || preferences.formal);
+    const hasJobType = preferences && (preferences.modeling || preferences.acting || preferences.commercial || preferences.fashion || preferences.film || preferences.television || preferences.music || preferences.event || preferences.photography || preferences.runway || preferences.print || preferences.digital);
+    if (hasAttire && hasJobType) {
+      completion += 20;
+    }
+
+    return Math.min(completion, 100);
+  };
+
+  // Fetch user firstName and lastName from session or profile, and calculate profile completion
   useEffect(() => {
-    const fetchUserNames = async () => {
+    const fetchUserNamesAndProfile = async () => {
       // First, check if firstName and lastName are already in the user session
       if (user?.firstName) {
         setUserFirstName(user.firstName);
@@ -253,11 +301,17 @@ const Dashboard = () => {
       }
 
       // If not in session and we have a professionalsId, fetch from profile
-      if ((!user?.firstName || !user?.lastName) && user?.professionalsId) {
+      if (user?.professionalsId) {
         try {
           const response = await getProfessionalsProfileByProfessional(user.professionalsId);
           if (response.success && response.data?.code === 1000) {
             const profileData = response.data.data;
+            setProfileData(profileData);
+            
+            // Calculate profile completion
+            const completion = calculateProfileCompletion(profileData);
+            setProfileCompletion(completion);
+
             // Check if firstName and lastName are in professionalsDto
             if (profileData?.professionalsDto?.firstName && !user?.firstName) {
               setUserFirstName(profileData.professionalsDto.firstName);
@@ -277,12 +331,12 @@ const Dashboard = () => {
             }
           }
         } catch (error) {
-          console.error('Error fetching user names:', error);
+          console.error('Error fetching user names and profile:', error);
         }
       }
     };
 
-    fetchUserNames();
+    fetchUserNamesAndProfile();
   }, [user]);
 
   useEffect(() => {
@@ -890,6 +944,195 @@ const Dashboard = () => {
                 </Box>
               </Box>
             </Box>
+            </Paper>
+          </motion.div>
+        </Container>
+      )}
+
+      {/* Profile Completion Indicator */}
+      {session?.token && user && (
+        <Container maxWidth={false} sx={{ pt: { xs: 3, sm: 4, md: 5, lg: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.1 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <Paper 
+              sx={{ 
+                p: { xs: 2, sm: 3, md: 4 }, 
+                borderRadius: { xs: '8px', sm: '10px', md: '12px' },
+                backgroundColor: 'white',
+                width: '100%',
+                maxWidth: '100%',
+                border: '1px solid #DA498D',
+                boxShadow: 'none',
+              }} 
+              elevation={0}
+            >
+            {/* Header */}
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 2.5, md: 3 } }}>
+              <Box
+                sx={{
+                  width: { xs: 32, sm: 36, md: 40 },
+                  height: { xs: 32, sm: 36, md: 40 },
+                  borderRadius: '50%',
+                  backgroundColor: '#69247C',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mr: { xs: 1.5, sm: 2 },
+                  flexShrink: 0,
+                }}
+              >
+                <AssignmentIcon 
+                  sx={{ 
+                    fontSize: { xs: 20, sm: 22, md: 24 }, 
+                    color: 'white',
+                  }} 
+                />
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
+                <Typography 
+                  variant="h4" 
+                  sx={{ 
+                    fontWeight: 700,
+                    fontSize: { xs: '18px', sm: '20px', md: '24px', lg: '28px' },
+                    color: '#333333',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  Profile Completion
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'Poppins',
+                    fontWeight: 700,
+                    fontSize: { xs: '20px', sm: '22px', md: '26px' },
+                    color: profileCompletion === 100 ? '#4CAF50' : '#69247C',
+                  }}
+                >
+                  {profileCompletion}%
+                </Typography>
+              </Box>
+            </Box>
+                
+                <LinearProgress
+                  variant="determinate"
+                  value={profileCompletion}
+                  sx={{
+                    height: { xs: 10, sm: 12 },
+                    borderRadius: '8px',
+                    backgroundColor: profileCompletion === 100 
+                      ? 'rgba(76, 175, 80, 0.15)' 
+                      : 'rgba(218, 73, 141, 0.15)',
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: profileCompletion === 100 ? '#4CAF50' : '#DA498D',
+                      borderRadius: '8px',
+                      transition: 'width 0.8s ease-in-out',
+                    },
+                  }}
+                />
+                
+                <Box sx={{ 
+                  mt: 2.5, 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  gap: { xs: 1, sm: 1.25 }, 
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  {(() => {
+                    // Calculate completion for each section (matching the calculation function logic)
+                    const basicInfo = profileData?.basicInfo;
+                    const basicInfoComplete = basicInfo && basicInfo.fullName && basicInfo.email && basicInfo.phoneNo && basicInfo.category;
+
+                    const styleProfile = profileData?.styleProfile;
+                    const physicalComplete = styleProfile && (styleProfile.height || styleProfile.weight || styleProfile.bodyType);
+
+                    const showcase = profileData?.showcase;
+                    const hasFiles = showcase?.files && showcase.files.length > 0;
+                    const hasSocialPresence = showcase?.socialPresence && showcase.socialPresence.length > 0;
+                    const hasLanguages = showcase?.languages && showcase.languages.length > 0;
+                    const showcaseComplete = hasFiles || hasSocialPresence || hasLanguages;
+
+                    const hasEducation = profileData?.educations && profileData.educations.length > 0;
+                    const hasWorkExperience = profileData?.workExperience && profileData.workExperience.length > 0;
+                    const educationComplete = hasEducation || hasWorkExperience;
+
+                    const preferences = profileData?.preferences;
+                    const hasAttire = preferences && (preferences.casualWear || preferences.traditional || preferences.partyWestern || preferences.formal);
+                    const hasJobType = preferences && (preferences.modeling || preferences.acting || preferences.commercial || preferences.fashion || preferences.film || preferences.television || preferences.music || preferences.event || preferences.photography || preferences.runway || preferences.print || preferences.digital);
+                    const preferencesComplete = hasAttire && hasJobType;
+
+                    return [
+                      { label: 'Basic Info', completed: basicInfoComplete },
+                      { label: 'Physical Details', completed: physicalComplete },
+                      { label: 'Showcase', completed: showcaseComplete },
+                      { label: 'Education', completed: educationComplete },
+                      { label: 'Preferences', completed: preferencesComplete },
+                    ].map((section, index) => (
+                      <Chip
+                        key={index}
+                        label={section.label}
+                        size="small"
+                        icon={section.completed ? <CheckCircleIcon sx={{ fontSize: 16, color: '#2E7D32' }} /> : undefined}
+                        sx={{
+                          fontSize: { xs: '11px', sm: '12px' },
+                          height: { xs: '28px', sm: '32px' },
+                          px: { xs: 1, sm: 1.5 },
+                          backgroundColor: section.completed 
+                            ? '#E8F5E9' 
+                            : '#F5F5F5',
+                          color: section.completed 
+                            ? '#2E7D32' 
+                            : '#666666',
+                          fontWeight: section.completed ? 600 : 500,
+                          border: section.completed 
+                            ? '1.5px solid #4CAF50' 
+                            : '1px solid #E0E0E0',
+                          borderRadius: '20px',
+                          '& .MuiChip-label': {
+                            px: { xs: 1, sm: 1.5 },
+                          },
+                          '& .MuiChip-icon': {
+                            marginLeft: '8px',
+                            marginRight: '-4px',
+                          }
+                        }}
+                      />
+                    ));
+                  })()}
+                </Box>
+                
+                {profileCompletion < 100 && (
+                  <Box sx={{ mt: 2.5, textAlign: 'center' }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => navigate('/profile')}
+                      sx={{
+                        borderColor: '#DA498D',
+                        color: '#DA498D',
+                        fontWeight: 600,
+                        fontSize: { xs: '12px', sm: '13px' },
+                        px: { xs: 3, sm: 4 },
+                        py: 1,
+                        borderRadius: '8px',
+                        textTransform: 'none',
+                        '&:hover': {
+                          borderColor: '#69247C',
+                          backgroundColor: 'rgba(218, 73, 141, 0.08)',
+                          transform: 'translateY(-1px)',
+                          boxShadow: '0 2px 8px rgba(218, 73, 141, 0.2)',
+                        },
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      Complete Profile
+                    </Button>
+                  </Box>
+                )}
             </Paper>
           </motion.div>
         </Container>
