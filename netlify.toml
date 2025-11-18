@@ -1,1 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
 
+# Proxy API requests to avoid CORS issues
+[[redirects]]
+  from = "/bookmystarsprofessionals/*"
+  to = "https://wsproductspostgre.cloudjiffy.net/bookmystarsprofessionals/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}

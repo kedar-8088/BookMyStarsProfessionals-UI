@@ -16,7 +16,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SecurityIcon from '@mui/icons-material/Security';
 import PhoneIcon from '@mui/icons-material/Phone';
-import { registerProfessional } from '../../API/authApi';
+import { registerProfessional, sessionManager } from '../../API/authApi';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 import signupBackground from '../../assets/images/film-596009.jpg';
 
@@ -139,7 +139,32 @@ const SignupPage = () => {
       const response = await registerProfessional(registerData);
 
       // Backend returns ClientResponseBean with status code and message
+      // Log the full response to check for any token or session data
+      console.log('Registration response:', response);
+      console.log('Registration response data:', response.data);
+      
       if (response.success) {
+        // Check if registration response includes a token or session
+        const token = response.data?.token || response.data?.data?.token;
+        const professionalsId = response.data?.professionalsId || response.data?.data?.professionalsId;
+        
+        if (token) {
+          console.log('Token found in registration response:', token.substring(0, 20) + '...');
+          // Store token if available
+          const userInfo = {
+            professionalsId: professionalsId,
+            userName: formData.username,
+            email: formData.email,
+            mobileNumber: formData.phoneNumber,
+            firstName: formData.firstName,
+            lastName: formData.lastName
+          };
+          sessionManager.setUserSession(userInfo, token);
+          console.log('Token stored from registration response');
+        } else {
+          console.log('No token in registration response');
+        }
+        
         // Success - OTP sent to email
         showSuccessAlert(
           'Registration Successful!', 

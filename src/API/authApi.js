@@ -157,13 +157,63 @@ export const verifyOtpByService = async (professionalId, otp) => {
 };
 
 // Verify OTP by email
+// Note: Backend requires authentication, but we try without first, then with token if available
 export const verifyOtpByEmail = async (email, otp) => {
   const otpData = {
     email: email,
     otp: otp
   };
 
-  return await apiCall(ENDPOINTS.VERIFY_OTP_BY_EMAIL, 'POST', otpData);
+  // Check if we have a token
+  const token = sessionManager.getAuthToken();
+  
+  // Try with token if available, otherwise try without
+  const url = `${BaseUrl}${ENDPOINTS.VERIFY_OTP_BY_EMAIL}`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(otpData)
+  };
+
+  // Add token if available
+  if (token) {
+    options.headers['Authorization'] = `Bearer ${token}`;
+    console.log('Using token for OTP verification');
+  } else {
+    console.log('No token available, attempting OTP verification without authentication');
+  }
+
+  try {
+    const response = await fetch(url, options);
+    const result = await response.json();
+    
+    // Check if it succeeded
+    const isSuccess = response.ok && (result.status === 'SUCCESS' || result.code === 1000);
+    
+    if (isSuccess) {
+      return {
+        success: true,
+        data: result,
+        status: response.status
+      };
+    }
+    
+    // If it failed, return the error response
+    return {
+      success: false,
+      data: result,
+      status: response.status
+    };
+  } catch (error) {
+    console.error('Error in OTP verification:', error);
+    return {
+      success: false,
+      data: { error: 'Network error occurred' },
+      status: 0
+    };
+  }
 };
 
 // Check verification status by professional ID

@@ -206,6 +206,11 @@ const OtpVerificationPage = () => {
         // Show detailed error message, especially for connection errors
         let errorMessage = response.data?.error || response.data?.message || 'OTP verification failed';
         
+        // Handle unauthorized errors
+        if (response.status === 401 || response.data?.status === 401 || response.data?.code === 401) {
+          errorMessage = 'The backend requires authentication for OTP verification. Please contact support or check backend configuration. The resendOtp endpoint works without authentication, so verifyOtpByEmail should also work without authentication.';
+        }
+        
         // If it's a connection error, show the full details
         if (response.data?.connectionRefused) {
           errorMessage = response.data.error || errorMessage;
@@ -216,6 +221,7 @@ const OtpVerificationPage = () => {
           });
         }
         
+        console.error('OTP verification failed:', errorMessage, 'Response:', response);
         showErrorAlert('Verification Failed', errorMessage);
       }
     } catch (error) {
