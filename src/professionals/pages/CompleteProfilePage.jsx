@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Alert, Menu, MenuItem } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
@@ -36,11 +36,20 @@ const CompleteProfilePage = () => {
   const headlineMenuOpen = Boolean(headlineAnchorEl);
   const [showAllVideos, setShowAllVideos] = useState(false);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
+  const isFetchingRef = useRef(false);
+  const hasInitializedRef = useRef(false);
 
   // Initialize profile ID on mount
   useEffect(() => {
+    // Prevent multiple initializations
+    if (hasInitializedRef.current) {
+      return;
+    }
+
     const initializeProfile = async () => {
       try {
+        hasInitializedRef.current = true;
+        
         // Check if user is logged in
         if (!sessionManager.isLoggedIn()) {
           navigate('/login');
@@ -82,20 +91,28 @@ const CompleteProfilePage = () => {
         console.error('Error initializing profile:', error);
         setError('Failed to initialize your profile. Please refresh the page.');
         setLoading(false);
+        hasInitializedRef.current = false; // Reset on error to allow retry
       }
     };
 
     initializeProfile();
-  }, [navigate]);
+  }, []); // Empty dependency array - only run once on mount
 
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
     if (!profileId) {
       setError('Profile ID not available');
       setLoading(false);
       return;
     }
 
+    // Prevent concurrent calls
+    if (isFetchingRef.current) {
+      console.log('⏸️ Already fetching profile data, skipping...');
+      return;
+    }
+
     try {
+      isFetchingRef.current = true;
       setLoading(true);
       setError(null);
       console.log('🔄 Fetching profile data for ID:', profileId);
@@ -210,16 +227,16 @@ const CompleteProfilePage = () => {
       setError(err.response?.data?.message || err.message || 'An error occurred while fetching profile data');
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
-  };
+  }, [profileId]);
 
   // Fetch profile data when profile ID is available
   useEffect(() => {
     if (profileId) {
       fetchProfileData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId]);
+  }, [profileId, fetchProfileData]);
 
   // Refresh profile data when navigating back to this page (location change)
   useEffect(() => {
@@ -227,8 +244,7 @@ const CompleteProfilePage = () => {
       console.log('🔄 Location changed to complete-profile, refreshing profile data...');
       fetchProfileData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
+  }, [location.pathname, profileId, fetchProfileData]);
 
   // Helper function to format date
   const formatDate = (dateString) => {

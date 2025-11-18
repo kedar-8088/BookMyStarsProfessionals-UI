@@ -666,34 +666,6 @@ const Dashboard = () => {
                 </Typography>
               </motion.div>
               
-              <Box
-                sx={{
-                  width: '60px',
-                  height: '4px',
-                  background: 'linear-gradient(90deg, transparent 0%, #69247C 50%, transparent 100%)',
-                  borderRadius: '2px',
-                  mt: 1.5,
-                  mb: 2
-                }}
-              />
-              
-              <Typography 
-                sx={{ 
-                  color: '#666666', 
-                  fontSize: { xs: '15px', sm: '16px', md: '17px' },
-                  fontWeight: 400,
-                  maxWidth: '600px',
-                  textAlign: 'center',
-                  mx: 'auto',
-                  lineHeight: 1.6,
-                  transition: 'color 0.3s ease-in-out',
-                  '&:hover': {
-                    color: '#333333',
-                  }
-                }}
-              >
-                Your profile summary is below. Edit your profile anytime from the profile menu.
-              </Typography>
             </Box>
           </Box>
           </motion.div>
