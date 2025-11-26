@@ -110,7 +110,7 @@ export const registerProfessional = async (userData) => {
 // Login professional
 export const loginProfessional = async (credentials) => {
   const loginData = {
-    userName: credentials.userName, // Using username directly
+    username: credentials.userName || credentials.username, // Backend expects 'username' (lowercase)
     password: credentials.password
   };
 
