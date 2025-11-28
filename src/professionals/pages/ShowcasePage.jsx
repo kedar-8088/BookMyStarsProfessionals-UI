@@ -14,7 +14,6 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
-import WorkIcon from '@mui/icons-material/Work';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import PersonIcon from '@mui/icons-material/Person';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -1932,24 +1931,17 @@ const ShowcasePage = () => {
 
                   {/* Social Presence Container */}
                   <Box sx={{
-                    width: '1000px',
+                    width: { xs: '100%', sm: '95%', md: '90%', lg: '1000px' },
+                    maxWidth: { xs: '100%', md: '1000px' },
                     borderRadius: '10px',
                     background: '#FFFFFF',
                     boxShadow: '0px 0px 4px 0px #F2B6C6',
                     margin: '0 auto',
-                    padding: '24px',
+                    padding: { xs: '16px', sm: '20px', md: '24px' },
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
-                    alignItems: 'center',
-                    '@media (max-width: 800px)': {
-                      width: '90%',
-                      maxWidth: '722px'
-                    },
-                    '@media (max-width: 768px)': {
-                      width: '95%',
-                      padding: '20px'
-                    }
+                    alignItems: 'center'
                   }}>
 
                     {/* Social Presence Content */}
@@ -1958,61 +1950,52 @@ const ShowcasePage = () => {
                       <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 4,
-                        width: '100%',
-                        '@media (max-width: 768px)': {
-                          gap: '20px'
-                        },
-                        '@media (max-width: 480px)': {
-                          gap: '16px'
-                        }
+                        gap: { xs: 2, sm: 3, md: 4 },
+                        width: '100%'
                       }}>
                         {/* Instagram */}
                         <Box
                           sx={{
                             width: '100%',
-                            height: '56px',
+                            height: { xs: '48px', sm: '52px', md: '56px' },
                             background: '#FFFFFF',
                             border: '1px solid #D9D9D9',
                             borderRadius: '8px',
                             display: 'flex',
                             alignItems: 'center',
-                            px: 2,
+                            px: { xs: 1, sm: 1.5, md: 2 },
                             py: 1,
-                            '@media (max-width: 768px)': {
-                              height: '52px'
-                            },
-                            '@media (max-width: 480px)': {
-                              height: '48px'
-                            }
+                            gap: { xs: 1, sm: 1.5, md: 2 }
                           }}
                         >
                           <Box
                             sx={{
-                              width: 40,
-                              height: 40,
+                              width: { xs: 32, sm: 36, md: 40 },
+                              height: { xs: 32, sm: 36, md: 40 },
+                              minWidth: { xs: 32, sm: 36, md: 40 },
                               background: '#D9D9D9',
                               borderRadius: '4px',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              mr: 2
+                              flexShrink: 0
                             }}
                           >
-                            <InstagramIcon sx={{ fontSize: 20, color: '#E4405F' }} />
+                            <InstagramIcon sx={{ fontSize: { xs: 18, sm: 19, md: 20 }, color: '#E4405F' }} />
                           </Box>
-                          <Box sx={{ flex: 1 }}>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
                             <TextField
                               placeholder="instagram.com/username or @username"
                               value={socialLinks.instagram}
                               onChange={(e) => handleSocialLinkChange('instagram', e.target.value)}
+                              fullWidth
                               sx={{
-                                width: '100%',
                                 '& .MuiOutlinedInput-root': {
                                   fontFamily: 'Poppins',
                                   fontWeight: 400,
-                                  fontSize: '14px',
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
                                   color: '#666666',
+                                  height: '100%',
                                   '& fieldset': {
                                     border: 'none',
                                   },
@@ -2023,10 +2006,14 @@ const ShowcasePage = () => {
                                     border: 'none',
                                   },
                                 },
+                                '& .MuiInputBase-input': {
+                                  padding: { xs: '8px 4px', sm: '10px 6px', md: '12px 8px' },
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' }
+                                },
                                 '& .MuiInputBase-input::placeholder': {
                                   fontFamily: 'Poppins',
                                   fontWeight: 400,
-                                  fontSize: '14px',
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
                                   color: '#ABAFB1',
                                   opacity: 1,
                                 }
@@ -2035,10 +2022,14 @@ const ShowcasePage = () => {
                           </Box>
                           {socialLinks.instagram && (
                             <IconButton
-                              sx={{ p: 0.5, ml: 1 }}
+                              sx={{ 
+                                p: { xs: 0.25, sm: 0.4, md: 0.5 }, 
+                                ml: { xs: 0.5, sm: 0.75, md: 1 },
+                                flexShrink: 0
+                              }}
                               onClick={() => handleSocialLinkChange('instagram', '')}
                             >
-                              <CloseIcon sx={{ color: '#666666', fontSize: 16 }} />
+                              <CloseIcon sx={{ color: '#666666', fontSize: { xs: 14, sm: 15, md: 16 } }} />
                             </IconButton>
                           )}
                         </Box>
@@ -2047,48 +2038,45 @@ const ShowcasePage = () => {
                         <Box
                           sx={{
                             width: '100%',
-                            height: '56px',
+                            height: { xs: '48px', sm: '52px', md: '56px' },
                             background: '#FFFFFF',
                             border: '1px solid #D9D9D9',
                             borderRadius: '8px',
                             display: 'flex',
                             alignItems: 'center',
-                            px: 2,
+                            px: { xs: 1, sm: 1.5, md: 2 },
                             py: 1,
-                            '@media (max-width: 768px)': {
-                              height: '52px'
-                            },
-                            '@media (max-width: 480px)': {
-                              height: '48px'
-                            }
+                            gap: { xs: 1, sm: 1.5, md: 2 }
                           }}
                         >
                           <Box
                             sx={{
-                              width: 40,
-                              height: 40,
+                              width: { xs: 32, sm: 36, md: 40 },
+                              height: { xs: 32, sm: 36, md: 40 },
+                              minWidth: { xs: 32, sm: 36, md: 40 },
                               background: '#D9D9D9',
                               borderRadius: '4px',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              mr: 2
+                              flexShrink: 0
                             }}
                           >
-                            <FacebookIcon sx={{ fontSize: 20, color: '#1877F2' }} />
+                            <FacebookIcon sx={{ fontSize: { xs: 18, sm: 19, md: 20 }, color: '#1877F2' }} />
                           </Box>
-                          <Box sx={{ flex: 1 }}>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
                             <TextField
                               placeholder="facebook.com/username or @username"
                               value={socialLinks.facebook}
                               onChange={(e) => handleSocialLinkChange('facebook', e.target.value)}
+                              fullWidth
                               sx={{
-                                width: '100%',
                                 '& .MuiOutlinedInput-root': {
                                   fontFamily: 'Poppins',
                                   fontWeight: 400,
-                                  fontSize: '14px',
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
                                   color: '#666666',
+                                  height: '100%',
                                   '& fieldset': {
                                     border: 'none',
                                   },
@@ -2099,10 +2087,14 @@ const ShowcasePage = () => {
                                     border: 'none',
                                   },
                                 },
+                                '& .MuiInputBase-input': {
+                                  padding: { xs: '8px 4px', sm: '10px 6px', md: '12px 8px' },
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' }
+                                },
                                 '& .MuiInputBase-input::placeholder': {
                                   fontFamily: 'Poppins',
                                   fontWeight: 400,
-                                  fontSize: '14px',
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
                                   color: '#ABAFB1',
                                   opacity: 1,
                                 }
@@ -2111,10 +2103,14 @@ const ShowcasePage = () => {
                           </Box>
                           {socialLinks.facebook && (
                             <IconButton
-                              sx={{ p: 0.5, ml: 1 }}
+                              sx={{ 
+                                p: { xs: 0.25, sm: 0.4, md: 0.5 }, 
+                                ml: { xs: 0.5, sm: 0.75, md: 1 },
+                                flexShrink: 0
+                              }}
                               onClick={() => handleSocialLinkChange('facebook', '')}
                             >
-                              <CloseIcon sx={{ color: '#666666', fontSize: 16 }} />
+                              <CloseIcon sx={{ color: '#666666', fontSize: { xs: 14, sm: 15, md: 16 } }} />
                             </IconButton>
                           )}
                         </Box>
@@ -2123,48 +2119,45 @@ const ShowcasePage = () => {
                         <Box
                           sx={{
                             width: '100%',
-                            height: '56px',
+                            height: { xs: '48px', sm: '52px', md: '56px' },
                             background: '#FFFFFF',
                             border: '1px solid #D9D9D9',
                             borderRadius: '8px',
                             display: 'flex',
                             alignItems: 'center',
-                            px: 2,
+                            px: { xs: 1, sm: 1.5, md: 2 },
                             py: 1,
-                            '@media (max-width: 768px)': {
-                              height: '52px'
-                            },
-                            '@media (max-width: 480px)': {
-                              height: '48px'
-                            }
+                            gap: { xs: 1, sm: 1.5, md: 2 }
                           }}
                         >
                           <Box
                             sx={{
-                              width: 40,
-                              height: 40,
+                              width: { xs: 32, sm: 36, md: 40 },
+                              height: { xs: 32, sm: 36, md: 40 },
+                              minWidth: { xs: 32, sm: 36, md: 40 },
                               background: '#D9D9D9',
                               borderRadius: '4px',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              mr: 2
+                              flexShrink: 0
                             }}
                           >
-                            <LinkedInIcon sx={{ fontSize: 20, color: '#0A66C2' }} />
+                            <LinkedInIcon sx={{ fontSize: { xs: 18, sm: 19, md: 20 }, color: '#0A66C2' }} />
                           </Box>
-                          <Box sx={{ flex: 1 }}>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
                             <TextField
                               placeholder="linkedin.com/in/username"
                               value={socialLinks.linkedin}
                               onChange={(e) => handleSocialLinkChange('linkedin', e.target.value)}
+                              fullWidth
                               sx={{
-                                width: '100%',
                                 '& .MuiOutlinedInput-root': {
                                   fontFamily: 'Poppins',
                                   fontWeight: 400,
-                                  fontSize: '14px',
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
                                   color: '#666666',
+                                  height: '100%',
                                   '& fieldset': {
                                     border: 'none',
                                   },
@@ -2175,10 +2168,14 @@ const ShowcasePage = () => {
                                     border: 'none',
                                   },
                                 },
+                                '& .MuiInputBase-input': {
+                                  padding: { xs: '8px 4px', sm: '10px 6px', md: '12px 8px' },
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' }
+                                },
                                 '& .MuiInputBase-input::placeholder': {
                                   fontFamily: 'Poppins',
                                   fontWeight: 400,
-                                  fontSize: '14px',
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
                                   color: '#ABAFB1',
                                   opacity: 1,
                                 }
@@ -2187,10 +2184,14 @@ const ShowcasePage = () => {
                           </Box>
                           {socialLinks.linkedin && (
                             <IconButton
-                              sx={{ p: 0.5, ml: 1 }}
+                              sx={{ 
+                                p: { xs: 0.25, sm: 0.4, md: 0.5 }, 
+                                ml: { xs: 0.5, sm: 0.75, md: 1 },
+                                flexShrink: 0
+                              }}
                               onClick={() => handleSocialLinkChange('linkedin', '')}
                             >
-                              <CloseIcon sx={{ color: '#666666', fontSize: 16 }} />
+                              <CloseIcon sx={{ color: '#666666', fontSize: { xs: 14, sm: 15, md: 16 } }} />
                             </IconButton>
                           )}
                         </Box>
@@ -2199,48 +2200,45 @@ const ShowcasePage = () => {
                         <Box
                           sx={{
                             width: '100%',
-                            height: '56px',
+                            height: { xs: '48px', sm: '52px', md: '56px' },
                             background: '#FFFFFF',
                             border: '1px solid #D9D9D9',
                             borderRadius: '8px',
                             display: 'flex',
                             alignItems: 'center',
-                            px: 2,
+                            px: { xs: 1, sm: 1.5, md: 2 },
                             py: 1,
-                            '@media (max-width: 768px)': {
-                              height: '52px'
-                            },
-                            '@media (max-width: 480px)': {
-                              height: '48px'
-                            }
+                            gap: { xs: 1, sm: 1.5, md: 2 }
                           }}
                         >
                           <Box
                             sx={{
-                              width: 40,
-                              height: 40,
+                              width: { xs: 32, sm: 36, md: 40 },
+                              height: { xs: 32, sm: 36, md: 40 },
+                              minWidth: { xs: 32, sm: 36, md: 40 },
                               background: '#D9D9D9',
                               borderRadius: '4px',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              mr: 2
+                              flexShrink: 0
                             }}
                           >
-                            <YouTubeIcon sx={{ fontSize: 20, color: '#FF0000' }} />
+                            <YouTubeIcon sx={{ fontSize: { xs: 18, sm: 19, md: 20 }, color: '#FF0000' }} />
                           </Box>
-                          <Box sx={{ flex: 1 }}>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
                             <TextField
                               placeholder="youtube.com/channel/username"
                               value={socialLinks.youtube}
                               onChange={(e) => handleSocialLinkChange('youtube', e.target.value)}
+                              fullWidth
                               sx={{
-                                width: '100%',
                                 '& .MuiOutlinedInput-root': {
                                   fontFamily: 'Poppins',
                                   fontWeight: 400,
-                                  fontSize: '14px',
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
                                   color: '#666666',
+                                  height: '100%',
                                   '& fieldset': {
                                     border: 'none',
                                   },
@@ -2251,10 +2249,14 @@ const ShowcasePage = () => {
                                     border: 'none',
                                   },
                                 },
+                                '& .MuiInputBase-input': {
+                                  padding: { xs: '8px 4px', sm: '10px 6px', md: '12px 8px' },
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' }
+                                },
                                 '& .MuiInputBase-input::placeholder': {
                                   fontFamily: 'Poppins',
                                   fontWeight: 400,
-                                  fontSize: '14px',
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
                                   color: '#ABAFB1',
                                   opacity: 1,
                                 }
@@ -2263,93 +2265,16 @@ const ShowcasePage = () => {
                           </Box>
                           {socialLinks.youtube && (
                             <IconButton
-                              sx={{ p: 0.5, ml: 1 }}
+                              sx={{ 
+                                p: { xs: 0.25, sm: 0.4, md: 0.5 }, 
+                                ml: { xs: 0.5, sm: 0.75, md: 1 },
+                                flexShrink: 0
+                              }}
                               onClick={() => handleSocialLinkChange('youtube', '')}
                             >
-                              <CloseIcon sx={{ color: '#666666', fontSize: 16 }} />
+                              <CloseIcon sx={{ color: '#666666', fontSize: { xs: 14, sm: 15, md: 16 } }} />
                             </IconButton>
                           )}
-                        </Box>
-
-                        {/* Portfolio Link */}
-                        <Box sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: { xs: 1, sm: 2 },
-                          flexDirection: { xs: 'column', sm: 'row' }
-                        }}>
-                          <Box
-                            sx={{
-                              width: 850,
-                              height: 53,
-                              background: '#FFFFFF',
-                              border: '1px solid #D9D9D9',
-                              borderRadius: '8px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              px: 2
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                width: 40,
-                                height: 40,
-                                background: '#D9D9D9',
-                                borderRadius: '4px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                mr: 2
-                              }}
-                            >
-                              <WorkIcon sx={{ fontSize: 20, color: '#666666' }} />
-                            </Box>
-                            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                              <Typography
-                                sx={{
-                                  fontFamily: 'Poppins',
-                                  fontWeight: 400,
-                                  fontSize: '14px',
-                                  color: '#666666',
-                                  mr: 1
-                                }}
-                              >
-                                Portfolio link
-                              </Typography>
-                              <Typography
-                                sx={{
-                                  fontFamily: 'Poppins',
-                                  fontWeight: 400,
-                                  fontSize: '14px',
-                                  color: '#ABAFB1'
-                                }}
-                              >
-                                Paste link of your Portfolio or you can upload it here.
-                              </Typography>
-                            </Box>
-                            <IconButton sx={{ p: 0.5 }}>
-                              <CloseIcon sx={{ color: '#666666', fontSize: 16 }} />
-                            </IconButton>
-                          </Box>
-
-                          {/* Upload Button - Outside Portfolio Box */}
-                          <Button
-                            sx={{
-                              background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                              color: '#FFFFFF',
-                              fontFamily: 'Poppins',
-                              fontWeight: 500,
-                              fontSize: { xs: '12px', sm: '14px' },
-                              textTransform: 'none',
-                              px: { xs: 2, sm: 3 },
-                              py: { xs: 1, sm: 1.5 },
-                              borderRadius: '6px',
-                              height: { xs: 45, sm: 53 },
-                              width: { xs: '100%', sm: 'auto' }
-                            }}
-                          >
-                            Upload
-                          </Button>
                         </Box>
                       </Box>
                     </>

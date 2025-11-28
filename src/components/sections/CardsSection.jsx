@@ -6,14 +6,14 @@ const CardsSection = () => {
   return (
     <Box sx={{ 
       pt: { xs: 2, sm: 3, md: 4 }, 
-      pb: { xs: 3, sm: 4, md: 6 }, 
-      px: { xs: 1, sm: 2, md: 3 } 
+      pb: { xs: 2.5, sm: 3.5, md: 5, lg: 6 }, 
+      px: { xs: 1, sm: 1.5, md: 2, lg: 3 } 
     }}>
       <Container maxWidth="md">
         <Box sx={{ 
           display: 'flex', 
           flexDirection: { xs: 'column', sm: 'row' },
-          gap: { xs: 2, sm: 3, md: 4 },
+          gap: { xs: 1.5, sm: 2.5, md: 3, lg: 4 },
           justifyContent: 'center',
           alignItems: 'stretch',
           width: '100%'

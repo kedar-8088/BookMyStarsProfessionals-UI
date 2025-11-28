@@ -31,7 +31,7 @@ const Footer = () => {
         maxWidth: '100%',
         height: { xs: 'auto', sm: 505 },
         mx: 0,
-        mt: { xs: 4, sm: 6, md: 8 },
+        mt: { xs: 2, sm: 3, md: 5, lg: 8 },
         background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
         opacity: 1,
         borderRadius: '0px',
@@ -46,8 +46,8 @@ const Footer = () => {
         flex: 1,
         display: 'flex',
         flexDirection: { xs: 'column', lg: 'row' },
-        p: { xs: 4, sm: 6, md: 8 },
-        gap: { xs: 4, lg: 6 }
+        p: { xs: 1.5, sm: 2.5, md: 4, lg: 6, xl: 8 },
+        gap: { xs: 1.5, sm: 2, md: 3, lg: 5, xl: 6 }
       }}>
         {/* Left Section - Company Branding & Contact */}
         <Box sx={{ 
@@ -65,11 +65,11 @@ const Footer = () => {
                 fontFamily: 'Roboto',
                 fontWeight: 700,
                 fontStyle: 'normal',
-                fontSize: { xs: '36px', sm: '42px', md: '48px' },
+                fontSize: { xs: '18px', sm: '24px', md: '32px', lg: '42px', xl: '48px' },
                 lineHeight: '120%',
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: 3
+                mb: { xs: 1, sm: 1.5, md: 2, lg: 3 }
               }}
             >
               Bookmystars
@@ -86,11 +86,11 @@ const Footer = () => {
                 fontFamily: 'Roboto',
                 fontWeight: 400,
                 fontStyle: 'normal',
-                fontSize: { xs: '16px', sm: '18px', md: '20px' },
-                lineHeight: '150%',
+                fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                lineHeight: { xs: 1.4, md: '150%' },
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: 1
+                mb: { xs: 0.25, md: 1 }
               }}
             >
               #34, 3rd Floor, 36th Main Road, 2nd Block,
@@ -100,11 +100,11 @@ const Footer = () => {
                 fontFamily: 'Roboto',
                 fontWeight: 400,
                 fontStyle: 'normal',
-                fontSize: { xs: '16px', sm: '18px', md: '20px' },
-                lineHeight: '150%',
+                fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                lineHeight: { xs: 1.4, md: '150%' },
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: 2
+                mb: { xs: 0.5, md: 2 }
               }}
             >
               Rajajinagar, Bengaluru-560010
@@ -114,11 +114,11 @@ const Footer = () => {
                 fontFamily: 'Roboto',
                 fontWeight: 400,
                 fontStyle: 'normal',
-                fontSize: { xs: '16px', sm: '18px', md: '20px' },
-                lineHeight: '150%',
+                fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                lineHeight: { xs: 1.4, md: '150%' },
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: 1
+                mb: { xs: 0.25, md: 1 }
               }}
             >
               Phone: +91 7338430816
@@ -128,8 +128,8 @@ const Footer = () => {
                 fontFamily: 'Roboto',
                 fontWeight: 400,
                 fontStyle: 'normal',
-                fontSize: { xs: '16px', sm: '18px', md: '20px' },
-                lineHeight: '150%',
+                fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                lineHeight: { xs: 1.4, md: '150%' },
                 letterSpacing: '0%',
                 color: '#FFFFFF'
               }}
@@ -144,27 +144,29 @@ const Footer = () => {
           flex: 1, 
           maxWidth: { xs: '100%', lg: '60%' },
           display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          gap: { xs: 3, md: 4, lg: 6 },
-          justifyContent: 'space-between'
+          flexDirection: { xs: 'row', sm: 'row', md: 'row' },
+          flexWrap: 'wrap',
+          gap: { xs: 1.5, sm: 2, md: 3, lg: 5, xl: 6 },
+          justifyContent: { xs: 'space-around', sm: 'space-around', md: 'space-between' },
+          mt: { xs: 0, lg: 0 }
         }}>
           {/* Company Section */}
+          <Box sx={{ textAlign: 'center', minWidth: { xs: '80px', sm: '100px' } }}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            style={{ textAlign: 'center' }}
           >
             <Typography
               sx={{
                 fontFamily: 'Roboto',
                 fontWeight: 700,
                 fontStyle: 'normal',
-                fontSize: { xs: '24px', sm: '28px', md: '32px' },
+                fontSize: { xs: '11px', sm: '14px', md: '20px', lg: '28px', xl: '32px' },
                 lineHeight: '130%',
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: 2
+                mb: { xs: 0.5, md: 2 }
               }}
             >
               Company
@@ -176,11 +178,11 @@ const Footer = () => {
                   fontFamily: 'Roboto',
                   fontWeight: 400,
                   fontStyle: 'normal',
-                  fontSize: { xs: '16px', sm: '18px', md: '20px' },
-                  lineHeight: '150%',
+                  fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                  lineHeight: { xs: 1.4, md: '150%' },
                   letterSpacing: '0%',
                   color: '#FFFFFF',
-                  mb: 1,
+                  mb: { xs: 0.25, md: 1 },
                   cursor: 'pointer',
                   '&:hover': {
                     opacity: 0.8
@@ -191,24 +193,25 @@ const Footer = () => {
               </Typography>
             ))}
           </motion.div>
+          </Box>
 
           {/* Resources Section */}
+          <Box sx={{ textAlign: 'center', minWidth: { xs: '80px', sm: '100px' } }}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            style={{ textAlign: 'center' }}
           >
             <Typography
               sx={{
                 fontFamily: 'Roboto',
                 fontWeight: 700,
                 fontStyle: 'normal',
-                fontSize: { xs: '24px', sm: '28px', md: '32px' },
+                fontSize: { xs: '11px', sm: '14px', md: '20px', lg: '28px', xl: '32px' },
                 lineHeight: '130%',
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: 2
+                mb: { xs: 0.5, md: 2 }
               }}
             >
               Resources
@@ -220,11 +223,11 @@ const Footer = () => {
                   fontFamily: 'Roboto',
                   fontWeight: 400,
                   fontStyle: 'normal',
-                  fontSize: { xs: '16px', sm: '18px', md: '20px' },
-                  lineHeight: '150%',
+                  fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                  lineHeight: { xs: 1.4, md: '150%' },
                   letterSpacing: '0%',
                   color: '#FFFFFF',
-                  mb: 1,
+                  mb: { xs: 0.25, md: 1 },
                   cursor: 'pointer',
                   '&:hover': {
                     opacity: 0.8
@@ -235,24 +238,25 @@ const Footer = () => {
               </Typography>
             ))}
           </motion.div>
+          </Box>
 
           {/* Follow us Section */}
+          <Box sx={{ textAlign: 'center', minWidth: { xs: '80px', sm: '100px' } }}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.0 }}
-            style={{ textAlign: 'center' }}
           >
             <Typography
               sx={{
                 fontFamily: 'Roboto',
                 fontWeight: 700,
                 fontStyle: 'normal',
-                fontSize: { xs: '24px', sm: '28px', md: '32px' },
+                fontSize: { xs: '11px', sm: '14px', md: '20px', lg: '28px', xl: '32px' },
                 lineHeight: '130%',
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: 2
+                mb: { xs: 0.5, md: 2 }
               }}
             >
               Follow us
@@ -264,11 +268,11 @@ const Footer = () => {
                   fontFamily: 'Roboto',
                   fontWeight: 400,
                   fontStyle: 'normal',
-                  fontSize: { xs: '16px', sm: '18px', md: '20px' },
-                  lineHeight: '150%',
+                  fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                  lineHeight: { xs: 1.4, md: '150%' },
                   letterSpacing: '0%',
                   color: '#FFFFFF',
-                  mb: 1,
+                  mb: { xs: 0.25, md: 1 },
                   cursor: 'pointer',
                   '&:hover': {
                     opacity: 0.8
@@ -279,13 +283,14 @@ const Footer = () => {
               </Typography>
             ))}
           </motion.div>
+          </Box>
         </Box>
       </Box>
 
       {/* Bottom Border and Copyright */}
       <Box sx={{
         borderTop: '1px solid #FFFFFF',
-        p: { xs: 2, sm: 3, md: 4 },
+        p: { xs: 0.75, sm: 1, md: 2, lg: 3, xl: 4 },
         textAlign: 'center'
       }}>
         <motion.div
@@ -298,8 +303,8 @@ const Footer = () => {
               fontFamily: 'Roboto',
               fontWeight: 400,
               fontStyle: 'normal',
-              fontSize: { xs: '16px', sm: '18px', md: '20px' },
-              lineHeight: '150%',
+              fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+              lineHeight: { xs: 1.4, md: '150%' },
               letterSpacing: '0%',
               color: '#FFFFFF'
             }}

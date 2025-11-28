@@ -425,9 +425,13 @@ class ProfileFlowManager {
               };
             } else {
               console.warn('Profile image upload failed:', uploadResponse.error);
+              // Store upload error for user notification
+              response.uploadError = uploadResponse.error;
+              response.uploadErrorDetails = uploadResponse.data;
             }
           } catch (uploadError) {
             console.warn('Profile image upload failed:', uploadError);
+            response.uploadError = uploadError.message || 'Failed to upload profile image';
           }
         }
         

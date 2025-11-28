@@ -7,8 +7,9 @@ import carouselImage from '../../assets/images/carousel.png';
 const CarouselContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  height: 450,
-  borderRadius: 20,
+  height: '100%',
+  minHeight: { xs: 250, sm: 280, md: 300 },
+  borderRadius: { xs: 12, sm: 16, md: 20 },
   overflow: 'hidden',
   backgroundImage: `url(${carouselImage})`,
   backgroundSize: 'cover',
@@ -144,7 +145,7 @@ const Carousel = () => {
   };
 
   return (
-    <Box sx={{ mt: 1, width: '100%', height: 450 }}>
+    <Box sx={{ mt: { xs: 0.5, sm: 1 }, width: '100%', height: { xs: 250, sm: 280, md: 300 } }}>
       <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
         <Grid container direction="column" sx={{ width: '100%', height: '100%' }}>
           <Grid size={12} sx={{ width: '100%', height: '100%' }}>

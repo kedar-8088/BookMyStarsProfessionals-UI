@@ -21,7 +21,7 @@ const CarouselContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   width: '100%',
   maxWidth: '1400px',
-  height: '350px',
+  height: '300px',
   borderRadius: '16px',
   overflow: 'hidden',
   backgroundImage: `url(${carouselImage})`,
@@ -35,7 +35,7 @@ const CarouselContainer = styled(Box)(({ theme }) => ({
   margin: '0',
   [theme.breakpoints.down('xl')]: {
     maxWidth: '1200px',
-    height: '320px',
+    height: '300px',
     padding: '0 80px',
   },
   [theme.breakpoints.down('lg')]: {
@@ -486,7 +486,27 @@ const BasicInfoPage = () => {
       const result = await profileFlowManager.saveBasicInfo(formData, uploadedPhoto?.file);
       
       if (result.success) {
-        showSuccessAlert('Profile Saved!', result.message || 'Basic information saved successfully! Redirecting to complete profile...');
+        // Check if profile image upload failed
+        if (result.uploadError) {
+          // Show warning about image upload failure but allow user to proceed
+          const errorMessage = result.uploadErrorDetails?.error || result.uploadError;
+          console.error('Profile image upload failed:', errorMessage);
+          
+          // Check if it's a server configuration error
+          if (errorMessage.includes('/uploads') || errorMessage.includes('store file')) {
+            showErrorAlert(
+              'Image Upload Failed', 
+              'Your profile was saved successfully, but the profile image could not be uploaded. This is a server configuration issue. Please contact support or try uploading the image again later.'
+            );
+          } else {
+            showErrorAlert(
+              'Image Upload Failed', 
+              `Your profile was saved successfully, but the profile image could not be uploaded: ${errorMessage}. You can try uploading it again later.`
+            );
+          }
+        } else {
+          showSuccessAlert('Profile Saved!', result.message || 'Basic information saved successfully! Redirecting to complete profile...');
+        }
         setTimeout(() => {
           navigate('/complete-profile');
         }, 2000);

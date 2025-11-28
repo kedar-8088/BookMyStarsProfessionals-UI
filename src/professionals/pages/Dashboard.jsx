@@ -61,7 +61,7 @@ const CarouselContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   width: '100%',
   maxWidth: '1400px',
-  height: '350px',
+  height: '300px',
   borderRadius: '16px',
   overflow: 'hidden',
   // slide backgrounds will be rendered as absolutely positioned elements
@@ -81,7 +81,7 @@ const CarouselContainer = styled(Box)(({ theme }) => ({
   },
   [theme.breakpoints.down('xl')]: {
     maxWidth: '1200px',
-    height: '320px',
+    height: '300px',
     padding: '0 80px',
   },
   [theme.breakpoints.down('lg')]: {

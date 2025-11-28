@@ -84,15 +84,15 @@ const Hero = () => {
   return (
     <>
       <Box sx={{ 
-        py: { xs: 2, sm: 3, md: 4 },
-        px: { xs: 2, sm: 3, md: 4 }
+        py: { xs: 1.5, sm: 2, md: 3, lg: 4 },
+        px: { xs: 1, sm: 2, md: 3, lg: 4 }
       }}>
         <Carousel />
       </Box>
 
       <Box sx={{
-        py: { xs: 4, sm: 5, md: 6, lg: 7 },
-        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 3, sm: 4, md: 5, lg: 6, xl: 7 },
+        px: { xs: 1.5, sm: 2, md: 3, lg: 4 },
         backgroundColor: '#fafafa',
         borderRadius: { xs: '0', md: '20px' },
         margin: { xs: '0', md: '0 20px' },

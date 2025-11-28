@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import carouselImage from '../../assets/images/carousel.png';
 import { getAllCategories } from '../../API/categoryApi';
-import { getAllSkills } from '../../API/skillsApi';
+import { getAllSkills, getSkillsWithPagination } from '../../API/skillsApi';
 import { getAllHighestQualifications } from '../../API/qualificationApi';
 import { createEducation, linkEducationToProfile, getEducationsByProfileId, saveOrUpdateEducation, deleteEducation } from '../../API/educationApi';
 import { createWorkExperience, linkWorkExperienceToProfile, getWorkExperiencesByProfileId, saveOrUpdateWorkExperience, deleteWorkExperience } from '../../API/workExperienceApi';
@@ -983,15 +983,137 @@ const EducationBackgroundPage = () => {
         setCategoriesLoading(false);
       }
 
-      // Fetch Skills
+      // Fetch Skills - Fetch all skills using pagination
       setSkillsLoading(true);
       setSkillsError(null);
       try {
-        const skillsResponse = await getAllSkills();
-        if (skillsResponse.data && skillsResponse.data.code === 200) {
-          setSkills(skillsResponse.data.data || []);
+        let allSkills = [];
+        let pageNumber = 0;
+        const pageSize = 1000; // Very large page size to fetch all at once
+        let hasMore = true;
+        let totalPages = null;
+
+        // First try getAllSkills
+        try {
+          const skillsResponse = await getAllSkills();
+          console.log('getAllSkills response:', skillsResponse);
+          
+          if (skillsResponse && skillsResponse.data) {
+            const responseData = skillsResponse.data;
+            
+            // Check different response structures
+            if (responseData.code === 200 || responseData.code === 1000) {
+              let skillsData = [];
+              
+              if (responseData.data) {
+                if (Array.isArray(responseData.data)) {
+                  skillsData = responseData.data;
+                } else if (responseData.data.content && Array.isArray(responseData.data.content)) {
+                  skillsData = responseData.data.content;
+                  totalPages = responseData.data.totalPages;
+                } else if (responseData.data.data && Array.isArray(responseData.data.data)) {
+                  skillsData = responseData.data.data;
+                }
+              }
+              
+              if (skillsData.length > 0) {
+                allSkills = skillsData;
+                console.log(`✅ getAllSkills returned ${allSkills.length} skills`);
+                
+                // If it's paginated, check if we need to fetch more pages
+                if (totalPages && totalPages > 1) {
+                  hasMore = true;
+                  pageNumber = 1; // Start from page 1 (0-indexed, so page 0 was already fetched)
+                } else {
+                  hasMore = false;
+                }
+              }
+            }
+          }
+        } catch (getAllError) {
+          console.log('getAllSkills failed, trying pagination:', getAllError);
+        }
+
+        // If we need to fetch more pages or getAllSkills didn't work, use pagination
+        if (hasMore || allSkills.length === 0) {
+          console.log('Fetching skills using pagination...');
+          
+          while (hasMore) {
+            try {
+              const paginatedResponse = await getSkillsWithPagination(pageNumber, pageSize);
+              console.log(`Page ${pageNumber} response:`, paginatedResponse);
+              
+              if (paginatedResponse && paginatedResponse.data) {
+                const responseData = paginatedResponse.data;
+                
+                // Check different response structures
+                let pageSkills = [];
+                let isLastPage = false;
+                
+                if (responseData.code === 200 || responseData.code === 1000) {
+                  if (responseData.data) {
+                    // Check if data is an array or has content array
+                    if (Array.isArray(responseData.data)) {
+                      pageSkills = responseData.data;
+                    } else if (responseData.data.content && Array.isArray(responseData.data.content)) {
+                      pageSkills = responseData.data.content;
+                      isLastPage = responseData.data.last === true;
+                      totalPages = responseData.data.totalPages;
+                      hasMore = !isLastPage && (totalPages ? pageNumber < totalPages - 1 : pageSkills.length === pageSize);
+                    } else if (responseData.data.data && Array.isArray(responseData.data.data)) {
+                      pageSkills = responseData.data.data;
+                    }
+                  }
+                }
+
+                if (pageSkills.length > 0) {
+                  // Avoid duplicates by checking skillId
+                  const existingIds = new Set(allSkills.map(s => s.skillId));
+                  const newSkills = pageSkills.filter(s => !existingIds.has(s.skillId));
+                  allSkills = [...allSkills, ...newSkills];
+                  
+                  console.log(`✅ Page ${pageNumber}: Added ${newSkills.length} new skills (Total: ${allSkills.length})`);
+                  
+                  pageNumber++;
+                  
+                  // If we got fewer items than pageSize, we've reached the end
+                  if (pageSkills.length < pageSize || isLastPage) {
+                    hasMore = false;
+                  }
+                  
+                  // Safety limit to prevent infinite loops
+                  if (pageNumber > 100) {
+                    console.warn('Reached safety limit of 100 pages');
+                    hasMore = false;
+                  }
+                } else {
+                  hasMore = false;
+                }
+              } else {
+                hasMore = false;
+              }
+            } catch (pageError) {
+              console.error(`Error fetching skills page ${pageNumber}:`, pageError);
+              hasMore = false;
+            }
+          }
+        }
+
+        if (allSkills.length > 0) {
+          // Remove duplicates based on skillId
+          const uniqueSkills = allSkills.reduce((acc, current) => {
+            const existing = acc.find(item => item.skillId === current.skillId);
+            if (!existing) {
+              acc.push(current);
+            }
+            return acc;
+          }, []);
+          
+          setSkills(uniqueSkills);
+          console.log(`✅ Final: Loaded ${uniqueSkills.length} unique skills`);
         } else {
-          setSkillsError('Failed to fetch skills');
+          setSkillsError('No skills available');
+          console.warn('⚠️ No skills were loaded');
         }
       } catch (error) {
         console.error('Error fetching skills:', error);
@@ -3129,9 +3251,32 @@ const EducationBackgroundPage = () => {
                   borderRadius: '8px',
                   backgroundColor: '#FFFFFF',
                   mb: { xs: 2, sm: 2.5, md: '24px' },
-                  maxHeight: { xs: '160px', sm: '180px', md: '200px' },
-                  overflowY: 'auto'
+                  maxHeight: { xs: '200px', sm: '250px', md: '300px' },
+                  overflowY: 'auto',
+                  position: 'relative'
                 }}>
+                  {/* Skills count indicator */}
+                  {!skillsLoading && !skillsError && (
+                    <Box sx={{
+                      position: 'sticky',
+                      top: 0,
+                      backgroundColor: '#FFFFFF',
+                      padding: '8px 16px',
+                      borderBottom: '1px solid #D9D9D9',
+                      zIndex: 1
+                    }}>
+                      <Typography
+                        sx={{
+                          fontFamily: 'Poppins',
+                          fontWeight: 400,
+                          fontSize: '12px',
+                          color: '#666666'
+                        }}
+                      >
+                        {filteredSkills.length} of {skills.length} skills {searchTerm ? '(filtered)' : ''}
+                      </Typography>
+                    </Box>
+                  )}
                   {skillsLoading ? (
                     <Box sx={{ 
                       display: 'flex', 

@@ -492,10 +492,26 @@ export const uploadProfileImage = async (basicInfoId, profileImageFile) => {
         message: response.data.message || 'Profile image uploaded successfully'
       };
     } else {
+      // Extract detailed error information
+      const errorMessage = response.data?.error || response.data?.message || 'Failed to upload profile image';
+      const statusCode = response.status || response.data?.code;
+      
+      console.error('❌ Profile image upload failed:');
+      console.error('  Status Code:', statusCode);
+      console.error('  Error Message:', errorMessage);
+      console.error('  Full Response:', response.data);
+      
+      // Check for specific server errors
+      if (statusCode === 500 && errorMessage.includes('/uploads')) {
+        console.error('  ⚠️ Server Configuration Issue: The server cannot write to /uploads directory');
+        console.error('  This requires backend server configuration fix.');
+      }
+      
       return {
         success: false,
-        error: response.data.message || response.data.error || 'Failed to upload profile image',
-        data: response.data
+        error: errorMessage,
+        data: response.data,
+        statusCode: statusCode
       };
     }
   } catch (error) {
