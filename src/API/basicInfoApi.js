@@ -65,19 +65,26 @@ const apiCall = async (endpoint, method = 'GET', data = null, isFormData = false
 
     const response = await fetch(url, options);
     
-    console.log('📡 Response Details:');
-    console.log('  Status:', response.status);
-    console.log('  Status Text:', response.statusText);
-    console.log('  Headers:', Object.fromEntries(response.headers.entries()));
-    
     // Handle empty response or non-JSON response
     let result;
     const contentType = response.headers.get('content-type');
     
+    // Reduce logging verbosity for 404 responses (expected for missing resources)
+    const is404 = response.status === 404;
+    
+    if (!is404) {
+      console.log('📡 Response Details:');
+      console.log('  Status:', response.status);
+      console.log('  Status Text:', response.statusText);
+      console.log('  Headers:', Object.fromEntries(response.headers.entries()));
+    }
+    
     if (contentType && contentType.includes('application/json')) {
       try {
         result = await response.json();
+        if (!is404) {
         console.log('  Response data:', result);
+        }
       } catch (error) {
         console.error('JSON parsing error:', error);
         result = { error: 'Invalid JSON response from server' };
@@ -85,7 +92,9 @@ const apiCall = async (endpoint, method = 'GET', data = null, isFormData = false
     } else {
       // Handle non-JSON response (like empty response)
       const text = await response.text();
+      if (!is404) {
       console.log('  Non-JSON response text:', text);
+      }
       result = text ? { message: text } : { error: 'Empty response from server' };
     }
     
@@ -95,7 +104,12 @@ const apiCall = async (endpoint, method = 'GET', data = null, isFormData = false
       status: response.status
     };
     
+    if (!is404) {
     console.log('  Final API response:', apiResponse);
+    } else {
+      // Log 404 at info level, not error level
+      console.log('📡 Response: 404 (Resource not found - this may be expected)');
+    }
     
     return apiResponse;
   } catch (error) {
@@ -502,16 +516,29 @@ export const uploadProfileImage = async (basicInfoId, profileImageFile) => {
       console.error('  Full Response:', response.data);
       
       // Check for specific server errors
-      if (statusCode === 500 && errorMessage.includes('/uploads')) {
-        console.error('  ⚠️ Server Configuration Issue: The server cannot write to /uploads directory');
-        console.error('  This requires backend server configuration fix.');
+      const isUploadPathError = statusCode === 500 && (
+        errorMessage.includes('/uploads') || 
+        errorMessage.includes('store file') ||
+        errorMessage.includes('Failed to store file') ||
+        errorMessage.toLowerCase().includes('directory') ||
+        errorMessage.toLowerCase().includes('permission')
+      );
+      
+      if (isUploadPathError) {
+        console.error('  ⚠️ Server Configuration Issue: The server cannot write to uploads directory');
+        console.error('  Error details:', errorMessage);
+        console.error('  This requires backend server configuration fix:');
+        console.error('    1. Ensure the uploads directory exists');
+        console.error('    2. Set proper write permissions on the directory');
+        console.error('    3. Fix the upload path configuration (current: /./uploads)');
       }
       
       return {
         success: false,
         error: errorMessage,
         data: response.data,
-        statusCode: statusCode
+        statusCode: statusCode,
+        isServerConfigError: isUploadPathError
       };
     }
   } catch (error) {
@@ -562,6 +589,17 @@ export const getProfileImageInfo = async (basicInfoId) => {
     
     const endpoint = `${ENDPOINTS.GET_PROFILE_IMAGE_INFO}/${basicInfoId}`;
     const response = await apiCall(endpoint, 'GET');
+    
+    // Handle 404 as "no image found" - this is a valid scenario, not an error
+    if (response.status === 404 || (response.data && response.data.code === 404)) {
+      console.log('ℹ️ No existing profile image found (404)');
+      return {
+        success: true,
+        data: null,
+        message: 'No profile image found',
+        notFound: true
+      };
+    }
     
     if (response.success && response.data.code === 200) {
       return {

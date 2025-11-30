@@ -226,6 +226,7 @@ const BasicInfoPage = () => {
       // First, get the profile image info
       const imageInfoResponse = await getProfileImageInfo(basicInfoId);
       
+      // Handle the case where no image exists (404 response handled gracefully)
       if (imageInfoResponse.success && imageInfoResponse.data) {
         const imageInfo = imageInfoResponse.data;
         console.log('📋 Profile image info:', imageInfo);
@@ -242,7 +243,11 @@ const BasicInfoPage = () => {
         
         setUploadedPhoto(existingPhoto);
         console.log('✅ Existing profile image loaded');
+      } else if (imageInfoResponse.success && imageInfoResponse.notFound) {
+        // 404 handled gracefully - no image exists yet
+        console.log('ℹ️ No existing profile image found');
       } else {
+        // Actual error occurred
         console.log('ℹ️ No existing profile image found');
       }
     } catch (error) {
@@ -490,18 +495,24 @@ const BasicInfoPage = () => {
         if (result.uploadError) {
           // Show warning about image upload failure but allow user to proceed
           const errorMessage = result.uploadErrorDetails?.error || result.uploadError;
+          const isServerConfigError = result.isServerConfigError || 
+                                     errorMessage.includes('/uploads') || 
+                                     errorMessage.includes('store file') ||
+                                     errorMessage.includes('Failed to store file');
+          
           console.error('Profile image upload failed:', errorMessage);
+          console.error('Is server config error:', isServerConfigError);
           
           // Check if it's a server configuration error
-          if (errorMessage.includes('/uploads') || errorMessage.includes('store file')) {
-            showErrorAlert(
-              'Image Upload Failed', 
-              'Your profile was saved successfully, but the profile image could not be uploaded. This is a server configuration issue. Please contact support or try uploading the image again later.'
+          if (isServerConfigError) {
+            showWarningAlert(
+              'Profile Saved - Image Upload Issue', 
+              'Your profile information was saved successfully! However, the profile image could not be uploaded due to a server configuration issue. You can continue with your profile setup and upload the image later from your profile settings.'
             );
           } else {
-            showErrorAlert(
-              'Image Upload Failed', 
-              `Your profile was saved successfully, but the profile image could not be uploaded: ${errorMessage}. You can try uploading it again later.`
+            showWarningAlert(
+              'Profile Saved - Image Upload Issue', 
+              `Your profile information was saved successfully! However, the profile image could not be uploaded: ${errorMessage}. You can try uploading it again later from your profile settings.`
             );
           }
         } else {

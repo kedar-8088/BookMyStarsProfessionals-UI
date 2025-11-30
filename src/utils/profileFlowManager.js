@@ -428,6 +428,7 @@ class ProfileFlowManager {
               // Store upload error for user notification
               response.uploadError = uploadResponse.error;
               response.uploadErrorDetails = uploadResponse.data;
+              response.isServerConfigError = uploadResponse.isServerConfigError || false;
             }
           } catch (uploadError) {
             console.warn('Profile image upload failed:', uploadError);
