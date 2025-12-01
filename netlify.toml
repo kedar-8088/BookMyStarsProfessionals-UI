@@ -1,0 +1,17 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Proxy API requests to avoid CORS issues (more specific, must come first)
+[[redirects]]
+  from = "/bookmystarsprofessionals/*"
+  to = "https://wsproductspostgre.cloudjiffy.net/bookmystarsprofessionals/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
+# SPA fallback - redirect all other routes to index.html for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
