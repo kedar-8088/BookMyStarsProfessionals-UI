@@ -1,0 +1,311 @@
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import axios from 'axios';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import IconButton from '@mui/material/IconButton';
+
+// material-ui
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+
+// react-responsive-carousel
+import { Carousel } from 'react-responsive-carousel';
+import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Import carousel styles
+
+// project imports
+import { BaseUrl } from '../BaseUrl';
+
+// assets
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+
+// AuthImage component to fetch images with authentication
+const AuthImage = ({ filePath }) => {
+    const [src, setSrc] = useState('');
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+
+    useEffect(() => {
+        if (!filePath) return;
+
+        const fetchImage = async () => {
+            try {
+                // Use base URL and construct path for admin endpoint
+                const response = await axios.get(`${baseUrl}/file/downloadFile/?filePath=${encodeURIComponent(filePath)}`, {
+                    headers: {
+                        Authorization: `Bearer ${user?.accessToken}`
+                    },
+                    responseType: 'blob'
+                });
+
+                const blob = new Blob([response.data], { type: response.headers['content-type'] });
+                const imageUrl = URL.createObjectURL(blob);
+                setSrc(imageUrl);
+            } catch (error) {
+                console.error('Error fetching image:', error);
+                if (error.response?.status === 404) {
+                    console.warn(`Image not found: ${filePath}`);
+                }
+                setSrc('');
+            }
+        };
+
+        fetchImage();
+
+        return () => {
+            if (src) {
+                URL.revokeObjectURL(src);
+            }
+        };
+    }, [filePath, user?.accessToken]);
+
+    return src ? (
+        <img
+            src={src}
+            style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+            }}
+            alt="Advertisement"
+        />
+    ) : (
+        'Loading...'
+    );
+};
+
+const fetchBanner = async (headers) => {
+    try {
+        // Use base URL and construct path for admin endpoint
+        const response = await fetch(`${baseUrl}/advertisement/v1/queryAllAdvertisement`, {
+            method: 'GET',
+            headers: headers
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.warn('Banner endpoint not found (404). The endpoint might not exist on the server.');
+            }
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching banner data:', error);
+        if (error.message.includes('404')) {
+            console.warn('Trying alternative endpoint...');
+            // Try alternative endpoint if queryAllAdvertisement doesn't exist
+            try {
+                const altResponse = await fetch(`${baseUrl}/advertisement/v1/getAllAdvertisementByPagination/0/100`, {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                if (altResponse.ok) {
+                    const data = await altResponse.json();
+                    return data.content || data.data || data;
+                }
+            } catch (altError) {
+                console.error('Alternative endpoint also failed:', altError);
+            }
+        }
+        return [];
+    }
+};
+
+const Banner = () => {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+    const [advertisement, setAdvertisement] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user?.accessToken}`
+    };
+
+    // Responsive banner height
+    const bannerHeight = isMobile ? 180 : isTablet ? 250 : 300;
+    const arrowSize = isMobile ? 28 : 36;
+    const arrowIconSize = isMobile ? '1rem' : '1.2rem';
+    const arrowPosition = isMobile ? 8 : 16;
+
+    // Custom arrow renderers
+    const renderArrowPrev = (onClickHandler, hasPrev, label) =>
+        hasPrev && (
+            <IconButton
+                onClick={onClickHandler}
+                title={label}
+                sx={{
+                    position: 'absolute',
+                    left: arrowPosition,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 2,
+                    width: arrowSize,
+                    height: arrowSize,
+                    borderRadius: '50%',
+                    backgroundColor: theme.palette.secondary?.light || '#DA498D',
+                    color: theme.palette.common.white,
+                    border: 'none',
+                    boxShadow: theme.shadows[2],
+                    '&:hover': {
+                        backgroundColor: theme.palette.secondary?.dark || '#69247C',
+                        color: theme.palette.common.white
+                    },
+                    display: { xs: 'flex', sm: 'flex' } // Always show on mobile
+                }}
+            >
+                <IconChevronLeft stroke={2} size={arrowIconSize} />
+            </IconButton>
+        );
+
+    const renderArrowNext = (onClickHandler, hasNext, label) =>
+        hasNext && (
+            <IconButton
+                onClick={onClickHandler}
+                title={label}
+                sx={{
+                    position: 'absolute',
+                    right: arrowPosition,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 2,
+                    width: arrowSize,
+                    height: arrowSize,
+                    borderRadius: '50%',
+                    backgroundColor: theme.palette.secondary?.light || '#DA498D',
+                    color: theme.palette.common.white,
+                    border: 'none',
+                    boxShadow: theme.shadows[2],
+                    '&:hover': {
+                        backgroundColor: theme.palette.secondary?.dark || '#69247C',
+                        color: theme.palette.common.white
+                    },
+                    display: { xs: 'flex', sm: 'flex' } // Always show on mobile
+                }}
+            >
+                <IconChevronRight stroke={2} size={arrowIconSize} />
+            </IconButton>
+        );
+
+    useEffect(() => {
+        const FetchData = async () => {
+            setLoading(true);
+            try {
+                const fetchedData = await fetchBanner(headers);
+                
+                // Handle different response structures
+                let processedData = [];
+                if (Array.isArray(fetchedData)) {
+                    processedData = fetchedData;
+                } else if (fetchedData?.data) {
+                    processedData = Array.isArray(fetchedData.data) ? fetchedData.data : [fetchedData.data];
+                } else if (fetchedData?.content) {
+                    processedData = fetchedData.content;
+                }
+
+                if (processedData.length > 0) {
+                    const tableData = processedData.map((p) => ({
+                        advertisementId: p.advertisementId,
+                        filePath: p.filePath || null
+                    }));
+
+                    setAdvertisement(tableData);
+                } else {
+                    setAdvertisement([]);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setAdvertisement([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        FetchData();
+    }, []);
+
+    return (
+        <Paper 
+            elevation={3}
+            sx={{ 
+                mt: { xs: 2, sm: 3, md: 4 }, 
+                width: '100%', 
+                height: { xs: 180, sm: 250, md: 300 },
+                mx: { xs: 1, sm: 0 },
+                overflow: 'hidden',
+                borderRadius: '8px'
+            }}
+        >
+            <Box sx={{ width: '100%', height: '100%' }}>
+                <Grid container direction="column" sx={{ width: '100%', height: '100%' }}>
+                    <Grid item xs={12} sx={{ width: '100%', height: '100%' }}>
+                        {loading ? (
+                            <Box sx={{ 
+                                textAlign: 'center', 
+                                padding: { xs: '10px', sm: '20px' },
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%'
+                            }}>
+                                Loading...
+                            </Box>
+                        ) : (
+                            <Box sx={{ position: 'relative', width: '100%', height: { xs: 180, sm: 250, md: 300 } }}>
+                                <Carousel
+                                    showThumbs={false}
+                                    showArrows={!isMobile}
+                                    showIndicators={true}
+                                    showStatus={false}
+                                    infiniteLoop
+                                    autoPlay
+                                    interval={3000}
+                                    transitionTime={500}
+                                    stopOnHover={true}
+                                    dynamicHeight={false}
+                                    swipeable={true}
+                                    emulateTouch={true}
+                                    renderArrowPrev={renderArrowPrev}
+                                    renderArrowNext={renderArrowNext}
+                                    style={{ width: '100%', height: bannerHeight }}
+                                >
+                                {advertisement.length > 0 ? (
+                                    advertisement.map((ad) =>
+                                        ad.filePath ? (
+                                            <div key={ad.advertisementId} style={{ width: '100%', height: bannerHeight }}>
+                                                <AuthImage filePath={ad.filePath} />
+                                            </div>
+                                        ) : null
+                                    )
+                                ) : (
+                                    <Box sx={{ 
+                                        textAlign: 'center', 
+                                        padding: { xs: '10px', sm: '20px' },
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        height: '100%'
+                                    }}>
+                                        No Data
+                                    </Box>
+                                )}
+                                </Carousel>
+                            </Box>
+                        )}
+                    </Grid>
+                </Grid>
+            </Box>
+        </Paper>
+    );
+};
+
+Banner.propTypes = {
+    isLoading: PropTypes.bool
+};
+
+export default Banner;
+

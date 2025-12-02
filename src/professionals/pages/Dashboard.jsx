@@ -25,6 +25,8 @@ import talentBannerImg from '../../assets/images/Talent  Banner.png';
 import { getProfessionalsProfileById, getProfessionalsProfileByProfessional } from '../../API/professionalsProfileApi';
 import profileFlowManager from '../../utils/profileFlowManager';
 import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
+import { fetchBanner } from '../../API/bannerApi';
+import AuthImage from '../../components/common/AuthImage';
 import { 
   CheckCircle as CheckCircleIcon, 
   Person as PersonIcon,
@@ -235,9 +237,72 @@ const Dashboard = () => {
 
   // Banner carousel state
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
-  const banners = [talentBannerImg, talentBannerImg, talentBannerImg, talentBannerImg, talentBannerImg]; // 5 banners with the same image
+  const [banners, setBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const talentBannerRef = useRef(null);
   const talentBannerInView = useInView(talentBannerRef, { once: true, margin: "-50px" });
+
+  // Fetch banners from database
+  useEffect(() => {
+    const fetchBanners = async () => {
+      setBannersLoading(true);
+      try {
+        const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(user?.accessToken && { Authorization: `Bearer ${user.accessToken}` })
+        };
+
+        const response = await fetchBanner(0, 100, headers);
+        let fetchedData = [];
+        
+        // Handle paginated response structure: { content: [...], totalElements, totalPages, ... }
+        if (response.data) {
+          // Check if response.data has content array (paginated response)
+          if (response.data.content && Array.isArray(response.data.content)) {
+            fetchedData = response.data.content;
+          }
+          // Check if response.data is directly an array
+          else if (Array.isArray(response.data)) {
+            fetchedData = response.data;
+          }
+          // Check for nested data structure
+          else if (response.data.data) {
+            if (response.data.data.content && Array.isArray(response.data.data.content)) {
+              fetchedData = response.data.data.content;
+            } else if (Array.isArray(response.data.data)) {
+              fetchedData = response.data.data;
+            } else {
+              fetchedData = [response.data.data];
+            }
+          }
+        }
+        
+        const bannerData = fetchedData
+          .filter((ad) => ad.filePath && ad.filePath.trim() !== '' && !ad.isDelete)
+          .map((ad) => ({
+            advertisementId: ad.advertisementId,
+            filePath: ad.filePath
+          }));
+        
+        setBanners(bannerData);
+      } catch (error) {
+        console.error('Error fetching banners:', error);
+        setBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
+  // Reset banner index when banners change
+  useEffect(() => {
+    if (banners.length > 0 && currentBannerIndex >= banners.length) {
+      setCurrentBannerIndex(0);
+    }
+  }, [banners, currentBannerIndex]);
 
   // Handle banner navigation
   const handlePreviousBanner = () => {
@@ -460,51 +525,6 @@ const Dashboard = () => {
     ? opportunities 
     : opportunities.filter(opp => opp.category === selectedCategory);
 
-  // Projects data
-  const projects = [
-    {
-      id: 1,
-      title: 'Fashion Week Campaign',
-      client: 'Luxury Brand Co.',
-      status: 'Active',
-      progress: 75,
-      deadline: '15 days left',
-      category: 'Fashion',
-      icon: CampaignIcon,
-    },
-    {
-      id: 2,
-      title: 'Beauty Product Launch',
-      client: 'Glamour Cosmetics',
-      status: 'In Progress',
-      progress: 60,
-      deadline: '20 days left',
-      category: 'Beauty',
-      icon: ImageIcon,
-    },
-    {
-      id: 3,
-      title: 'Corporate Video Series',
-      client: 'Tech Solutions Inc',
-      status: 'Active',
-      progress: 45,
-      deadline: '30 days left',
-      category: 'Media',
-      icon: VideoCallIcon,
-    },
-    {
-      id: 4,
-      title: 'Music Video Production',
-      client: 'Rhythm Records',
-      status: 'Planning',
-      progress: 30,
-      deadline: '45 days left',
-      category: 'Entertainment',
-      icon: MovieIcon,
-    },
-  ];
-
-
   // logout handled by ProfileNavBar menu; keep back button only
 
   return (
@@ -540,114 +560,144 @@ const Dashboard = () => {
               }}
             >
             {/* Left Navigation Button */}
-            <IconButton
-              onClick={handlePreviousBanner}
-              sx={{
-                position: 'absolute',
-                left: { xs: 5, sm: 10, md: 15 },
-                zIndex: 3,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                width: { xs: 36, sm: 40, md: 44 },
-                height: { xs: 36, sm: 40, md: 44 },
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 1)',
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                },
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              <ChevronLeft sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#69247C' }} />
-            </IconButton>
+            {banners.length > 1 && !bannersLoading && (
+              <IconButton
+                onClick={handlePreviousBanner}
+                sx={{
+                  position: 'absolute',
+                  left: { xs: 5, sm: 10, md: 15 },
+                  zIndex: 3,
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  width: { xs: 36, sm: 40, md: 44 },
+                  height: { xs: 36, sm: 40, md: 44 },
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                  },
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <ChevronLeft sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#69247C' }} />
+              </IconButton>
+            )}
 
             {/* Banner Image */}
-            <motion.div
-              key={currentBannerIndex}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              style={{ width: '100%' }}
-            >
+            {bannersLoading ? (
               <Box
-                component="img"
-                src={banners[currentBannerIndex]}
-                alt={`Talent Banner ${currentBannerIndex + 1}`}
                 sx={{
                   width: '100%',
-                  maxWidth: '100%',
-                  height: 'auto',
-                  maxHeight: { xs: '150px', sm: '200px', md: '250px', lg: '310px' },
-                  objectFit: 'cover',
-                  display: 'block'
+                  height: { xs: '150px', sm: '200px', md: '250px', lg: '310px' },
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '8px'
                 }}
-              />
-            </motion.div>
+              >
+                <CircularProgress size={40} sx={{ color: '#69247C' }} />
+              </Box>
+            ) : banners.length > 0 ? (
+              <motion.div
+                key={currentBannerIndex}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                style={{ width: '100%' }}
+              >
+                <Box
+                  sx={{
+                    width: '100%',
+                    maxWidth: '100%',
+                    height: { xs: '150px', sm: '200px', md: '250px', lg: '310px' },
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <AuthImage
+                    filePath={banners[currentBannerIndex]?.filePath}
+                    alt={`Banner ${currentBannerIndex + 1}`}
+                    fallbackSrc={talentBannerImg}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block'
+                    }}
+                  />
+                </Box>
+              </motion.div>
+            ) : null}
 
             {/* Right Navigation Button */}
-            <IconButton
-              onClick={handleNextBanner}
-              sx={{
-                position: 'absolute',
-                right: { xs: 5, sm: 10, md: 15 },
-                zIndex: 3,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                width: { xs: 36, sm: 40, md: 44 },
-                height: { xs: 36, sm: 40, md: 44 },
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 1)',
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                },
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              <ChevronRight sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#69247C' }} />
-            </IconButton>
+            {banners.length > 1 && !bannersLoading && (
+              <IconButton
+                onClick={handleNextBanner}
+                sx={{
+                  position: 'absolute',
+                  right: { xs: 5, sm: 10, md: 15 },
+                  zIndex: 3,
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  width: { xs: 36, sm: 40, md: 44 },
+                  height: { xs: 36, sm: 40, md: 44 },
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                  },
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <ChevronRight sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#69247C' }} />
+              </IconButton>
+            )}
 
             {/* Dot Indicators - Inside Banner at Bottom */}
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: { xs: 8, sm: 12, md: 16 },
-                left: '50%',
-                transform: 'translateX(-50%)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 1.5,
-                zIndex: 3
-              }}
-            >
-              {banners.map((_, index) => (
-                <Box
-                  key={index}
-                  onClick={() => setCurrentBannerIndex(index)}
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    backgroundColor: currentBannerIndex === index 
-                      ? '#FFFFFF' 
-                      : 'rgba(105, 36, 124, 0.4)', // Muted purple for inactive dots
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: currentBannerIndex === index 
-                      ? '0 2px 4px rgba(0, 0, 0, 0.2)' 
-                      : 'none', // Subtle shadow for active white dot
-                    filter: currentBannerIndex === index 
-                      ? 'none' 
-                      : 'blur(0.5px)', // Slight blur/glow for inactive purple dots
-                    opacity: currentBannerIndex === index ? 1 : 0.6,
-                    '&:hover': {
+            {banners.length > 1 && !bannersLoading && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: { xs: 8, sm: 12, md: 16 },
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  zIndex: 3
+                }}
+              >
+                {banners.map((_, index) => (
+                  <Box
+                    key={index}
+                    onClick={() => setCurrentBannerIndex(index)}
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
                       backgroundColor: currentBannerIndex === index 
                         ? '#FFFFFF' 
-                        : 'rgba(105, 36, 124, 0.6)',
-                      transform: 'scale(1.15)',
-                      opacity: 1
-                    }
-                  }}
-                />
-              ))}
-            </Box>
+                        : 'rgba(105, 36, 124, 0.4)',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      boxShadow: currentBannerIndex === index 
+                        ? '0 2px 4px rgba(0, 0, 0, 0.2)' 
+                        : 'none',
+                      filter: currentBannerIndex === index 
+                        ? 'none' 
+                        : 'blur(0.5px)',
+                      opacity: currentBannerIndex === index ? 1 : 0.6,
+                      '&:hover': {
+                        backgroundColor: currentBannerIndex === index 
+                          ? '#FFFFFF' 
+                          : 'rgba(105, 36, 124, 0.6)',
+                        transform: 'scale(1.15)',
+                        opacity: 1
+                      }
+                    }}
+                  />
+                ))}
+              </Box>
+            )}
           </Box>
         </motion.div>
           </Box>
@@ -1529,512 +1579,6 @@ const Dashboard = () => {
         </motion.div>
       </Container>
 
-      {/* Projects Section */}
-      <Container maxWidth={false} sx={{ mt: { xs: 4, sm: 6, md: 8 }, mb: { xs: 4, sm: 5, md: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.1 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        >
-          <Box sx={{ mb: { xs: 3, sm: 3.5, md: 4 }, textAlign: 'center' }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                fontSize: { xs: '20px', sm: '24px', md: '28px', lg: '32px', xl: '36px' },
-                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                mb: { xs: 0.5, sm: 1 },
-                textAlign: 'center',
-              }}
-            >
-              My Projects
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: '#666666',
-                fontSize: { xs: '13px', sm: '14px', md: '15px', lg: '16px' },
-                mb: { xs: 2, sm: 2.5, md: 3 },
-                textAlign: 'center',
-                px: { xs: 1, sm: 0 },
-              }}
-            >
-              Track your active projects and their progress. Stay on top of deadlines and deliverables.
-            </Typography>
-          </Box>
-
-          {/* Projects Grid */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' },
-              gap: { xs: 2, sm: 2.5, md: 3 },
-            }}
-          >
-            {projects.map((project, index) => {
-              const IconComponent = project.icon;
-              return (
-                <Box key={project.id}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, amount: 0.05 }}
-                    transition={{ 
-                      duration: 0.3, 
-                      delay: index * 0.05,
-                      ease: "easeOut" 
-                    }}
-                  >
-                    <ProjectCard>
-                      <CardContent sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
-                        {/* Header with Icon */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1.5, sm: 2 } }}>
-                          <Box
-                            sx={{
-                              width: { xs: 40, sm: 44, md: 48 },
-                              height: { xs: 40, sm: 44, md: 48 },
-                              borderRadius: { xs: '10px', sm: '12px' },
-                              background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
-                              mr: { xs: 1.5, sm: 2 },
-                              flexShrink: 0,
-                            }}
-                          >
-                            <IconComponent sx={{ fontSize: { xs: 20, sm: 22, md: 24 } }} />
-                          </Box>
-                          <Box sx={{ flex: 1 }}>
-                            <Chip
-                              label={project.status}
-                              size="small"
-                              sx={{
-                                backgroundColor: project.status === 'Active' ? '#e8f5e9' : 
-                                                  project.status === 'In Progress' ? '#e3f2fd' : '#fff3e0',
-                                color: project.status === 'Active' ? '#2e7d32' : 
-                                       project.status === 'In Progress' ? '#1565c0' : '#e65100',
-                                fontWeight: 600,
-                                fontSize: { xs: '10px', sm: '11px' },
-                                height: { xs: '22px', sm: '24px' },
-                              }}
-                            />
-                          </Box>
-                        </Box>
-
-                        {/* Title */}
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: { xs: '15px', sm: '16px', md: '17px', lg: '18px' },
-                            color: '#333333',
-                            mb: { xs: 0.75, sm: 1 },
-                            lineHeight: 1.3,
-                          }}
-                        >
-                          {project.title}
-                        </Typography>
-
-                        {/* Client */}
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: '#69247C',
-                            fontWeight: 600,
-                            mb: { xs: 1.5, sm: 2 },
-                            fontSize: { xs: '12px', sm: '13px', md: '14px' },
-                          }}
-                        >
-                          {project.client}
-                        </Typography>
-
-                        {/* Progress */}
-                        <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: { xs: 0.75, sm: 1 } }}>
-                            <Typography variant="caption" sx={{ color: '#666666', fontSize: { xs: '11px', sm: '12px' } }}>
-                              Progress
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: '#69247C', fontWeight: 600, fontSize: { xs: '11px', sm: '12px' } }}>
-                              {project.progress}%
-                            </Typography>
-                          </Box>
-                          <LinearProgress
-                            variant="determinate"
-                            value={project.progress}
-                            sx={{
-                              height: { xs: 6, sm: 7, md: 8 },
-                              borderRadius: '4px',
-                              backgroundColor: '#f0f0f0',
-                              '& .MuiLinearProgress-bar': {
-                                background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                                borderRadius: '4px',
-                              },
-                            }}
-                          />
-                        </Box>
-
-                        {/* Deadline */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', pt: { xs: 1.5, sm: 2 }, borderTop: '1px solid #f0f0f0' }}>
-                          <AccessTimeIcon sx={{ fontSize: { xs: 14, sm: 15, md: 16 }, color: '#666666', mr: { xs: 0.75, sm: 1 }, flexShrink: 0 }} />
-                          <Typography variant="body2" sx={{ color: '#666666', fontSize: { xs: '11px', sm: '12px', md: '13px' } }}>
-                            {project.deadline}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </ProjectCard>
-                  </motion.div>
-                </Box>
-              );
-            })}
-          </Box>
-        </motion.div>
-      </Container>
-
-      {/* Project Statistics Section */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
-                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                mb: 1,
-                textAlign: 'center',
-              }}
-            >
-              Projects
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: '#666666',
-                fontSize: '16px',
-                mb: 3,
-                textAlign: 'center',
-              }}
-            >
-              Overview of your project performance and achievements
-            </Typography>
-          </Box>
-
-          {/* Statistics Grid */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
-              gap: 3,
-            }}
-          >
-            {[
-              {
-                title: 'Total Projects',
-                value: '145',
-                icon: AssignmentIcon,
-                change: '+12%',
-                changeType: 'positive',
-                description: 'All time projects',
-                gradientStart: '#69247C',
-                gradientEnd: '#DA498D',
-              },
-              {
-                title: 'Active Projects',
-                value: '8',
-                icon: TrendingUpIcon,
-                change: '+2',
-                changeType: 'positive',
-                description: 'Currently in progress',
-                gradientStart: '#4ECDC4',
-                gradientEnd: '#2E9E96',
-              },
-              {
-                title: 'Completed',
-                value: '132',
-                icon: CheckCircleIcon,
-                change: '+15',
-                changeType: 'positive',
-                description: 'Successfully finished',
-                gradientStart: '#81C784',
-                gradientEnd: '#66BB6A',
-              },
-              {
-                title: 'Total Earnings',
-                value: '₹24.5L',
-                icon: MoneyIcon,
-                change: '+18%',
-                changeType: 'positive',
-                description: 'Cumulative revenue',
-                gradientStart: '#FFD54F',
-                gradientEnd: '#FFC107',
-              },
-              {
-                title: 'Avg. Project Duration',
-                value: '28 days',
-                icon: AccessTimeIcon,
-                change: '-3 days',
-                changeType: 'positive',
-                description: 'Average completion time',
-                gradientStart: '#FF8C42',
-                gradientEnd: '#FF6B00',
-              },
-              {
-                title: 'Success Rate',
-                value: '91%',
-                icon: StarIcon,
-                change: '+5%',
-                changeType: 'positive',
-                description: 'Project completion rate',
-                gradientStart: '#9370DB',
-                gradientEnd: '#7B1FA2',
-              },
-              {
-                title: 'Pending Projects',
-                value: '5',
-                icon: AssignmentIcon,
-                change: '-2',
-                changeType: 'positive',
-                description: 'Awaiting approval',
-                gradientStart: '#FF5252',
-                gradientEnd: '#D32F2F',
-              },
-              {
-                title: 'Client Satisfaction',
-                value: '4.8/5',
-                icon: FavoriteIcon,
-                change: '+0.2',
-                changeType: 'positive',
-                description: 'Average rating',
-                gradientStart: '#FF6B6B',
-                gradientEnd: '#FF5252',
-              },
-            ].map((stat, index) => {
-              const IconComponent = stat.icon;
-              return (
-                <Box key={stat.title}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, amount: 0.1 }}
-                    transition={{ 
-                      duration: 0.2, 
-                      delay: index * 0.05,
-                      ease: "easeOut" 
-                    }}
-                  >
-                    <ProjectCard>
-                      <CardContent sx={{ p: 3 }}>
-                        {/* Header with Icon */}
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
-                          <Box
-                            sx={{
-                              width: 56,
-                              height: 56,
-                              borderRadius: '14px',
-                              background: `linear-gradient(135deg, ${stat.gradientStart} 0%, ${stat.gradientEnd} 100%)`,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
-                              boxShadow: `0 4px 12px ${stat.gradientStart}40`,
-                            }}
-                          >
-                            <IconComponent sx={{ fontSize: 28 }} />
-                          </Box>
-                          <Chip
-                            label={stat.change}
-                            size="small"
-                            sx={{
-                              backgroundColor: stat.changeType === 'positive' ? '#e8f5e9' : '#ffebee',
-                              color: stat.changeType === 'positive' ? '#2e7d32' : '#c62828',
-                              fontWeight: 600,
-                              fontSize: '11px',
-                              height: '24px',
-                            }}
-                          />
-                        </Box>
-
-                        {/* Value */}
-                        <Typography
-                          variant="h4"
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: { xs: '24px', sm: '28px', md: '32px' },
-                            color: '#333333',
-                            mb: 0.5,
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          {stat.value}
-                        </Typography>
-
-                        {/* Title */}
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: '16px',
-                            color: '#333333',
-                            mb: 1,
-                            lineHeight: 1.3,
-                          }}
-                        >
-                          {stat.title}
-                        </Typography>
-
-                        {/* Description */}
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: '#666666',
-                            fontSize: '13px',
-                            fontWeight: 400,
-                          }}
-                        >
-                          {stat.description}
-                        </Typography>
-                      </CardContent>
-                    </ProjectCard>
-                  </motion.div>
-                </Box>
-              );
-            })}
-          </Box>
-        </motion.div>
-      </Container>
-
-      {/* Sources Section */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
-                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                mb: 1,
-                textAlign: 'center',
-              }}
-            >
-              Project Sources
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: '#666666',
-                fontSize: '16px',
-                mb: 3,
-                textAlign: 'center',
-              }}
-            >
-              Discover projects from various sources
-            </Typography>
-          </Box>
-
-          {/* Sources Grid */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
-              gap: 3,
-            }}
-          >
-            {[
-              { name: 'Social Media', count: 25, icon: CampaignIcon },
-              { name: 'Agency', count: 18, icon: BusinessIcon },
-              { name: 'Direct Client', count: 32, icon: PersonIcon },
-              { name: 'Referral', count: 12, icon: StarIcon },
-              { name: 'Online Platform', count: 28, icon: VideoCallIcon },
-              { name: 'Casting Call', count: 15, icon: MicIcon },
-              { name: 'Event', count: 9, icon: EventIcon },
-              { name: 'Other', count: 6, icon: AssignmentIcon },
-            ].map((source, index) => {
-              const IconComponent = source.icon;
-              return (
-                <Box key={source.name}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, amount: 0.1 }}
-                    transition={{ 
-                      duration: 0.2, 
-                      delay: index * 0.05,
-                      ease: "easeOut" 
-                    }}
-                  >
-                    <ProjectCard>
-                      <CardContent sx={{ p: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <Box
-                            sx={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: '12px',
-                              background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
-                              mr: 2,
-                            }}
-                          >
-                            <IconComponent sx={{ fontSize: 24 }} />
-                          </Box>
-                          <Box sx={{ flex: 1 }}>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                fontWeight: 700,
-                                fontSize: '18px',
-                                color: '#333333',
-                                mb: 0.5,
-                              }}
-                            >
-                              {source.name}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: '#666666',
-                                fontSize: '14px',
-                              }}
-                            >
-                              {source.count} projects
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </ProjectCard>
-                  </motion.div>
-                </Box>
-              );
-            })}
-          </Box>
-        </motion.div>
-      </Container>
-
       {/* Project Categories Section */}
       <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
         <motion.div
@@ -2140,138 +1684,6 @@ const Dashboard = () => {
                     </Typography>
                   </Box>
                 </motion.div>
-              );
-            })}
-          </Box>
-        </motion.div>
-      </Container>
-
-      {/* Used Projects Section */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
-                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                mb: 1,
-                textAlign: 'center',
-              }}
-            >
-              Used Projects
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: '#666666',
-                fontSize: '16px',
-                mb: 3,
-                textAlign: 'center',
-              }}
-            >
-              Projects you've completed and used in your portfolio
-            </Typography>
-          </Box>
-
-          {/* Used Projects Grid */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
-              gap: 3,
-            }}
-          >
-            {[
-              { name: 'Fashion Campaign 2024', client: 'Luxury Brand', status: 'Completed', icon: CampaignIcon },
-              { name: 'Beauty Product Shoot', client: 'Glamour Cosmetics', status: 'Completed', icon: ImageIcon },
-              { name: 'Corporate Video', client: 'Tech Solutions', status: 'Completed', icon: VideoCallIcon },
-              { name: 'Music Video', client: 'Rhythm Records', status: 'Completed', icon: MovieIcon },
-              { name: 'Photoshoot Series', client: 'Style Magazine', status: 'Completed', icon: PhotoLibraryIcon },
-              { name: 'Brand Ambassador', client: 'Global Brands', status: 'Completed', icon: BusinessIcon },
-              { name: 'Event Hosting', client: 'EventPro', status: 'Completed', icon: EventIcon },
-              { name: 'TV Commercial', client: 'Creative Media', status: 'Completed', icon: CameraIcon },
-            ].map((project, index) => {
-              const IconComponent = project.icon;
-              return (
-                <Box key={project.name}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, amount: 0.1 }}
-                    transition={{ 
-                      duration: 0.2, 
-                      delay: index * 0.05,
-                      ease: "easeOut" 
-                    }}
-                  >
-                    <ProjectCard>
-                      <CardContent sx={{ p: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <Box
-                            sx={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: '12px',
-                              background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
-                              mr: 2,
-                            }}
-                          >
-                            <IconComponent sx={{ fontSize: 24 }} />
-                          </Box>
-                          <Box sx={{ flex: 1 }}>
-                            <Chip
-                              label={project.status}
-                              size="small"
-                              sx={{
-                                backgroundColor: '#e8f5e9',
-                                color: '#2e7d32',
-                                fontWeight: 600,
-                                fontSize: '11px',
-                                mb: 1,
-                              }}
-                            />
-                          </Box>
-                        </Box>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: '18px',
-                            color: '#333333',
-                            mb: 1,
-                            lineHeight: 1.3,
-                          }}
-                        >
-                          {project.name}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: '#69247C',
-                            fontWeight: 600,
-                            fontSize: '14px',
-                          }}
-                        >
-                          {project.client}
-                        </Typography>
-                      </CardContent>
-                    </ProjectCard>
-                  </motion.div>
-                </Box>
               );
             })}
           </Box>

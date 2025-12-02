@@ -3,8 +3,11 @@ import { Box, Container, Typography, Button, IconButton, TextField, CircularProg
 import { motion, useInView } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import talentBannerImg from '../../assets/images/Talent  Banner.png';
+import { fetchBanner } from '../../API/bannerApi';
+import AuthImage from '../../components/common/AuthImage';
 import headImage from '../../assets/images/head.png';
 import leftImage from '../../assets/images/left.png';
 import fullbodyImage from '../../assets/images/fullbody.png';
@@ -14,6 +17,7 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
+import FolderIcon from '@mui/icons-material/Folder';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import PersonIcon from '@mui/icons-material/Person';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -109,6 +113,86 @@ const ShowcasePage = () => {
   // Intersection Observer hooks
   const showcaseInView = useInView(showcaseRef, { once: true, margin: "-50px" });
   const nextButtonInView = useInView(nextButtonRef, { once: true, margin: "-50px" });
+
+  // Banner carousel state
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+  const [banners, setBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
+
+  // Fetch banners from database
+  useEffect(() => {
+    const fetchBanners = async () => {
+      setBannersLoading(true);
+      try {
+        const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(user?.accessToken && { Authorization: `Bearer ${user.accessToken}` })
+        };
+
+        const response = await fetchBanner(0, 100, headers);
+        let fetchedData = [];
+        
+        // Handle paginated response structure: { content: [...], totalElements, totalPages, ... }
+        if (response.data) {
+          // Check if response.data has content array (paginated response)
+          if (response.data.content && Array.isArray(response.data.content)) {
+            fetchedData = response.data.content;
+          }
+          // Check if response.data is directly an array
+          else if (Array.isArray(response.data)) {
+            fetchedData = response.data;
+          }
+          // Check for nested data structure
+          else if (response.data.data) {
+            if (response.data.data.content && Array.isArray(response.data.data.content)) {
+              fetchedData = response.data.data.content;
+            } else if (Array.isArray(response.data.data)) {
+              fetchedData = response.data.data;
+            } else {
+              fetchedData = [response.data.data];
+            }
+          }
+        }
+        
+        const bannerData = fetchedData
+          .filter((ad) => ad.filePath && ad.filePath.trim() !== '' && !ad.isDelete)
+          .map((ad) => ({
+            advertisementId: ad.advertisementId,
+            filePath: ad.filePath
+          }));
+        
+        setBanners(bannerData);
+      } catch (error) {
+        console.error('Error fetching banners:', error);
+        setBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
+  // Reset banner index when banners change
+  useEffect(() => {
+    if (banners.length > 0 && currentBannerIndex >= banners.length) {
+      setCurrentBannerIndex(0);
+    }
+  }, [banners, currentBannerIndex]);
+
+  // Handle banner navigation
+  const handlePreviousBanner = () => {
+    setCurrentBannerIndex((prevIndex) => 
+      prevIndex === 0 ? banners.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleNextBanner = () => {
+    setCurrentBannerIndex((prevIndex) => 
+      prevIndex === banners.length - 1 ? 0 : prevIndex + 1
+    );
+  };
 
   const handleNextClick = async () => {
     try {
@@ -371,7 +455,8 @@ const ShowcasePage = () => {
     instagram: '',
     facebook: '',
     linkedin: '',
-    youtube: ''
+    youtube: '',
+    portfolio: ''
   });
 
   // Languages state
@@ -490,7 +575,8 @@ const ShowcasePage = () => {
             instagram: existingData.socialPresence[0] || '',
             facebook: existingData.socialPresence[1] || '',
             linkedin: existingData.socialPresence[2] || '',
-            youtube: existingData.socialPresence[3] || ''
+            youtube: existingData.socialPresence[3] || '',
+            portfolio: existingData.socialPresence[4] || ''
           };
           setSocialLinks(socialLinks);
         }
@@ -927,21 +1013,153 @@ const ShowcasePage = () => {
             mx: 'auto',
             px: { xs: 0, sm: 1, md: 2 }
           }}>
-            <CarouselContainer>
-              <Box
-                component="img"
-                src={talentBannerImg}
-                alt="Talent Banner"
-                sx={{
-                  width: '100%',
-                  maxWidth: '100%',
-                  height: 'auto',
-                  maxHeight: { xs: '150px', sm: '200px', md: '250px', lg: '300px' },
-                  objectFit: 'contain',
-                  display: 'block'
-                }}
-              />
-            </CarouselContainer>
+            <Box
+              sx={{
+                position: 'relative',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              {banners.length > 1 && !bannersLoading && (
+                <IconButton
+                  onClick={handlePreviousBanner}
+                  sx={{
+                    position: 'absolute',
+                    left: { xs: 5, sm: 10, md: 15 },
+                    zIndex: 3,
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    width: { xs: 36, sm: 40, md: 44 },
+                    height: { xs: 36, sm: 40, md: 44 },
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 1)',
+                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                    },
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
+                  <ChevronLeft sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#69247C' }} />
+                </IconButton>
+              )}
+
+              {bannersLoading ? (
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: { xs: '150px', sm: '200px', md: '250px', lg: '310px' },
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: '8px'
+                  }}
+                >
+                  <CircularProgress size={40} sx={{ color: '#69247C' }} />
+                </Box>
+              ) : banners.length > 0 ? (
+                <motion.div
+                  key={currentBannerIndex}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ width: '100%' }}
+                >
+                  <CarouselContainer>
+                    <Box
+                      sx={{
+                        width: '100%',
+                        maxWidth: '100%',
+                        height: { xs: '150px', sm: '200px', md: '250px', lg: '310px' },
+                        position: 'relative',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      <AuthImage
+                        filePath={banners[currentBannerIndex]?.filePath}
+                        alt={`Banner ${currentBannerIndex + 1}`}
+                        fallbackSrc={talentBannerImg}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          display: 'block'
+                        }}
+                      />
+                    </Box>
+                  </CarouselContainer>
+                </motion.div>
+              ) : null}
+
+              {banners.length > 1 && !bannersLoading && (
+                <IconButton
+                  onClick={handleNextBanner}
+                  sx={{
+                    position: 'absolute',
+                    right: { xs: 5, sm: 10, md: 15 },
+                    zIndex: 3,
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    width: { xs: 36, sm: 40, md: 44 },
+                    height: { xs: 36, sm: 40, md: 44 },
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 1)',
+                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                    },
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
+                  <ChevronRight sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#69247C' }} />
+                </IconButton>
+              )}
+
+              {banners.length > 1 && !bannersLoading && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: { xs: 8, sm: 12, md: 16 },
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    zIndex: 3
+                  }}
+                >
+                  {banners.map((_, index) => (
+                    <Box
+                      key={index}
+                      onClick={() => setCurrentBannerIndex(index)}
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: currentBannerIndex === index 
+                          ? '#FFFFFF' 
+                          : 'rgba(105, 36, 124, 0.4)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        boxShadow: currentBannerIndex === index 
+                          ? '0 2px 4px rgba(0, 0, 0, 0.2)' 
+                          : 'none',
+                        filter: currentBannerIndex === index 
+                          ? 'none' 
+                          : 'blur(0.5px)',
+                        opacity: currentBannerIndex === index ? 1 : 0.6,
+                        '&:hover': {
+                          backgroundColor: currentBannerIndex === index 
+                            ? '#FFFFFF' 
+                            : 'rgba(105, 36, 124, 0.6)',
+                          transform: 'scale(1.15)',
+                          opacity: 1
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+              )}
+            </Box>
           </Box>
         </Box>
       </motion.div>
@@ -2241,6 +2459,87 @@ const ShowcasePage = () => {
                                 flexShrink: 0
                               }}
                               onClick={() => handleSocialLinkChange('youtube', '')}
+                            >
+                              <CloseIcon sx={{ color: '#666666', fontSize: { xs: 14, sm: 15, md: 16 } }} />
+                            </IconButton>
+                          )}
+                        </Box>
+
+                        {/* Portfolio */}
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: { xs: '48px', sm: '52px', md: '56px' },
+                            background: '#FFFFFF',
+                            border: '1px solid #D9D9D9',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            px: { xs: 1, sm: 1.5, md: 2 },
+                            py: 1,
+                            gap: { xs: 1, sm: 1.5, md: 2 }
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: { xs: 32, sm: 36, md: 40 },
+                              height: { xs: 32, sm: 36, md: 40 },
+                              minWidth: { xs: 32, sm: 36, md: 40 },
+                              background: '#D9D9D9',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0
+                            }}
+                          >
+                            <FolderIcon sx={{ fontSize: { xs: 18, sm: 19, md: 20 }, color: '#69247C' }} />
+                          </Box>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <TextField
+                              placeholder="yourportfolio.com or portfolio link"
+                              value={socialLinks.portfolio}
+                              onChange={(e) => handleSocialLinkChange('portfolio', e.target.value)}
+                              fullWidth
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  fontFamily: 'Poppins',
+                                  fontWeight: 400,
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                                  color: '#666666',
+                                  height: '100%',
+                                  '& fieldset': {
+                                    border: 'none',
+                                  },
+                                  '&:hover fieldset': {
+                                    border: 'none',
+                                  },
+                                  '&.Mui-focused fieldset': {
+                                    border: 'none',
+                                  },
+                                },
+                                '& .MuiInputBase-input': {
+                                  padding: { xs: '8px 4px', sm: '10px 6px', md: '12px 8px' },
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' }
+                                },
+                                '& .MuiInputBase-input::placeholder': {
+                                  fontFamily: 'Poppins',
+                                  fontWeight: 400,
+                                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                                  color: '#ABAFB1',
+                                  opacity: 1,
+                                }
+                              }}
+                            />
+                          </Box>
+                          {socialLinks.portfolio && (
+                            <IconButton
+                              sx={{ 
+                                p: { xs: 0.25, sm: 0.4, md: 0.5 }, 
+                                ml: { xs: 0.5, sm: 0.75, md: 1 },
+                                flexShrink: 0
+                              }}
+                              onClick={() => handleSocialLinkChange('portfolio', '')}
                             >
                               <CloseIcon sx={{ color: '#666666', fontSize: { xs: 14, sm: 15, md: 16 } }} />
                             </IconButton>
