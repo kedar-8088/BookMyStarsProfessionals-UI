@@ -8,7 +8,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { motion, useInView } from 'framer-motion';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import talentBannerImg from '../../assets/images/Talent  Banner.png';
 import { fetchBanner } from '../../API/bannerApi';
@@ -88,6 +88,8 @@ const ContentBox = styled(Box)(({ theme }) => ({
 const EducationBackgroundPage = () => {
   // Navigation
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sectionParam = searchParams.get('section'); // 'work', 'education', 'certifications', 'skills', or null
 
   // Intersection Observer refs
   const showcaseRef = useRef(null);
@@ -713,45 +715,10 @@ const EducationBackgroundPage = () => {
   };
 
   const handleAllSubmissions = async () => {
-    // Show confirmation dialog
-    const result = await Swal.fire({
-      title: 'Submit All Information?',
-      text: 'Are you sure you want to submit all your education, work experience, certifications, and skills?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#69247C',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, Submit All!',
-      cancelButtonText: 'Cancel',
-      customClass: {
-        popup: 'swal2-popup-custom',
-        title: 'swal2-title-custom',
-        content: 'swal2-content-custom',
-        confirmButton: 'swal2-confirm-custom',
-        cancelButton: 'swal2-cancel-custom'
-      }
-    });
-
-    if (!result.isConfirmed) {
-      return;
-    }
-
     try {
       setIsSubmitting(true);
       setSubmitError(null);
       setSubmitSuccess(false);
-
-      // Show loading alert
-      Swal.fire({
-        title: 'Submitting...',
-        text: 'Please wait while we save your information',
-        icon: 'info',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
 
       const results = {
         workExperiences: [],
@@ -794,13 +761,13 @@ const EducationBackgroundPage = () => {
 
       console.log('All submissions completed successfully:', results);
       
-      // Show success alert
+      // Show success message
       await Swal.fire({
-        title: 'Success!',
-        text: 'All your information has been submitted successfully!',
+        title: 'Saved Successfully!',
+        text: 'Your information has been saved successfully.',
         icon: 'success',
         confirmButtonColor: '#69247C',
-        confirmButtonText: 'Continue to Next Step',
+        confirmButtonText: 'OK',
         customClass: {
           popup: 'swal2-popup-custom',
           title: 'swal2-title-custom',
@@ -1603,6 +1570,8 @@ const EducationBackgroundPage = () => {
               </Box>
 
               {/* Present Work / Experience Section */}
+              {(!sectionParam || sectionParam === 'work') && (
+              <>
               <Box sx={{ 
                 mt: '48px',
                 '@media (max-width: 768px)': {
@@ -2154,8 +2123,12 @@ const EducationBackgroundPage = () => {
                 ))}
                   </Box>
               </Box>
+              </>
+              )}
 
               {/* Education Section */}
+              {(!sectionParam || sectionParam === 'education') && (
+              <>
               <Box sx={{ 
                 mt: '48px',
                 '@media (max-width: 768px)': {
@@ -2624,8 +2597,12 @@ const EducationBackgroundPage = () => {
                     ))}
                   </Box>
               </Box>
+              </>
+              )}
 
               {/* Certifications Section */}
+              {(!sectionParam || sectionParam === 'certifications') && (
+              <>
               <Box sx={{ mt: 6 }}>
                 {/* Certifications Header */}
                 <Box sx={{ 
@@ -3311,9 +3288,13 @@ const EducationBackgroundPage = () => {
                     ))}
                   </Box>
               </Box>
+              </>
+              )}
 
 
               {/* Skills Section */}
+              {(!sectionParam || sectionParam === 'skills') && (
+              <>
               <Box sx={{ 
                 mt: '48px',
                 '@media (max-width: 768px)': {
@@ -3679,7 +3660,8 @@ const EducationBackgroundPage = () => {
                   </Box>
                   </Box>
               </Box>
-
+              </>
+              )}
 
               {/* Navigation Buttons */}
               <Box sx={{ 
@@ -3759,7 +3741,7 @@ const EducationBackgroundPage = () => {
                     }
                   }}
                 >
-                  {isSubmitting ? 'Submitting...' : 'Next'}
+                  {isSubmitting ? 'Submitting...' : 'Save'}
                 </Button>
               </Box>
               </Box>

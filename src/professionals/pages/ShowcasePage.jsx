@@ -2,12 +2,13 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Box, Container, Typography, Button, IconButton, TextField, CircularProgress } from '@mui/material';
 import { motion, useInView } from 'framer-motion';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import talentBannerImg from '../../assets/images/Talent  Banner.png';
 import { fetchBanner } from '../../API/bannerApi';
 import AuthImage from '../../components/common/AuthImage';
+import AuthVideo from '../../components/common/AuthVideo';
 import headImage from '../../assets/images/head.png';
 import leftImage from '../../assets/images/left.png';
 import fullbodyImage from '../../assets/images/fullbody.png';
@@ -29,6 +30,7 @@ import { sessionManager } from '../../API/authApi';
 import { API_CONFIG } from '../../config/apiConfig';
 import { BaseUrl } from '../../BaseUrl';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import profileFlowManager from '../../utils/profileFlowManager';
 import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
 import { 
@@ -105,6 +107,8 @@ const ContentBox = styled(Box)(({ theme }) => ({
 
 const ShowcasePage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sectionParam = searchParams.get('section'); // 'video', 'photo', 'social', 'languages', or null
 
   // Intersection Observer refs
   const showcaseRef = useRef(null);
@@ -201,6 +205,7 @@ const ShowcasePage = () => {
       navigate('/complete-profile');
     } catch (error) {
       console.error('Error submitting showcase:', error);
+      // Error is already handled and displayed in handleShowcaseSubmit via setSubmitError
       // Don't navigate if there's an error
     }
   };
@@ -223,6 +228,9 @@ const ShowcasePage = () => {
   // Photo upload state
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
   const [photoBoxCount, setPhotoBoxCount] = useState(1);
+  
+  // Track existing files from server to preserve them on update
+  const [existingFiles, setExistingFiles] = useState([]);
 
   const handlePhotoUpload = (category, event) => {
     const file = event.target.files[0];
@@ -595,6 +603,82 @@ const ShowcasePage = () => {
           languages: existingData.languages || []
         }));
         
+        // Load existing files if showcase ID exists
+        if (existingData.id) {
+          try {
+            const filesResponse = await getShowcaseFiles(existingData.id);
+            if (filesResponse && filesResponse.status === 'SUCCESS' && filesResponse.data) {
+              const files = Array.isArray(filesResponse.data) ? filesResponse.data : filesResponse.data.files || [];
+              setExistingFiles(files);
+              
+              // Convert existing files to File objects and populate state
+              const existingPhotos = [];
+              const existingVideos = [];
+              
+              // Store file metadata without fetching files during load
+              // Files require authentication, so we'll let AuthVideo/AuthImage components handle fetching
+              // This prevents 401 errors in console and lets authenticated components handle display
+              for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.filePath) {
+                  // Store file metadata - don't fetch files here to avoid 401 errors
+                  // AuthVideo and AuthImage components will handle authenticated fetching for display
+                  if (file.isImage || file.fileType?.startsWith('image/')) {
+                    existingPhotos.push({
+                      id: file.id || Date.now() + i,
+                      name: file.fileName || `Photo ${existingPhotos.length + 1}`,
+                      size: file.fileSize ? Math.round(file.fileSize / 1024) + ' KB' : '0 KB',
+                      category: `Photo ${existingPhotos.length + 1}`,
+                      file: null, // Will be fetched during submission if needed, or displayed via AuthImage
+                      isExisting: true,
+                      fileId: file.id,
+                      filePath: file.filePath,
+                      thumbnailPath: file.thumbnailPath
+                    });
+                  } else if (file.isVideo || file.fileType?.startsWith('video/')) {
+                    existingVideos.push({
+                      id: file.id || Date.now() + i + 1000,
+                      name: file.fileName || `Video ${existingVideos.length + 1}`,
+                      size: file.fileSize ? Math.round(file.fileSize / 1024) + ' KB' : '0 KB',
+                      category: `Video ${existingVideos.length + 1}`,
+                      file: null, // Will be fetched during submission if needed, or displayed via AuthVideo
+                      isExisting: true,
+                      fileId: file.id,
+                      filePath: file.filePath,
+                      thumbnailPath: file.thumbnailPath
+                    });
+                  }
+                }
+              }
+              
+              // Update state with existing files - MERGE with existing state to preserve newly uploaded files
+              if (existingPhotos.length > 0) {
+                setUploadedPhotos(prev => {
+                  // Merge existing files with newly uploaded ones
+                  // Keep newly uploaded files and add existing ones that aren't already there
+                  const existingIds = new Set(prev.map(p => p.fileId).filter(Boolean));
+                  const newExistingPhotos = existingPhotos.filter(p => !existingIds.has(p.fileId));
+                  return [...prev, ...newExistingPhotos];
+                });
+                setPhotoBoxCount(prev => Math.max(prev, existingPhotos.length));
+              }
+              if (existingVideos.length > 0) {
+                setUploadedVideos(prev => {
+                  // Merge existing files with newly uploaded ones
+                  // Keep newly uploaded files and add existing ones that aren't already there
+                  const existingIds = new Set(prev.map(v => v.fileId).filter(Boolean));
+                  const newExistingVideos = existingVideos.filter(v => !existingIds.has(v.fileId));
+                  return [...prev, ...newExistingVideos];
+                });
+                setVideoBoxCount(prev => Math.max(prev, existingVideos.length));
+              }
+            }
+          } catch (filesError) {
+            console.warn('Could not load existing files:', filesError);
+            // Continue without existing files
+          }
+        }
+        
         console.log('Existing showcase loaded:', existingData);
       }
     } catch (error) {
@@ -684,86 +768,133 @@ const ShowcasePage = () => {
 
 
 
-  // Save showcase with files using FormData (backend expects this format)
+  // Save showcase with files using JSON format (backend expects this format)
   const saveShowcaseWithFiles = async (showcaseData, files) => {
     try {
       console.log('Starting showcase save with', files.length, 'files');
       
-      // Create FormData as expected by backend
-      const formData = new FormData();
-      
-      // Add basic showcase data
-      formData.append('professionalsProfileId', showcaseData.professionalsProfileId.toString());
+      // Validate required data
+      if (!showcaseData.professionalsProfileId) {
+        throw new Error('Professionals profile ID is required to save showcase');
+      }
       
       // Format social presence as array of URLs
       const socialPresence = Array.isArray(showcaseData.socialPresence) 
-        ? showcaseData.socialPresence 
+        ? showcaseData.socialPresence.filter(url => url && url.trim() !== '')
         : [];
-      formData.append('socialPresence', JSON.stringify(socialPresence));
       
       // Format languages as array of objects with languageId and languageName
       const languages = Array.isArray(showcaseData.languages) 
-        ? showcaseData.languages.map(lang => ({
-            languageId: lang.languageId || lang.id,
-            languageName: lang.languageName || lang.name
-          }))
+        ? showcaseData.languages
+            .map(lang => ({
+              languageId: lang.languageId || lang.id,
+              languageName: lang.languageName || lang.name,
+              languageDescription: lang.languageDescription || lang.description || ''
+            }))
+            .filter(lang => lang.languageId && lang.languageName)
         : [];
-      formData.append('languages', JSON.stringify(languages));
       
-      // Add files and their metadata
+      // Format files array with metadata
+      const filesArray = [];
       if (files && files.length > 0) {
         files.forEach((file, index) => {
-          formData.append('files', file);
+          // Check if file is a File object or already has metadata
+          if (file instanceof File) {
+            filesArray.push({
+              fileName: file.name,
+              filePath: '', // Will be populated by backend
+              fileType: file.type,
+              fileSize: file.size,
+              isVideo: file.type.startsWith('video/'),
+              isImage: file.type.startsWith('image/'),
+              isPrimary: index === 0,
+              displayOrder: index + 1
+            });
+          } else if (file && typeof file === 'object') {
+            // File already has metadata (existing file or pre-processed)
+            filesArray.push({
+              fileName: file.fileName || file.name,
+              filePath: file.filePath || '',
+              fileType: file.fileType || file.type,
+              fileSize: file.fileSize || file.size,
+              isVideo: file.isVideo !== undefined ? file.isVideo : (file.type && file.type.startsWith('video/')),
+              isImage: file.isImage !== undefined ? file.isImage : (file.type && file.type.startsWith('image/')),
+              isPrimary: file.isPrimary !== undefined ? file.isPrimary : (index === 0),
+              displayOrder: file.displayOrder !== undefined ? file.displayOrder : (index + 1)
+            });
+          }
         });
-        
-        // Add file metadata as expected by backend
-        const filesArray = files.map((file, index) => ({
-          fileName: file.name,
-          filePath: '', // Will be populated by backend
-          fileType: file.type,
-          fileSize: file.size,
-          isVideo: file.type.startsWith('video/'),
-          isImage: file.type.startsWith('image/'),
-          isPrimary: index === 0,
-          displayOrder: index + 1,
-          createdBy: 'user',
-          updatedBy: 'user'
-        }));
-        
-        formData.append('filesArray', JSON.stringify(filesArray));
-        formData.append('fileCount', files.length.toString());
       }
 
-      console.log('Sending FormData to backend:', {
+      // Prepare request body in the format expected by backend
+      const requestBody = {
         professionalsProfileId: showcaseData.professionalsProfileId,
-        socialPresence: showcaseData.socialPresence,
-        languages: showcaseData.languages,
-        fileCount: files.length
+        socialPresence: socialPresence,
+        languages: languages,
+        files: filesArray
+      };
+
+      // Check for auth token
+      const authToken = sessionManager.getAuthToken();
+      if (!authToken) {
+        throw new Error('Authentication token is missing. Please log in again.');
+      }
+
+      const apiUrl = `${BaseUrl}${API_CONFIG.ENDPOINTS.SHOWCASE_SAVE_UPDATE}`;
+      console.log('Sending JSON to backend:', {
+        url: apiUrl,
+        professionalsProfileId: requestBody.professionalsProfileId,
+        socialPresence: requestBody.socialPresence,
+        languages: requestBody.languages,
+        fileCount: requestBody.files.length
       });
 
-      const response = await fetch(`${BaseUrl}${API_CONFIG.ENDPOINTS.SHOWCASE_SAVE_UPDATE_FORM}`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 
-          'Authorization': `Bearer ${sessionManager.getAuthToken()}` 
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
         },
-        body: formData
+        body: JSON.stringify(requestBody)
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Get response text first to handle both JSON and non-JSON responses
+      const responseText = await response.text();
+      let result;
+      
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        // If response is not JSON, throw a more informative error
+        console.error('Response is not valid JSON:', responseText);
+        throw new Error(`Server returned invalid response: ${response.status} ${response.statusText}. ${responseText.substring(0, 200)}`);
       }
 
-      const result = await response.json();
+      if (!response.ok) {
+        // Extract error message from response if available
+        const errorMessage = result.message || result.error || `HTTP error! status: ${response.status}`;
+        console.error('Server error response:', result);
+        throw new Error(errorMessage);
+      }
       
-      if (result.status === 'SUCCESS') {
+      // Handle response structure: { code, status, message, data }
+      if (result.status === 'SUCCESS' && result.data) {
         console.log('Showcase saved successfully with files:', result.data);
         return result.data;
       } else {
-        throw new Error(result.message || 'Failed to save showcase');
+        // Handle case where response is ok but status is not SUCCESS
+        const errorMessage = result.message || result.error || 'Failed to save showcase';
+        console.error('Showcase save failed with status:', result.status, 'Message:', errorMessage);
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('Error saving showcase with files:', error);
-      throw error;
+      // Re-throw with more context if it's not already an Error object
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(`Failed to save showcase: ${String(error)}`);
+      }
     }
   };
 
@@ -809,15 +940,24 @@ const ShowcasePage = () => {
       }
 
       // Collect all files from photos and videos
+      // IMPORTANT: We need to include ALL files (both existing and newly uploaded) to preserve them
       const allFiles = [];
       
-      // Add photo files - uploadedPhotos is an array, not an object
+      // First, collect files that are already File objects (newly uploaded or successfully loaded existing files)
+      const filesToFetch = []; // Track files that need to be fetched
+      
+      // Add photo files - uploadedPhotos is an array
       if (Array.isArray(uploadedPhotos)) {
         console.log('Processing uploadedPhotos:', uploadedPhotos.length, 'photos');
         uploadedPhotos.forEach(photo => {
           if (photo.file) {
+            // File object is available (newly uploaded or successfully loaded)
             console.log('Adding photo file:', photo.name, photo.file.type);
             allFiles.push(photo.file);
+          } else if (photo.isExisting && photo.filePath) {
+            // Existing file that needs to be fetched
+            console.log('Found existing photo to fetch:', photo.filePath);
+            filesToFetch.push({ ...photo, type: 'image' });
           }
         });
       }
@@ -827,10 +967,188 @@ const ShowcasePage = () => {
         console.log('Processing uploadedVideos:', uploadedVideos.length, 'videos');
         uploadedVideos.forEach(video => {
           if (video.file) {
+            // File object is available (newly uploaded or successfully loaded)
             console.log('Adding video file:', video.name, video.file.type);
             allFiles.push(video.file);
+          } else if (video.isExisting && video.filePath) {
+            // Existing file that needs to be fetched
+            console.log('Found existing video to fetch:', video.filePath);
+            filesToFetch.push({ ...video, type: 'video' });
           }
         });
+      }
+      
+      // CRITICAL: Always preserve existing files when updating
+      // If we have existing files that weren't converted to File objects, fetch them now
+      // This ensures we preserve files from sections that weren't edited
+      // Also, if we're only editing one section, we need to ensure files from the other section are included
+      if (existingShowcase) {
+        // If we have files to fetch, fetch them
+        if (filesToFetch.length > 0) {
+        console.log('Fetching', filesToFetch.length, 'existing files to preserve during update...');
+        try {
+          const fetchedFiles = await Promise.all(
+            filesToFetch.map(async (fileRef) => {
+              try {
+                // Use authenticated download endpoint to fetch files
+                const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+                const response = await axios.get(`${BaseUrl}/file/downloadFile/?filePath=${encodeURIComponent(fileRef.filePath)}`, {
+                  headers: {
+                    Authorization: `Bearer ${user?.accessToken}`
+                  },
+                  responseType: 'blob'
+                });
+                
+                const blob = new Blob([response.data], { type: response.headers['content-type'] });
+                const mimeType = fileRef.type === 'image' 
+                  ? (blob.type || 'image/jpeg')
+                  : (blob.type || 'video/mp4');
+                
+                const fileObj = new File([blob], fileRef.name || `file_${Date.now()}`, { 
+                  type: mimeType
+                });
+                
+                console.log('Successfully fetched existing file:', fileRef.name);
+                return fileObj;
+              } catch (error) {
+                console.warn('Could not fetch existing file:', fileRef.filePath, error);
+                // Return null so we can filter it out
+                return null;
+              }
+            })
+          );
+          
+          // Add successfully fetched files
+          fetchedFiles.forEach(file => {
+            if (file) {
+              allFiles.push(file);
+            }
+          });
+          
+          console.log(`Successfully preserved ${fetchedFiles.filter(f => f !== null).length} existing files`);
+        } catch (error) {
+          console.warn('Error fetching existing files:', error);
+          // Continue with submission even if some files couldn't be fetched
+          // This ensures the update still works, but some files might be lost
+        }
+        }
+        
+        // IMPORTANT: If we're updating and have no files from one section but existing files from server,
+        // we need to fetch ALL existing files to preserve them
+        // This handles the case where user is editing only one section
+        if (allFiles.length === 0 || (uploadedPhotos.length === 0 && uploadedVideos.length === 0)) {
+          console.log('No files in state, fetching all existing files from server to preserve...');
+          try {
+            if (showcaseId) {
+              const filesResponse = await getShowcaseFiles(showcaseId);
+              if (filesResponse && filesResponse.status === 'SUCCESS' && filesResponse.data) {
+                const serverFiles = Array.isArray(filesResponse.data) ? filesResponse.data : filesResponse.data.files || [];
+                console.log('Found', serverFiles.length, 'existing files on server to preserve');
+                
+                // Fetch all existing files using authenticated endpoint
+                const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+                const allExistingFiles = await Promise.all(
+                  serverFiles.map(async (file) => {
+                    if (!file.filePath) return null;
+                    try {
+                      const response = await axios.get(`${BaseUrl}/file/downloadFile/?filePath=${encodeURIComponent(file.filePath)}`, {
+                        headers: {
+                          Authorization: `Bearer ${user?.accessToken}`
+                        },
+                        responseType: 'blob'
+                      });
+                      
+                      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+                      return new File([blob], file.fileName || `file_${Date.now()}`, { 
+                        type: file.fileType || blob.type 
+                      });
+                    } catch (error) {
+                      console.warn('Could not fetch existing file:', file.filePath, error);
+                      return null;
+                    }
+                  })
+                );
+                
+                // Add all successfully fetched files
+                allExistingFiles.forEach(file => {
+                  if (file) {
+                    allFiles.push(file);
+                  }
+                });
+                
+                console.log(`Preserved ${allExistingFiles.filter(f => f !== null).length} existing files from server`);
+              }
+            }
+          } catch (error) {
+            console.warn('Error fetching all existing files:', error);
+          }
+        }
+      }
+
+      // Final check: If we're updating and don't have files from both sections,
+      // fetch missing files from server to ensure nothing is lost
+      // Use the state showcaseId, not a local variable
+      const currentShowcaseId = showcaseId || existingShowcase?.id;
+      if (existingShowcase && currentShowcaseId) {
+        const hasPhotos = allFiles.some(f => f.type.startsWith('image/'));
+        const hasVideos = allFiles.some(f => f.type.startsWith('video/'));
+        
+        // If we're missing files from one section, fetch all existing files from server
+        // This ensures we preserve files from sections that weren't edited
+        if ((!hasPhotos || !hasVideos) && allFiles.length > 0) {
+          console.log('Missing files from one section, fetching all existing files to ensure preservation...');
+          try {
+            const filesResponse = await getShowcaseFiles(currentShowcaseId);
+            if (filesResponse && filesResponse.status === 'SUCCESS' && filesResponse.data) {
+              const serverFiles = Array.isArray(filesResponse.data) ? filesResponse.data : filesResponse.data.files || [];
+              
+              // Check which files we already have (by comparing with what we're about to send)
+              const existingFileNames = new Set(allFiles.map(f => f.name));
+              
+              // Fetch files that we don't already have
+              const filesToPreserve = serverFiles.filter(file => 
+                file.filePath && !existingFileNames.has(file.fileName)
+              );
+              
+              if (filesToPreserve.length > 0) {
+                console.log(`Fetching ${filesToPreserve.length} additional files to preserve...`);
+                const preservedFiles = await Promise.all(
+                  filesToPreserve.map(async (file) => {
+                    try {
+                      // Use authenticated download endpoint to fetch files
+                      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+                      const response = await axios.get(`${BaseUrl}/file/downloadFile/?filePath=${encodeURIComponent(file.filePath)}`, {
+                        headers: {
+                          Authorization: `Bearer ${user?.accessToken}`
+                        },
+                        responseType: 'blob'
+                      });
+                      
+                      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+                      return new File([blob], file.fileName || `file_${Date.now()}`, { 
+                        type: file.fileType || blob.type 
+                      });
+                    } catch (error) {
+                      console.warn('Could not fetch file to preserve:', file.filePath, error);
+                      return null;
+                    }
+                  })
+                );
+                
+                // Add preserved files
+                preservedFiles.forEach(file => {
+                  if (file) {
+                    allFiles.push(file);
+                  }
+                });
+                
+                console.log(`Preserved ${preservedFiles.filter(f => f !== null).length} additional files`);
+              }
+            }
+          } catch (error) {
+            console.warn('Error fetching files to preserve:', error);
+          }
+        }
       }
 
       console.log('Total files collected:', allFiles.length);
@@ -839,7 +1157,7 @@ const ShowcasePage = () => {
       let response;
       
       if (allFiles.length > 0) {
-        // Use the FormData approach for showcase with files
+        // Use the JSON approach for showcase with files
         response = await saveShowcaseWithFiles(finalData, allFiles);
       } else {
         // Use the original method for showcase without files
@@ -853,19 +1171,23 @@ const ShowcasePage = () => {
       }
       
       // Extract showcase ID from response
-      let showcaseId = null;
+      // Response structure: { code, status, message, data: { id, professionalsProfileId, ... } }
+      let newShowcaseId = null;
       if (response) {
         if (response.id) {
-          showcaseId = response.id;
+          // Direct ID in response
+          newShowcaseId = response.id;
         } else if (response.data && response.data.id) {
-          showcaseId = response.data.id;
+          // ID in data object (new JSON format)
+          newShowcaseId = response.data.id;
         } else if (response.data && response.data.data && response.data.data.id) {
-          showcaseId = response.data.data.id;
+          // Nested data structure
+          newShowcaseId = response.data.data.id;
         }
       }
       
-      if (showcaseId) {
-        setShowcaseId(showcaseId);
+      if (newShowcaseId) {
+        setShowcaseId(newShowcaseId);
         
         // Show success message
         const action = existingShowcase ? 'updated' : 'created';
@@ -888,8 +1210,29 @@ const ShowcasePage = () => {
         throw new Error('Failed to create/update showcase - no ID returned');
       }
     } catch (error) {
-      handleApiError(error, 'creating/updating showcase');
-      setSubmitError(error.message);
+      // Handle error display
+      const errorMessage = error.message || 'An unexpected error occurred while saving your showcase.';
+      
+      // Show error alert
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Saving Showcase',
+        text: errorMessage,
+        confirmButtonColor: '#69247C',
+        customClass: {
+          popup: 'swal2-popup-custom',
+          title: 'swal2-title-custom',
+          content: 'swal2-content-custom',
+          confirmButton: 'swal2-confirm-custom'
+        }
+      });
+      
+      // Also try handleApiError for axios errors (if it has response property)
+      if (error.response) {
+        handleApiError(error, 'creating/updating showcase');
+      }
+      
+      setSubmitError(errorMessage);
       throw error;
     } finally {
       setIsSubmitting(false);
@@ -1271,6 +1614,9 @@ const ShowcasePage = () => {
                 <Box sx={{ width: 60 }} />
               </Box>
 
+              {/* Videos Section */}
+              {(!sectionParam || sectionParam === 'video') && (
+              <>
               {/* Videos Section Header */}
               <Box sx={{
                 display: 'flex',
@@ -1413,22 +1759,43 @@ const ShowcasePage = () => {
                         }}
                       >
                         {/* Check if video is uploaded */}
-                        {video ? (
+                        {video && (video.file || video.filePath) ? (
                           <>
                             {/* Uploaded Video Preview */}
-                            <video
-                              src={URL.createObjectURL(video.file)}
-                              controls
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                objectFit: 'cover',
-                                borderRadius: '8px'
-                              }}
-                            />
+                            {video.file ? (
+                              <video
+                                src={URL.createObjectURL(video.file)}
+                                controls
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0,
+                                  objectFit: 'cover',
+                                  borderRadius: '8px'
+                                }}
+                              />
+                            ) : video.filePath ? (
+                              <AuthVideo
+                                filePath={video.filePath}
+                                thumbnailPath={video.thumbnailPath}
+                                alt={video.name || category}
+                                showControls={true}
+                                autoPlay={false}
+                                muted={true}
+                                loop={false}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0,
+                                  objectFit: 'cover',
+                                  borderRadius: '8px'
+                                }}
+                              />
+                            ) : null}
                             {/* Overlay for better visibility */}
                             <Box
                               sx={{
@@ -1633,8 +2000,12 @@ const ShowcasePage = () => {
                   </Button>
                 </Box>
               </Box>
+              </>
+              )}
 
               {/* Photos Section */}
+              {(!sectionParam || sectionParam === 'photo') && (
+              <>
               <Box sx={{ mt: 6 }}>
                 {/* Photos Header */}
                 <Box sx={{
@@ -1810,23 +2181,39 @@ const ShowcasePage = () => {
                                   }}
                                 >
                                   {/* Check if photo is uploaded */}
-                                  {photo ? (
+                                  {photo && (photo.file || photo.filePath) ? (
                                     <>
                                       {/* Uploaded Photo Preview */}
-                                      <Box
-                                        sx={{
-                                          width: '100%',
-                                          height: '100%',
-                                          position: 'absolute',
-                                          top: 0,
-                                          left: 0,
-                                          backgroundImage: `url(${URL.createObjectURL(photo.file)})`,
-                                          backgroundSize: 'cover',
-                                          backgroundPosition: 'center',
-                                          backgroundRepeat: 'no-repeat',
-                                          borderRadius: '8px'
-                                        }}
-                                      />
+                                      {photo.file ? (
+                                        <Box
+                                          sx={{
+                                            width: '100%',
+                                            height: '100%',
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            backgroundImage: `url(${URL.createObjectURL(photo.file)})`,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center',
+                                            backgroundRepeat: 'no-repeat',
+                                            borderRadius: '8px'
+                                          }}
+                                        />
+                                      ) : photo.filePath ? (
+                                        <AuthImage
+                                          filePath={photo.filePath}
+                                          alt={photo.name || category}
+                                          style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            objectFit: 'cover',
+                                            borderRadius: '8px'
+                                          }}
+                                        />
+                                      ) : null}
                                       {/* Overlay for better visibility */}
                                       <Box
                                         sx={{
@@ -2053,8 +2440,13 @@ const ShowcasePage = () => {
                     </>
                   )}
                 </Box>
+              </Box>
+              </>
+              )}
 
                 {/* Social Presence Section */}
+                {(!sectionParam || sectionParam === 'social') && (
+                <>
                 <Box sx={{ mt: 6 }}>
                   {/* Social Presence Header */}
                   <Box sx={{
@@ -2549,8 +2941,12 @@ const ShowcasePage = () => {
                     </>
                   </Box>
                 </Box>
+                </>
+                )}
 
                 {/* Languages Section */}
+                {(!sectionParam || sectionParam === 'languages') && (
+                <>
                 <Box sx={{ mt: 6 }}>
                   {/* Languages Header */}
                   <Box sx={{
@@ -2808,6 +3204,8 @@ const ShowcasePage = () => {
                     </>
                   </Box>
                 </Box>
+                </>
+                )}
 
                 {/* Error Display */}
                 {submitError && (
@@ -2931,11 +3329,10 @@ const ShowcasePage = () => {
                     ) : !showcaseData.professionalsProfileId ? (
                       'Loading Session...'
                     ) : (
-                      'Next'
+                      'Save'
                     )}
                   </Button>
                 </Box>
-              </Box>
             </Box>
           </motion.div>
         </Container>

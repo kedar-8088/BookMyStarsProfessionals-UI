@@ -15,6 +15,7 @@ import { sessionManager } from '../../API/authApi';
 import profileFlowManager from '../../utils/profileFlowManager';
 import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
 import { getBasicInfoById, getBasicInfoByEmail } from '../../API/basicInfoApi';
+import { getShowcaseByProfile, getShowcaseFiles, getAllShowcases } from '../../API/showcaseApi';
 import AuthImage from '../../components/common/AuthImage';
 import AuthVideo from '../../components/common/AuthVideo';
 import Swal from 'sweetalert2';
@@ -215,6 +216,131 @@ const CompleteProfilePage = () => {
           console.log('✅ BasicInfo found in profile response');
         }
         
+        // Check if showcase is missing or incomplete, or if files need to be fetched
+        const showcaseId = profileData.showcase?.id;
+        const hasShowcase = profileData.showcase && showcaseId;
+        const hasFiles = profileData.showcase?.files && profileData.showcase.files.length > 0;
+        const needsShowcaseFetch = !hasShowcase;
+        const needsFilesFetch = hasShowcase && !hasFiles;
+        
+        // Try to fetch showcase from /all endpoint
+        const professionalsProfileId = profileData.professionalsProfileId || profileId;
+        
+        if (needsShowcaseFetch || needsFilesFetch) {
+          console.log('🔄 Fetching showcase from /all endpoint for professionalsProfileId:', professionalsProfileId);
+          
+          if (professionalsProfileId) {
+            try {
+              // Fetch all showcases
+              const allShowcasesResponse = await getAllShowcases();
+              console.log('📡 All showcases API response:', allShowcasesResponse);
+              
+              if (allShowcasesResponse && allShowcasesResponse.status === 'SUCCESS' && allShowcasesResponse.data) {
+                const allShowcases = Array.isArray(allShowcasesResponse.data) ? allShowcasesResponse.data : [];
+                console.log('✅ All showcases fetched successfully:', allShowcases.length, 'showcases');
+                
+                // Find the showcase that matches the current profile's professionalsProfileId
+                const matchingShowcase = allShowcases.find(
+                  showcase => showcase.professionalsProfileId === professionalsProfileId || 
+                              showcase.professionalsProfileId === parseInt(professionalsProfileId)
+                );
+                
+                if (matchingShowcase) {
+                  console.log('✅ Matching showcase found:', matchingShowcase);
+                  console.log('📋 Showcase files:', matchingShowcase.files);
+                  
+                  // Ensure files array exists (it should be included in the response)
+                  const showcaseData = {
+                    ...matchingShowcase,
+                    files: matchingShowcase.files || []
+                  };
+                  
+                  // Log video and photo counts
+                  const videos = showcaseData.files.filter(file => file.isVideo);
+                  const photos = showcaseData.files.filter(file => file.isImage);
+                  console.log('📹 Videos count:', videos.length);
+                  console.log('📷 Photos count:', photos.length);
+                  
+                  // Merge showcase into profileData
+                  profileData = {
+                    ...profileData,
+                    showcase: showcaseData
+                  };
+                  console.log('✅ Showcase merged into profile data with', showcaseData.files?.length || 0, 'files');
+                } else {
+                  console.log('ℹ️ No matching showcase found for professionalsProfileId:', professionalsProfileId);
+                  // Set showcase to null explicitly
+                  profileData.showcase = null;
+                }
+              } else {
+                console.log('ℹ️ No showcases found in response');
+                profileData.showcase = null;
+              }
+            } catch (showcaseError) {
+              console.error('❌ Error fetching showcases from /all endpoint:', showcaseError);
+              
+              // Fallback: Try the original method if /all fails
+              console.log('🔄 Falling back to getShowcaseByProfile method...');
+              try {
+                const showcaseResponse = await getShowcaseByProfile(professionalsProfileId);
+                console.log('📡 Showcase API response (fallback):', showcaseResponse);
+                
+                if (showcaseResponse && showcaseResponse.status === 'SUCCESS' && showcaseResponse.data) {
+                  const showcaseData = showcaseResponse.data;
+                  console.log('✅ Showcase fetched successfully (fallback):', showcaseData);
+                  
+                  // Fetch showcase files if showcase ID exists and files are missing
+                  if (showcaseData.id && (!showcaseData.files || showcaseData.files.length === 0)) {
+                    try {
+                      console.log('🔄 Fetching showcase files for showcase ID:', showcaseData.id);
+                      const filesResponse = await getShowcaseFiles(showcaseData.id);
+                      console.log('📡 Showcase files API response:', filesResponse);
+                      
+                      if (filesResponse && filesResponse.status === 'SUCCESS' && filesResponse.data) {
+                        const files = Array.isArray(filesResponse.data) ? filesResponse.data : filesResponse.data.files || [];
+                        console.log('✅ Showcase files fetched successfully:', files.length, 'files');
+                        showcaseData.files = files;
+                      } else {
+                        console.log('ℹ️ No files found for showcase');
+                        showcaseData.files = [];
+                      }
+                    } catch (filesError) {
+                      console.warn('⚠️ Could not load showcase files:', filesError);
+                      showcaseData.files = [];
+                    }
+                  } else {
+                    showcaseData.files = showcaseData.files || [];
+                  }
+                  
+                  // Merge showcase into profileData
+                  profileData = {
+                    ...profileData,
+                    showcase: showcaseData
+                  };
+                  console.log('✅ Showcase merged into profile data (fallback) with', showcaseData.files?.length || 0, 'files');
+                } else {
+                  console.log('ℹ️ No showcase found for this profile');
+                  profileData.showcase = null;
+                }
+              } catch (fallbackError) {
+                console.error('❌ Fallback method also failed:', fallbackError);
+                if (fallbackError.response?.status === 404) {
+                  console.log('ℹ️ Showcase not found (404) - this is normal if the user hasn\'t created a showcase yet');
+                }
+                profileData.showcase = null;
+              }
+            }
+          }
+        } else {
+          console.log('✅ Showcase found in profile response');
+          console.log('📋 Showcase files:', profileData.showcase.files);
+          // Log video files specifically
+          const videos = profileData.showcase.files.filter(file => file.isVideo);
+          const photos = profileData.showcase.files.filter(file => file.isImage);
+          console.log('📹 Videos count:', videos.length);
+          console.log('📷 Photos count:', photos.length);
+        }
+        
         setProfileData(profileData);
         console.log('✅ Profile data loaded successfully');
       } else {
@@ -363,12 +489,20 @@ const CompleteProfilePage = () => {
     navigate('/physical-details');
   };
 
-  const handleEditShowcase = () => {
-    navigate('/showcase');
+  const handleEditShowcase = (section = null) => {
+    if (section) {
+      navigate(`/showcase?section=${section}`);
+    } else {
+      navigate('/showcase');
+    }
   };
 
-  const handleEditEducation = () => {
-    navigate('/education-background');
+  const handleEditEducation = (section = null) => {
+    if (section) {
+      navigate(`/education-background?section=${section}`);
+    } else {
+      navigate('/education-background');
+    }
   };
 
   const handleEditPreferences = () => {
@@ -1356,7 +1490,7 @@ const CompleteProfilePage = () => {
             <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
               Show Case
             </Typography>
-            <IconButton size="small" onClick={handleEditShowcase}>
+            <IconButton size="small" onClick={() => handleEditShowcase()}>
               <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '18px', sm: '20px' } }} />
             </IconButton>
           </Box>
@@ -1367,7 +1501,19 @@ const CompleteProfilePage = () => {
           {/* Videos Section */}
           <Box sx={{ mb: 4, px: { xs: 2, sm: 3, md: 4 } }}>
             {(() => {
-              const videos = profileData.showcase?.files?.filter(file => file.isVideo) || [];
+              // Filter videos - check both isVideo property and fileType
+              const videos = profileData.showcase?.files?.filter(file => {
+                // Check if isVideo is explicitly set to true
+                if (file.isVideo === true) return true;
+                // Also check fileType as fallback
+                if (file.fileType && file.fileType.startsWith('video/')) return true;
+                // Check if filePath suggests it's a video (common video extensions)
+                if (file.filePath) {
+                  const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'];
+                  return videoExtensions.some(ext => file.filePath.toLowerCase().endsWith(ext));
+                }
+                return false;
+              }) || [];
               const hasMoreVideos = videos.length > 5;
               return (
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -1393,7 +1539,7 @@ const CompleteProfilePage = () => {
                       }} />
                     </IconButton>
                   )}
-                  <IconButton size="small" onClick={handleEditShowcase}>
+                  <IconButton size="small" onClick={() => handleEditShowcase('video')}>
                     <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
                   </IconButton>
                 </Box>
@@ -1404,7 +1550,19 @@ const CompleteProfilePage = () => {
 
             {/* Video Thumbnails */}
             {(() => {
-              const videos = profileData.showcase?.files?.filter(file => file.isVideo) || [];
+              // Filter videos - check both isVideo property and fileType
+              const videos = profileData.showcase?.files?.filter(file => {
+                // Check if isVideo is explicitly set to true
+                if (file.isVideo === true) return true;
+                // Also check fileType as fallback
+                if (file.fileType && file.fileType.startsWith('video/')) return true;
+                // Check if filePath suggests it's a video (common video extensions)
+                if (file.filePath) {
+                  const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'];
+                  return videoExtensions.some(ext => file.filePath.toLowerCase().endsWith(ext));
+                }
+                return false;
+              }) || [];
               const displayedVideos = showAllVideos ? videos : videos.slice(0, 5);
               const hasMoreVideos = videos.length > 5;
               
@@ -1487,7 +1645,7 @@ const CompleteProfilePage = () => {
                       }} />
                     </IconButton>
                   )}
-                  <IconButton size="small" onClick={handleEditShowcase}>
+                  <IconButton size="small" onClick={() => handleEditShowcase('photo')}>
                     <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
                   </IconButton>
                 </Box>
@@ -1520,7 +1678,7 @@ const CompleteProfilePage = () => {
                           }}
                         />
                         <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40px', backgroundColor: 'rgba(218, 73, 141, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, zIndex: 3 }}>
-                          <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={handleEditShowcase}>
+                          <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={() => handleEditShowcase('photo')}>
                             <EditIcon sx={{ color: 'white', fontSize: '16px' }} />
                           </Box>
                           <Box sx={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
@@ -1558,7 +1716,7 @@ const CompleteProfilePage = () => {
                 <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Social Media
                 </Typography>
-                <IconButton size="small" onClick={handleEditShowcase}>
+                <IconButton size="small" onClick={() => handleEditShowcase('social')}>
                   <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
                 </IconButton>
               </Box>
@@ -1697,7 +1855,7 @@ const CompleteProfilePage = () => {
                 <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Languages
                 </Typography>
-                <IconButton size="small" onClick={handleEditShowcase}>
+                <IconButton size="small" onClick={() => handleEditShowcase('languages')}>
                   <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
                 </IconButton>
               </Box>
@@ -1734,7 +1892,7 @@ const CompleteProfilePage = () => {
               <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '18px', sm: '22px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                 Educational Background
               </Typography>
-              <IconButton size="small" onClick={handleEditEducation}>
+              <IconButton size="small" onClick={() => handleEditEducation()}>
                 <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '18px', sm: '20px' } }} />
               </IconButton>
             </Box>
@@ -1748,6 +1906,9 @@ const CompleteProfilePage = () => {
                 <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Work/Experience
                 </Typography>
+                <IconButton size="small" onClick={() => handleEditEducation('work')}>
+                  <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
+                </IconButton>
               </Box>
 
               <Box sx={{ borderBottom: '1px solid #DA498D', mb: 2 }} />
@@ -1757,7 +1918,7 @@ const CompleteProfilePage = () => {
               {profileData.workExperiences?.map((experience, index) => (
                 <Box key={experience.id} sx={{ flex: 1, minWidth: { xs: '100%', md: '300px' }, width: { xs: '100%', md: 'auto' } }}>
                   <Box sx={{ border: '1px solid', borderImage: 'linear-gradient(90deg, #DA498D 0%, #69247C 100%) 1', borderRadius: '8px', p: { xs: 2, sm: 3 }, backgroundColor: 'white', position: 'relative' }}>
-                    <IconButton size="small" onClick={handleEditEducation} sx={{ position: 'absolute', top: 8, right: 8, width: '24px', height: '24px', border: '1px solid #DA498D', borderRadius: '4px' }}>
+                    <IconButton size="small" onClick={() => handleEditEducation('work')} sx={{ position: 'absolute', top: 8, right: 8, width: '24px', height: '24px', border: '1px solid #DA498D', borderRadius: '4px' }}>
                       <EditIcon sx={{ color: '#DA498D', fontSize: '14px' }} />
                     </IconButton>
                     <Box sx={{ pr: { xs: 3, sm: 4 } }}>
@@ -1797,7 +1958,7 @@ const CompleteProfilePage = () => {
                 <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: '18px', lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Education
                 </Typography>
-                <IconButton size="small" onClick={handleEditEducation}>
+                <IconButton size="small" onClick={() => handleEditEducation('education')}>
                   <EditIcon sx={{ color: '#DA498D', fontSize: '18px' }} />
                 </IconButton>
               </Box>
@@ -1845,7 +2006,7 @@ const CompleteProfilePage = () => {
                 <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Certifications
                 </Typography>
-                <IconButton size="small" onClick={handleEditEducation}>
+                <IconButton size="small" onClick={() => handleEditEducation('certifications')}>
                   <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '16px', sm: '18px' } }} />
                 </IconButton>
               </Box>
@@ -1885,7 +2046,7 @@ const CompleteProfilePage = () => {
                         
                         {/* Control Buttons Below Frame */}
                         <Box sx={{ backgroundColor: '#DA498D', borderRadius: '4px', p: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-                          <Box sx={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={handleEditEducation}>
+                          <Box sx={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={() => handleEditEducation('certifications')}>
                             <EditIcon sx={{ color: 'white', fontSize: '12px' }} />
                           </Box>
                           <Box sx={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
@@ -1935,7 +2096,7 @@ const CompleteProfilePage = () => {
                 <Typography sx={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: { xs: '16px', sm: '18px' }, lineHeight: '140%', color: '#DA498D', flexGrow: 1 }}>
                   Skills
                 </Typography>
-                <IconButton size="small" onClick={handleEditEducation}>
+                <IconButton size="small" onClick={() => handleEditEducation('skills')}>
                   <EditIcon sx={{ color: '#DA498D', fontSize: { xs: '16px', sm: '18px' } }} />
                 </IconButton>
               </Box>

@@ -6,6 +6,60 @@ import { Hero, CardsSection, LandingHeader } from '../../components';
 import HomeFooter from '../../components/layout/HomeFooter';
 import { getAllCategories } from '../../API/categoryApi';
 
+const CategoryButtonWrapper = styled(Box)(({ theme, selected }) => ({
+  width: '141px',
+  height: '45px',
+  borderRadius: '28px',
+  padding: '1px',
+  background: selected 
+    ? 'linear-gradient(180deg, #DA498D 0%, #69247C 100%)'
+    : 'linear-gradient(180deg, #DA498D 0%, #69247C 100%)',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  [theme.breakpoints.down('sm')]: {
+    width: '120px',
+    height: '50px',
+    borderRadius: '24px',
+  },
+  [theme.breakpoints.down('xs')]: {
+    width: '100px',
+    height: '45px',
+    borderRadius: '20px',
+  },
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 12px rgba(218, 73, 141, 0.3)',
+  },
+}));
+
+const CategoryButton = styled(Box)(({ theme, selected }) => ({
+  width: '100%',
+  height: '100%',
+  borderRadius: '27px',
+  background: selected 
+    ? 'transparent'
+    : 'white',
+  color: selected ? 'white' : '#DA498D',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  textAlign: 'center',
+  fontSize: '14px',
+  fontWeight: selected ? 600 : 500,
+  transition: 'all 0.3s ease',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '12px',
+    borderRadius: '23px',
+  },
+  [theme.breakpoints.down('xs')]: {
+    fontSize: '11px',
+    borderRadius: '19px',
+  },
+}));
+
 const LocationCard = styled(Box)(({ theme }) => ({
   borderRadius: '12px',
   padding: theme.spacing(2, 2.5),
@@ -42,8 +96,24 @@ const categoryColorPalette = [
   { color: '#4CAF50', hoverColor: '#66BB6A' }, // Green
 ];
 
+// Dummy categories to show when API fails
+const dummyCategories = [
+  { categoryId: 1, categoryName: 'Acting' },
+  { categoryId: 2, categoryName: 'Dancing' },
+  { categoryId: 3, categoryName: 'Singing' },
+  { categoryId: 4, categoryName: 'Modeling' },
+  { categoryId: 5, categoryName: 'Photography' },
+  { categoryId: 6, categoryName: 'Videography' },
+  { categoryId: 7, categoryName: 'Music Production' },
+  { categoryId: 8, categoryName: 'Event Management' },
+  { categoryId: 9, categoryName: 'Makeup Artist' },
+  { categoryId: 10, categoryName: 'Fashion Design' },
+  { categoryId: 11, categoryName: 'Choreography' },
+  { categoryId: 12, categoryName: 'Voice Over' },
+];
+
 const HomeRoute = () => {
-  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
@@ -67,11 +137,33 @@ const HomeRoute = () => {
           });
           setCategories(categoriesWithColors);
         } else {
-          setCategories([]);
+          // If API response is invalid, use dummy categories
+          const categoriesWithColors = dummyCategories.map((cat, index) => {
+            const colorIndex = index % categoryColorPalette.length;
+            const colorScheme = categoryColorPalette[colorIndex];
+            return {
+              categoryId: cat.categoryId,
+              name: cat.categoryName,
+              color: colorScheme.color,
+              hoverColor: colorScheme.hoverColor
+            };
+          });
+          setCategories(categoriesWithColors);
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
-        setCategories([]);
+        // On network error or API failure, use dummy categories
+        const categoriesWithColors = dummyCategories.map((cat, index) => {
+          const colorIndex = index % categoryColorPalette.length;
+          const colorScheme = categoryColorPalette[colorIndex];
+          return {
+            categoryId: cat.categoryId,
+            name: cat.categoryName,
+            color: colorScheme.color,
+            hoverColor: colorScheme.hoverColor
+          };
+        });
+        setCategories(categoriesWithColors);
       } finally {
         setCategoriesLoading(false);
       }
@@ -121,7 +213,7 @@ const HomeRoute = () => {
             </Typography>
           </Box>
 
-          {/* Circular Categories */}
+          {/* Category Buttons Grid */}
           {categoriesLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
               <CircularProgress size={40} sx={{ color: '#69247C' }} />
@@ -129,63 +221,48 @@ const HomeRoute = () => {
           ) : categories.length > 0 ? (
             <Box
               sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
+                display: 'grid',
+                gridTemplateColumns: { 
+                  xs: 'repeat(2, 1fr)', 
+                  sm: 'repeat(3, 1fr)', 
+                  md: 'repeat(4, 1fr)',
+                  lg: 'repeat(6, 1fr)' 
+                },
+                gap: { xs: 1.5, sm: 2, md: 2.5 },
                 justifyContent: 'center',
-                gap: { xs: 3, sm: 4, md: 5 },
-                alignItems: 'center',
+                justifyItems: 'center',
               }}
             >
               {categories.map((category, index) => {
-                const isHovered = hoveredCategory === category.name;
+                const isSelected = selectedCategory === category.categoryId;
                 return (
                   <motion.div
                     key={category.categoryId || category.name || index}
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ 
                       duration: 0.3, 
                       delay: index * 0.05,
-                      type: "spring",
-                      stiffness: 300
+                      ease: "easeOut"
                     }}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    onMouseEnter={() => setHoveredCategory(category.name)}
-                    onMouseLeave={() => setHoveredCategory(null)}
                   >
-                    <Box
-                      sx={{
-                        width: { xs: 100, sm: 120, md: 140 },
-                        height: { xs: 100, sm: 120, md: 140 },
-                        borderRadius: '50%',
-                        background: isHovered 
-                          ? `linear-gradient(135deg, ${category.hoverColor} 0%, ${category.color} 100%)`
-                          : `linear-gradient(135deg, ${category.color} 0%, ${category.hoverColor} 100%)`,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        boxShadow: isHovered 
-                          ? `0 8px 25px ${category.color}80`
-                          : `0 4px 15px ${category.color}50`,
-                        transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
-                      }}
+                    <CategoryButtonWrapper
+                      selected={isSelected}
+                      onClick={() => setSelectedCategory(isSelected ? null : category.categoryId)}
                     >
-                      <Typography
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: { xs: '14px', sm: '16px', md: '18px' },
-                          textAlign: 'center',
-                          px: 2,
-                        }}
-                      >
-                        {category.name}
-                      </Typography>
-                    </Box>
+                      <CategoryButton selected={isSelected}>
+                        <Typography
+                          sx={{
+                            fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                            fontWeight: isSelected ? 600 : 500,
+                            color: 'inherit',
+                          }}
+                        >
+                          {category.name}
+                        </Typography>
+                      </CategoryButton>
+                    </CategoryButtonWrapper>
                   </motion.div>
                 );
               })}

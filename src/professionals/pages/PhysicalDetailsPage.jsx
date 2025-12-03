@@ -1068,8 +1068,8 @@ const PhysicalDetailsPage = () => {
      
      {/* Back Button and Step indicator */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: { xs: 'flex-start', sm: 'space-between' }, mb: 2, px: { xs: 2, sm: 0 } }}>
-              {/* Back Button */}
-              <Button
+              Back Button
+              {/* <Button
                 onClick={() => navigate('/basic-info')}
                 sx={{
                   minWidth: 'auto',
@@ -1086,7 +1086,7 @@ const PhysicalDetailsPage = () => {
                 }}
               >
                 ← Back
-              </Button>
+              </Button> */}
 
               {/* Empty space for balance */}
               <Box sx={{ width: { xs: 0, sm: 60 } }} />
@@ -1504,7 +1504,7 @@ const PhysicalDetailsPage = () => {
                     }
                   }}
                 >
-                  Next
+                  Save
                 </Button>
           </Box>
         </motion.div>

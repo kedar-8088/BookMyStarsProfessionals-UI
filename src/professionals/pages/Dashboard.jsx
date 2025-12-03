@@ -12,9 +12,14 @@ import {
   Avatar,
   Chip,
   IconButton,
-  Divider
+  Divider,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight, Search as SearchIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { motion, useInView } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -27,14 +32,14 @@ import profileFlowManager from '../../utils/profileFlowManager';
 import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
 import { fetchBanner } from '../../API/bannerApi';
 import AuthImage from '../../components/common/AuthImage';
+import { getAllCategories } from '../../API/categoryApi';
+import { getAllCities } from '../../API/cityApi';
 import { 
   CheckCircle as CheckCircleIcon, 
   Person as PersonIcon,
   PhotoLibrary as PhotoLibraryIcon,
   School as SchoolIcon,
-  Favorite as FavoriteIcon,
   Visibility as VisibilityIcon,
-  TrendingUp as TrendingUpIcon,
   AccountCircle as AccountCircleIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
@@ -45,10 +50,8 @@ import {
   Palette as PaletteIcon,
   MusicNote as MusicNoteIcon,
   Event as EventIcon,
-  Star as StarIcon,
   ArrowForward as ArrowForwardIcon,
   LocationOn as LocationOnIcon,
-  Place as PlaceIcon,
   AccessTime as AccessTimeIcon,
   AttachMoney as MoneyIcon,
   Assignment as AssignmentIcon,
@@ -196,32 +199,7 @@ const ProjectCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const StaticBannerCard = styled(Paper)(({ theme }) => ({
-  borderRadius: '20px',
-  padding: theme.spacing(4),
-  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-  color: 'white',
-  position: 'relative',
-  overflow: 'hidden',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: '0 12px 32px rgba(105, 36, 124, 0.3)',
-  },
-}));
 
-const LocationCard = styled(Box)(({ theme }) => ({
-  borderRadius: '12px',
-  padding: theme.spacing(2, 2.5),
-  display: 'flex',
-  alignItems: 'center',
-  gap: theme.spacing(2),
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-  },
-}));
 
 
 
@@ -234,6 +212,10 @@ const Dashboard = () => {
   const [userLastName, setUserLastName] = useState('');
   const [profileCompletion, setProfileCompletion] = useState(0);
   const [profileData, setProfileData] = useState(null);
+
+  // Ref to track if profile has been fetched to prevent infinite loops
+  const profileFetchedRef = useRef(false);
+  const lastProfessionalsIdRef = useRef(null);
 
   // Banner carousel state
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
@@ -304,6 +286,48 @@ const Dashboard = () => {
     }
   }, [banners, currentBannerIndex]);
 
+  // Fetch categories for dropdown
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      try {
+        const response = await getAllCategories();
+        if (response.data && response.data.code === 200 && response.data.data) {
+          setCategoriesList(response.data.data);
+        } else if (response.data && Array.isArray(response.data.data)) {
+          setCategoriesList(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategoriesList([]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Fetch locations (cities) for dropdown
+  useEffect(() => {
+    const fetchLocations = async () => {
+      setLocationsLoading(true);
+      try {
+        const response = await getAllCities();
+        if (response.data && response.data.code === 200 && response.data.data) {
+          setLocationsList(response.data.data);
+        } else if (response.data && Array.isArray(response.data.data)) {
+          setLocationsList(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+        setLocationsList([]);
+      } finally {
+        setLocationsLoading(false);
+      }
+    };
+    fetchLocations();
+  }, []);
+
   // Handle banner navigation
   const handlePreviousBanner = () => {
     setCurrentBannerIndex((prevIndex) => 
@@ -317,7 +341,17 @@ const Dashboard = () => {
     );
   };
 
-  const [hoveredCategory, setHoveredCategory] = useState(null);
+  // Handle search functionality
+  const handleSearch = () => {
+    // TODO: Implement search logic based on searchQuery, selectedLocation, and selectedCategoryFilter
+    console.log('Searching with:', {
+      query: searchQuery,
+      location: selectedLocation,
+      category: selectedCategoryFilter
+    });
+    // You can add filtering logic here to filter the opportunities array
+  };
+
 
   // Function to calculate profile completion percentage
   // Each section is worth 20%. If a section is complete, it contributes the full 20%.
@@ -365,60 +399,82 @@ const Dashboard = () => {
     return Math.min(completion, 100);
   };
 
-  // Fetch user firstName and lastName from session or profile, and calculate profile completion
+  // Update firstName and lastName from user session (when they change)
   useEffect(() => {
-    const fetchUserNamesAndProfile = async () => {
-      // First, check if firstName and lastName are already in the user session
-      if (user?.firstName) {
-        setUserFirstName(user.firstName);
-      }
-      if (user?.lastName) {
-        setUserLastName(user.lastName);
+    if (user?.firstName) {
+      setUserFirstName(prev => prev !== user.firstName ? user.firstName : prev);
+    }
+    if (user?.lastName) {
+      setUserLastName(prev => prev !== user.lastName ? user.lastName : prev);
+    }
+  }, [user?.firstName, user?.lastName]);
+
+  // Fetch profile data and calculate completion when professionalsId changes
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const currentProfessionalsId = user?.professionalsId;
+      
+      // Only fetch if we have a professionalsId and haven't fetched this one yet
+      if (currentProfessionalsId && lastProfessionalsIdRef.current !== currentProfessionalsId) {
+        lastProfessionalsIdRef.current = currentProfessionalsId;
+        profileFetchedRef.current = false;
       }
 
-      // If not in session and we have a professionalsId, fetch from profile
-      if (user?.professionalsId) {
+      if (currentProfessionalsId && !profileFetchedRef.current) {
+        profileFetchedRef.current = true;
         try {
-          const response = await getProfessionalsProfileByProfessional(user.professionalsId);
+          const response = await getProfessionalsProfileByProfessional(currentProfessionalsId);
           if (response.success && response.data?.code === 1000) {
-            const profileData = response.data.data;
-            setProfileData(profileData);
+            const fetchedProfileData = response.data.data;
+            setProfileData(fetchedProfileData);
             
             // Calculate profile completion
-            const completion = calculateProfileCompletion(profileData);
-            setProfileCompletion(completion);
+            const completion = calculateProfileCompletion(fetchedProfileData);
+            setProfileCompletion(prev => prev !== completion ? completion : prev);
 
             // Check if firstName and lastName are in professionalsDto
-            if (profileData?.professionalsDto?.firstName && !user?.firstName) {
-              setUserFirstName(profileData.professionalsDto.firstName);
+            if (fetchedProfileData?.professionalsDto?.firstName && !user?.firstName) {
+              setUserFirstName(prev => prev !== fetchedProfileData.professionalsDto.firstName ? fetchedProfileData.professionalsDto.firstName : prev);
             }
-            if (profileData?.professionalsDto?.lastName && !user?.lastName) {
-              setUserLastName(profileData.professionalsDto.lastName);
+            if (fetchedProfileData?.professionalsDto?.lastName && !user?.lastName) {
+              setUserLastName(prev => prev !== fetchedProfileData.professionalsDto.lastName ? fetchedProfileData.professionalsDto.lastName : prev);
             }
             // If firstName or lastName not in professionalsDto, check if fullName exists in basicInfo and split it
-            if ((!profileData?.professionalsDto?.firstName || !profileData?.professionalsDto?.lastName) && profileData?.basicInfo?.fullName) {
-              const nameParts = profileData.basicInfo.fullName.trim().split(' ');
-              if (nameParts.length > 0 && !user?.firstName && !profileData?.professionalsDto?.firstName) {
-                setUserFirstName(nameParts[0]);
+            if ((!fetchedProfileData?.professionalsDto?.firstName || !fetchedProfileData?.professionalsDto?.lastName) && fetchedProfileData?.basicInfo?.fullName) {
+              const nameParts = fetchedProfileData.basicInfo.fullName.trim().split(' ');
+              if (nameParts.length > 0 && !user?.firstName && !fetchedProfileData?.professionalsDto?.firstName) {
+                setUserFirstName(prev => prev !== nameParts[0] ? nameParts[0] : prev);
               }
-              if (nameParts.length > 1 && !user?.lastName && !profileData?.professionalsDto?.lastName) {
-                setUserLastName(nameParts.slice(1).join(' '));
+              if (nameParts.length > 1 && !user?.lastName && !fetchedProfileData?.professionalsDto?.lastName) {
+                const lastName = nameParts.slice(1).join(' ');
+                setUserLastName(prev => prev !== lastName ? lastName : prev);
               }
             }
           }
         } catch (error) {
           console.error('Error fetching user names and profile:', error);
+          profileFetchedRef.current = false; // Reset on error so it can retry
         }
       }
     };
 
-    fetchUserNamesAndProfile();
-  }, [user]);
+    fetchUserProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.professionalsId]);
 
 
   // Categories for filtering opportunities
   const categories = ['All', 'Fashion', 'Media', 'Entertainment', 'Beauty', 'Corporate'];
   const [selectedCategory, setSelectedCategory] = useState('All');
+  
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('');
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [locationsList, setLocationsList] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [locationsLoading, setLocationsLoading] = useState(false);
 
   // Opportunities data with different types and categories
   const opportunities = [
@@ -1216,7 +1272,7 @@ const Dashboard = () => {
                     <Button
                       variant="outlined"
                       size="small"
-                      onClick={() => navigate('/profile')}
+                      onClick={() => navigate('/complete-profile')}
                       sx={{
                         borderColor: '#DA498D',
                         color: '#DA498D',
@@ -1252,6 +1308,222 @@ const Dashboard = () => {
           viewport={{ once: false, amount: 0.1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
+          {/* Search Bar and Filter Dropdowns */}
+          <Box sx={{ 
+            mb: { xs: 4, sm: 5, md: 6 }, 
+            display: 'flex', 
+            flexDirection: 'column',
+            gap: { xs: 2, sm: 2.5, md: 3 },
+            alignItems: 'center',
+            px: { xs: 2, sm: 3, md: 4 }
+          }}>
+            {/* Search Bar */}
+            <Box sx={{ 
+              width: '100%', 
+              maxWidth: { xs: '100%', sm: '800px', md: '1000px', lg: '1200px' },
+              position: 'relative',
+              display: 'flex',
+              gap: { xs: 1, sm: 1.5 },
+              alignItems: 'center'
+            }}>
+              <Box sx={{ 
+                flex: 1,
+                position: 'relative'
+              }}>
+                <TextField
+                  fullWidth
+                  placeholder="Search opportunities..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearch();
+                    }
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      backgroundColor: '#FFFFFF',
+                      boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+                      '& fieldset': {
+                        borderColor: '#E0E0E0',
+                        borderWidth: '1px',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#DA498D',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#69247C',
+                        borderWidth: '2px',
+                      },
+                    },
+                    '& .MuiInputBase-input': {
+                      padding: { xs: '12px 16px 12px 48px', sm: '14px 20px 14px 52px' },
+                      fontSize: { xs: '14px', sm: '16px' },
+                      fontFamily: 'Poppins',
+                    },
+                  }}
+                />
+                <SearchIcon sx={{ 
+                  position: 'absolute', 
+                  left: { xs: '16px', sm: '20px' }, 
+                  top: '50%', 
+                  transform: 'translateY(-50%)',
+                  color: '#666666',
+                  fontSize: { xs: '20px', sm: '24px' }
+                }} />
+              </Box>
+              <Button
+                variant="contained"
+                onClick={handleSearch}
+                sx={{
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
+                  color: '#FFFFFF',
+                  fontFamily: 'Poppins',
+                  fontWeight: 600,
+                  fontSize: { xs: '14px', sm: '16px' },
+                  padding: { xs: '12px 24px', sm: '14px 32px' },
+                  minWidth: { xs: '100px', sm: '120px' },
+                  height: { xs: '48px', sm: '52px' },
+                  textTransform: 'none',
+                  boxShadow: '0px 2px 8px rgba(105, 36, 124, 0.3)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
+                    boxShadow: '0px 4px 12px rgba(105, 36, 124, 0.4)',
+                    transform: 'translateY(-1px)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Search
+              </Button>
+            </Box>
+
+            {/* Location and Category Dropdowns */}
+            <Box sx={{ 
+              display: 'flex', 
+              gap: { xs: 2, sm: 3 }, 
+              width: '100%',
+              maxWidth: { xs: '100%', sm: '600px', md: '700px' },
+              flexDirection: { xs: 'column', sm: 'row' }
+            }}>
+              {/* Location Dropdown */}
+              <FormControl 
+                fullWidth 
+                sx={{ 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: '#FFFFFF',
+                    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+                    height: { xs: '48px', sm: '52px' },
+                    '& fieldset': {
+                      borderColor: '#E0E0E0',
+                      borderWidth: '1px',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#DA498D',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#69247C',
+                      borderWidth: '2px',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontFamily: 'Poppins',
+                    color: '#666666',
+                  },
+                  '& .MuiSelect-select': {
+                    fontFamily: 'Poppins',
+                    fontSize: { xs: '14px', sm: '16px' },
+                    padding: { xs: '12px 16px', sm: '14px 20px' },
+                  },
+                }}
+              >
+                <InputLabel id="location-select-label">Location</InputLabel>
+                <Select
+                  labelId="location-select-label"
+                  id="location-select"
+                  value={selectedLocation}
+                  label="Location"
+                  onChange={(e) => setSelectedLocation(e.target.value)}
+                  IconComponent={ExpandMoreIcon}
+                  sx={{
+                    '& .MuiSelect-icon': {
+                      color: '#69247C',
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>All Locations</em>
+                  </MenuItem>
+                  {locationsList.map((location) => (
+                    <MenuItem key={location.cityId || location.id} value={location.cityName || location.name}>
+                      {location.cityName || location.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Category Dropdown */}
+              <FormControl 
+                fullWidth 
+                sx={{ 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: '#FFFFFF',
+                    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+                    height: { xs: '48px', sm: '52px' },
+                    '& fieldset': {
+                      borderColor: '#E0E0E0',
+                      borderWidth: '1px',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#DA498D',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#69247C',
+                      borderWidth: '2px',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontFamily: 'Poppins',
+                    color: '#666666',
+                  },
+                  '& .MuiSelect-select': {
+                    fontFamily: 'Poppins',
+                    fontSize: { xs: '14px', sm: '16px' },
+                    padding: { xs: '12px 16px', sm: '14px 20px' },
+                  },
+                }}
+              >
+                <InputLabel id="category-select-label">Category</InputLabel>
+                <Select
+                  labelId="category-select-label"
+                  id="category-select"
+                  value={selectedCategoryFilter}
+                  label="Category"
+                  onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+                  IconComponent={ExpandMoreIcon}
+                  sx={{
+                    '& .MuiSelect-icon': {
+                      color: '#69247C',
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>All Categories</em>
+                  </MenuItem>
+                  {categoriesList.map((category) => (
+                    <MenuItem key={category.categoryId || category.id} value={category.categoryName || category.name}>
+                      {category.categoryName || category.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
+
           <Box sx={{ mb: { xs: 3, sm: 3.5, md: 4 }, textAlign: 'center' }}>
           <motion.div
             animate={{
@@ -1482,530 +1754,6 @@ const Dashboard = () => {
             </Typography>
           </Box>
         )}
-        </motion.div>
-      </Container>
-
-      {/* Static Banner Section */}
-      <Container maxWidth={false} sx={{ mt: { xs: 4, sm: 6, md: 8 }, mb: { xs: 4, sm: 5, md: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.1 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        >
-          <StaticBannerCard sx={{ padding: { xs: 2.5, sm: 3, md: 4 } }}>
-            <Box sx={{ position: 'relative', zIndex: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1.5, sm: 2 }, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
-                <TrendingUpIcon sx={{ fontSize: { xs: 32, sm: 36, md: 40 }, mr: { xs: 1.5, sm: 2 }, opacity: 0.9, flexShrink: 0 }} />
-                <Typography
-                  variant="h4"
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: { xs: '20px', sm: '24px', md: '28px', lg: '32px' },
-                  }}
-                >
-                  Boost Your Career
-                </Typography>
-              </Box>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 600,
-                  mb: { xs: 1.5, sm: 2 },
-                  fontSize: { xs: '16px', sm: '18px', md: '20px', lg: '24px' },
-                  opacity: 0.95,
-                }}
-              >
-                Complete your profile to increase visibility and get more opportunities
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{
-                  mb: { xs: 2, sm: 2.5, md: 3 },
-                  fontSize: { xs: '13px', sm: '14px', md: '15px', lg: '16px' },
-                  opacity: 0.9,
-                  lineHeight: 1.6,
-                }}
-              >
-                Upload your portfolio, add professional photos, and showcase your skills to attract top clients and casting directors.
-              </Typography>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: 'white',
-                  color: '#69247C',
-                  fontWeight: 600,
-                  px: { xs: 3, sm: 3.5, md: 4 },
-                  py: { xs: 1, sm: 1.25, md: 1.5 },
-                  borderRadius: '8px',
-                  fontSize: { xs: '13px', sm: '14px', md: '15px' },
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)',
-                  },
-                }}
-                onClick={() => navigate('/profile')}
-              >
-                Complete Profile
-              </Button>
-            </Box>
-            {/* Decorative elements */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: -50,
-                right: -50,
-                width: 200,
-                height: 200,
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.1)',
-                zIndex: 1,
-              }}
-            />
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: -30,
-                left: -30,
-                width: 150,
-                height: 150,
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.08)',
-                zIndex: 1,
-              }}
-            />
-          </StaticBannerCard>
-        </motion.div>
-      </Container>
-
-      {/* Project Categories Section */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 700,
-                fontSize: { xs: '20px', sm: '24px', md: '28px', lg: '32px' },
-                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                mb: 2,
-              }}
-            >
-              Project Categories
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: '#666666',
-                fontSize: '16px',
-                mb: 4,
-              }}
-            >
-              Explore projects by category
-            </Typography>
-          </Box>
-
-          {/* Circular Categories */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: { xs: 3, sm: 4, md: 5 },
-              alignItems: 'center',
-            }}
-          >
-            {[
-              { name: 'Fashion', color: '#69247C', hoverColor: '#DA498D' },
-              { name: 'Media', color: '#FF6B6B', hoverColor: '#FF8787' },
-              { name: 'Entertainment', color: '#4ECDC4', hoverColor: '#6EDDD6' },
-              { name: 'Beauty', color: '#FFB6C1', hoverColor: '#FFC0CB' },
-              { name: 'Corporate', color: '#4169E1', hoverColor: '#5A7AFF' },
-              { name: 'Music', color: '#FF8C00', hoverColor: '#FFA500' },
-              { name: 'Photography', color: '#9370DB', hoverColor: '#AB82FF' },
-              { name: 'Film', color: '#DC143C', hoverColor: '#FF1744' }
-            ].map((category, index) => {
-              const isHovered = hoveredCategory === category.name;
-              return (
-                <motion.div
-                  key={category.name}
-                  initial={{ opacity: 0, scale: 0 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ 
-                    duration: 0.3, 
-                    delay: index * 0.05,
-                    type: "spring",
-                    stiffness: 300
-                  }}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  onMouseEnter={() => setHoveredCategory(category.name)}
-                  onMouseLeave={() => setHoveredCategory(null)}
-                >
-                  <Box
-                    sx={{
-                      width: { xs: 100, sm: 120, md: 140 },
-                      height: { xs: 100, sm: 120, md: 140 },
-                      borderRadius: '50%',
-                      background: isHovered 
-                        ? `linear-gradient(135deg, ${category.hoverColor} 0%, ${category.color} 100%)`
-                        : `linear-gradient(135deg, ${category.color} 0%, ${category.hoverColor} 100%)`,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      boxShadow: isHovered 
-                        ? `0 8px 25px ${category.color}80`
-                        : `0 4px 15px ${category.color}50`,
-                      transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: { xs: '14px', sm: '16px', md: '18px' },
-                        textAlign: 'center',
-                        px: 2,
-                      }}
-                    >
-                      {category.name}
-                    </Typography>
-                  </Box>
-                </motion.div>
-              );
-            })}
-          </Box>
-        </motion.div>
-      </Container>
-
-      {/* Location Section */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
-                background: 'linear-gradient(135deg, #69247C 0%, #DA498D 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                mb: 1,
-                textAlign: 'center',
-              }}
-            >
-              Project Locations
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: '#666666',
-                fontSize: '16px',
-                mb: 3,
-                textAlign: 'center',
-              }}
-            >
-              Explore projects by location
-            </Typography>
-          </Box>
-
-          {/* Location Grid */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
-              gap: 2.5,
-            }}
-          >
-            {[
-              { name: 'Mumbai', projects: 12, gradientStart: '#4ECDC4', gradientEnd: '#2E9E96' }, // Teal
-              { name: 'Delhi', projects: 8, gradientStart: '#FF8C42', gradientEnd: '#FF6B00' }, // Orange
-              { name: 'Bangalore', projects: 10, gradientStart: '#FF5252', gradientEnd: '#D32F2F' }, // Red
-              { name: 'Chennai', projects: 6, gradientStart: '#81C784', gradientEnd: '#66BB6A' }, // Mint Green
-              { name: 'Hyderabad', projects: 7, gradientStart: '#9C27B0', gradientEnd: '#7B1FA2' }, // Purple
-              { name: 'Pune', projects: 5, gradientStart: '#FFD54F', gradientEnd: '#FFC107' }, // Yellow
-              { name: 'Kolkata', projects: 4, gradientStart: '#69247C', gradientEnd: '#DA498D' }, // Purple-Pink
-              { name: 'Ahmedabad', projects: 3, gradientStart: '#2196F3', gradientEnd: '#1976D2' }, // Blue
-            ].map((location, index) => {
-              return (
-                <motion.div
-                  key={location.name}
-                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, amount: 0.1 }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: index * 0.1,
-                    ease: "easeOut" 
-                  }}
-                >
-                  <LocationCard>
-                    <Box
-                      sx={{
-                        position: 'relative',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '40px',
-                        height: '40px',
-                      }}
-                    >
-                      <svg
-                        width="36"
-                        height="36"
-                        viewBox="0 0 24 24"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
-                          position: 'relative',
-                          zIndex: 2,
-                        }}
-                      >
-                        <defs>
-                          <linearGradient id={`pin-gradient-${location.name.replace(/\s+/g, '-')}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor={location.gradientStart} />
-                            <stop offset="100%" stopColor={location.gradientEnd} />
-                          </linearGradient>
-                        </defs>
-                        <path
-                          d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                          fill={`url(#pin-gradient-${location.name.replace(/\s+/g, '-')})`}
-                        />
-                      </svg>
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          bottom: '-4px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          width: '16px',
-                          height: '4px',
-                          borderRadius: '50%',
-                          background: 'rgba(0, 0, 0, 0.15)',
-                          filter: 'blur(3px)',
-                          zIndex: 0,
-                        }}
-                      />
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: '16px',
-                          color: '#333333',
-                          mb: 0.5,
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {location.name}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: '#666666',
-                          fontSize: '13px',
-                          fontWeight: 400,
-                        }}
-                      >
-                        {location.projects} projects
-                      </Typography>
-                    </Box>
-                  </LocationCard>
-                </motion.div>
-              );
-            })}
-          </Box>
-        </motion.div>
-      </Container>
-
-      {/* Thank You Banner */}
-      <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        >
-          <Paper
-            sx={{
-              borderRadius: '24px',
-              padding: { xs: 4, sm: 5, md: 6 },
-              background: 'linear-gradient(135deg, #69247C 0%, #DA498D 50%, #69247C 100%)',
-              backgroundSize: '200% auto',
-              color: 'white',
-              position: 'relative',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(105, 36, 124, 0.3)',
-              animation: 'gradientShift 5s ease infinite',
-              '@keyframes gradientShift': {
-                '0%': {
-                  backgroundPosition: '0% 50%',
-                },
-                '50%': {
-                  backgroundPosition: '100% 50%',
-                },
-                '100%': {
-                  backgroundPosition: '0% 50%',
-                },
-              },
-            }}
-          >
-            {/* Decorative elements */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: -50,
-                right: -50,
-                width: 200,
-                height: 200,
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.1)',
-                zIndex: 0,
-              }}
-            />
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: -30,
-                left: -30,
-                width: 150,
-                height: 150,
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.08)',
-                zIndex: 0,
-              }}
-            />
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: 300,
-                height: 300,
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.05)',
-                zIndex: 0,
-              }}
-            />
-
-            {/* Content */}
-            <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-              <motion.div
-                animate={{
-                  scale: [1, 1.03, 1],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  repeatDelay: 1
-                }}
-              >
-                <StarIcon
-                  sx={{
-                    fontSize: { xs: 40, sm: 50, md: 60 },
-                    mb: 2,
-                    color: 'white',
-                    opacity: 0.9,
-                  }}
-                />
-              </motion.div>
-              
-              <Typography
-                variant="h2"
-                sx={{
-                  fontWeight: 700,
-                  fontSize: { xs: '28px', sm: '36px', md: '44px', lg: '52px' },
-                  mb: 2,
-                  textShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-                }}
-              >
-                Thank You!
-              </Typography>
-              
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 500,
-                  fontSize: { xs: '18px', sm: '22px', md: '26px' },
-                  mb: 3,
-                  opacity: 0.95,
-                  lineHeight: 1.6,
-                }}
-              >
-                Thank you for being part of our community
-              </Typography>
-              
-              <Typography
-                variant="body1"
-                sx={{
-                  fontSize: { xs: '14px', sm: '16px', md: '18px' },
-                  opacity: 0.9,
-                  lineHeight: 1.8,
-                  maxWidth: '600px',
-                  mx: 'auto',
-                  mb: 4,
-                }}
-              >
-                We appreciate your dedication and look forward to helping you achieve your professional goals. Keep exploring, keep growing, and keep shining!
-              </Typography>
-
-              <motion.div
-                animate={{
-                  y: [0, -8, 0],
-                }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  repeatDelay: 0.5
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    px: 4,
-                    py: 2,
-                    borderRadius: '50px',
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    backdropFilter: 'blur(10px)',
-                    border: '2px solid rgba(255, 255, 255, 0.3)',
-                  }}
-                >
-                  <FavoriteIcon sx={{ fontSize: 24, color: '#FFD700' }} />
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: '16px',
-                    }}
-                  >
-                    Made with Love
-                  </Typography>
-                </Box>
-              </motion.div>
-            </Box>
-          </Paper>
         </motion.div>
       </Container>
 
