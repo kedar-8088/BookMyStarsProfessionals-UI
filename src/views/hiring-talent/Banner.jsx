@@ -242,3 +242,4 @@ Banner.propTypes = {
 };
 
 export default Banner;
+

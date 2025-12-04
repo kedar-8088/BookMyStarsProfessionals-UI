@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Collapse from '@mui/material/Collapse';
-import { IconLayoutGrid, IconUsers } from '@tabler/icons-react';
+import { IconLayoutGrid, IconUsers, IconBriefcase } from '@tabler/icons-react';
 
 const SidebarSwitch = () => {
     const theme = useTheme();
@@ -23,6 +23,8 @@ const SidebarSwitch = () => {
             setSelectedSwitch('Dashboard');
         } else if (path.includes('/professional')) {
             setSelectedSwitch('Professional');
+        } else if (path.includes('/hiring-talent')) {
+            setSelectedSwitch('Hiring-talent');
         }
     }, [location]);
 
@@ -39,6 +41,12 @@ const SidebarSwitch = () => {
     const handleProfessional = () => {
         setSelectedSwitch('Professional');
         navigate('/professional');
+        setOpen(false);
+    };
+
+    const handleHiringTalent = () => {
+        setSelectedSwitch('Hiring-talent');
+        navigate('/hiring-talent');
         setOpen(false);
     };
 
@@ -171,6 +179,39 @@ const SidebarSwitch = () => {
                         }}
                     >
                         Professional
+                    </Button>
+                    <Button
+                        fullWidth
+                        variant={selectedSwitch === 'Hiring-talent' ? 'contained' : 'outlined'}
+                        startIcon={<IconBriefcase stroke={1.5} size="1.1rem" />}
+                        onClick={handleHiringTalent}
+                        sx={{
+                            justifyContent: 'flex-start',
+                            textTransform: 'none',
+                            borderRadius: `${customization.borderRadius}px`,
+                            py: 0.875,
+                            px: 1.5,
+                            fontSize: '0.875rem',
+                            ...(selectedSwitch === 'Hiring-talent' && {
+                                background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+                                color: theme.palette.common.white,
+                                '&:hover': {
+                                    background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+                                    opacity: 0.9
+                                }
+                            }),
+                            ...(selectedSwitch !== 'Hiring-talent' && {
+                                borderColor: theme.palette.divider,
+                                color: theme.palette.text.primary,
+                                '&:hover': {
+                                    borderColor: '#DA498D',
+                                    backgroundColor: theme.palette.secondary.light,
+                                    color: '#DA498D'
+                                }
+                            })
+                        }}
+                    >
+                        Hiring-talent
                     </Button>
                 </Box>
             </Collapse>
