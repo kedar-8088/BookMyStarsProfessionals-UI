@@ -1,0 +1,13 @@
+export { default as HomeRoute } from './HomeRoute';
+export { default as ProfessionalRoute } from './ProfessionalRoute';
+export { default as FeaturesRoute } from './FeaturesRoute';
+export { default as BasicInfoRoute } from './BasicInfoRoute';
+export { default as PhysicalDetailsRoute } from './PhysicalDetailsRoute';
+export { default as ShowcaseRoute } from './ShowcaseRoute';
+export { default as EducationBackgroundRoute } from './EducationBackgroundRoute';
+export { default as PreferencesRoute } from './PreferencesRoute';
+export { default as CompleteProfileRoute } from './CompleteProfileRoute';
+export { default as LoginRoute } from './LoginRoute';
+export { default as SignupRoute } from './SignupRoute';
+export { default as OtpVerificationRoute } from './OtpVerificationRoute';
+export { default as UserLandingRoute } from './UserLandingRoute';
