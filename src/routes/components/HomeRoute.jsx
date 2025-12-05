@@ -154,7 +154,10 @@ const HomeRoute = () => {
           setCategories(dummyCategories);
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        // Silently handle 401 errors (unauthorized) - expected when user is not logged in
+        if (error.response?.status !== 401) {
+          console.error('Error fetching categories:', error);
+        }
         // Use dummy categories as fallback
         setCategories(dummyCategories);
       } finally {
@@ -178,7 +181,10 @@ const HomeRoute = () => {
           setProjects(dummyProjects);
         }
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        // Silently handle 401 errors (unauthorized) - expected when user is not logged in
+        if (error.response?.status !== 401) {
+          console.error('Error fetching projects:', error);
+        }
         // Use dummy projects as fallback
         setProjects(dummyProjects);
       } finally {
@@ -211,7 +217,10 @@ const HomeRoute = () => {
           setStates([]);
         }
       } catch (error) {
-        console.error('Error fetching states:', error);
+        // Silently handle 401 errors (unauthorized) - expected when user is not logged in
+        if (error.response?.status !== 401) {
+          console.error('Error fetching states:', error);
+        }
         // Use empty array as fallback
         setStates([]);
       } finally {
@@ -283,7 +292,7 @@ const HomeRoute = () => {
                 mb: 4,
               }}
             >
-              Explore projects by category
+              Explore job by category
             </Typography>
           </Box>
 
@@ -421,7 +430,7 @@ const HomeRoute = () => {
                 textAlign: 'center',
               }}
             >
-              Explore projects by location
+              Explore services by location
             </Typography>
           </Box>
 

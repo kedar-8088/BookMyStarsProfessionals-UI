@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Box, Container, Typography, TextField, FormControl, InputLabel, Select, MenuItem, Button, Chip, IconButton, CircularProgress } from '@mui/material';
+import { Box, Container, Typography, TextField, FormControl, InputLabel, Select, MenuItem, Button, Chip, IconButton, CircularProgress, useTheme } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
@@ -30,31 +30,34 @@ import Swal from 'sweetalert2';
 const CarouselContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  maxWidth: '100%',
-  minHeight: '200px',
-  borderRadius: '16px',
+  maxWidth: '80%',
+  minHeight: '150px',
+  borderRadius: '8px',
   overflow: 'hidden',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   margin: '0 auto',
   [theme.breakpoints.down('xl')]: {
-    maxWidth: '100%',
+    maxWidth: '85%',
   },
   [theme.breakpoints.down('lg')]: {
-    maxWidth: '100%',
+    maxWidth: '90%',
   },
   [theme.breakpoints.down('md')]: {
     borderRadius: '8px',
-    minHeight: '180px',
+    minHeight: '130px',
+    maxWidth: '95%',
   },
   [theme.breakpoints.down('sm')]: {
     borderRadius: '6px',
-    minHeight: '150px',
+    minHeight: '110px',
+    maxWidth: '98%',
   },
   [theme.breakpoints.down('xs')]: {
     borderRadius: '4px',
-    minHeight: '120px',
+    minHeight: '90px',
+    maxWidth: '100%',
   },
 }));
 
@@ -88,6 +91,7 @@ const ContentBox = styled(Box)(({ theme }) => ({
 const EducationBackgroundPage = () => {
   // Navigation
   const navigate = useNavigate();
+  const theme = useTheme();
   const [searchParams] = useSearchParams();
   const activeSection = searchParams.get('section'); // Get the section parameter from URL
 
@@ -1337,9 +1341,24 @@ const EducationBackgroundPage = () => {
         }}>
           <Box sx={{ 
             width: '100%', 
-            maxWidth: '100%', 
+            maxWidth: '80%', 
             mx: 'auto',
-            px: { xs: 0, sm: 1, md: 2 }
+            px: { xs: 0, sm: 0.5, md: 1 },
+            [theme.breakpoints.down('xl')]: {
+              maxWidth: '85%',
+            },
+            [theme.breakpoints.down('lg')]: {
+              maxWidth: '90%',
+            },
+            [theme.breakpoints.down('md')]: {
+              maxWidth: '95%',
+            },
+            [theme.breakpoints.down('sm')]: {
+              maxWidth: '98%',
+            },
+            [theme.breakpoints.down('xs')]: {
+              maxWidth: '100%',
+            },
           }}>
             <Box
               sx={{
@@ -1350,37 +1369,34 @@ const EducationBackgroundPage = () => {
                 justifyContent: 'center'
               }}
             >
-              {banners.length > 1 && !bannersLoading && (
-                <IconButton
-                  onClick={handlePreviousBanner}
-                  sx={{
-                    position: 'absolute',
-                    left: { xs: 5, sm: 10, md: 15 },
-                    zIndex: 3,
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    width: { xs: 36, sm: 40, md: 44 },
-                    height: { xs: 36, sm: 40, md: 44 },
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 1)',
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                    },
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                  }}
-                >
-                  <ChevronLeft sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#69247C' }} />
-                </IconButton>
-              )}
 
               {bannersLoading ? (
                 <Box
                   sx={{
                     width: '100%',
-                    height: { xs: '150px', sm: '200px', md: '250px', lg: '310px' },
+                    maxWidth: '80%',
+                    height: { xs: '110px', sm: '150px', md: '190px', lg: '230px' },
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: '#f5f5f5',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    mx: 'auto',
+                    [theme.breakpoints.down('xl')]: {
+                      maxWidth: '85%',
+                    },
+                    [theme.breakpoints.down('lg')]: {
+                      maxWidth: '90%',
+                    },
+                    [theme.breakpoints.down('md')]: {
+                      maxWidth: '95%',
+                    },
+                    [theme.breakpoints.down('sm')]: {
+                      maxWidth: '98%',
+                    },
+                    [theme.breakpoints.down('xs')]: {
+                      maxWidth: '100%',
+                    },
                   }}
                 >
                   <CircularProgress size={40} sx={{ color: '#69247C' }} />
@@ -1398,8 +1414,7 @@ const EducationBackgroundPage = () => {
                     <Box
                       sx={{
                         width: '100%',
-                        maxWidth: '100%',
-                        height: { xs: '150px', sm: '200px', md: '250px', lg: '310px' },
+                        height: { xs: '110px', sm: '150px', md: '190px', lg: '230px' },
                         position: 'relative',
                         overflow: 'hidden'
                       }}
@@ -1415,43 +1430,68 @@ const EducationBackgroundPage = () => {
                           display: 'block'
                         }}
                       />
+                      
+                      {banners.length > 1 && !bannersLoading && (
+                        <>
+                          <IconButton
+                            onClick={handlePreviousBanner}
+                            sx={{
+                              position: 'absolute',
+                              left: { xs: 4, sm: 6, md: 8 },
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              zIndex: 3,
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              width: { xs: 28, sm: 32, md: 36 },
+                              height: { xs: 28, sm: 32, md: 36 },
+                              '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 1)',
+                                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.25)'
+                              },
+                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
+                            }}
+                          >
+                            <ChevronLeft sx={{ fontSize: { xs: 18, sm: 20, md: 22 }, color: '#69247C' }} />
+                          </IconButton>
+                          
+                          <IconButton
+                            onClick={handleNextBanner}
+                            sx={{
+                              position: 'absolute',
+                              right: { xs: 4, sm: 6, md: 8 },
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              zIndex: 3,
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              width: { xs: 28, sm: 32, md: 36 },
+                              height: { xs: 28, sm: 32, md: 36 },
+                              '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 1)',
+                                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.25)'
+                              },
+                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
+                            }}
+                          >
+                            <ChevronRight sx={{ fontSize: { xs: 18, sm: 20, md: 22 }, color: '#69247C' }} />
+                          </IconButton>
+                        </>
+                      )}
                     </Box>
                   </CarouselContainer>
                 </motion.div>
               ) : null}
 
               {banners.length > 1 && !bannersLoading && (
-                <IconButton
-                  onClick={handleNextBanner}
-                  sx={{
-                    position: 'absolute',
-                    right: { xs: 5, sm: 10, md: 15 },
-                    zIndex: 3,
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    width: { xs: 36, sm: 40, md: 44 },
-                    height: { xs: 36, sm: 40, md: 44 },
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 1)',
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                    },
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                  }}
-                >
-                  <ChevronRight sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#69247C' }} />
-                </IconButton>
-              )}
-
-              {banners.length > 1 && !bannersLoading && (
                 <Box
                   sx={{
                     position: 'absolute',
-                    bottom: { xs: 8, sm: 12, md: 16 },
+                    bottom: { xs: 6, sm: 8, md: 10, lg: 12 },
                     left: '50%',
                     transform: 'translateX(-50%)',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    gap: 1.5,
+                    gap: { xs: 1, sm: 1.25, md: 1.5 },
                     zIndex: 3
                   }}
                 >
@@ -1460,27 +1500,28 @@ const EducationBackgroundPage = () => {
                       key={index}
                       onClick={() => setCurrentBannerIndex(index)}
                       sx={{
-                        width: 8,
-                        height: 8,
+                        width: { xs: 8, sm: 9, md: 10 },
+                        height: { xs: 8, sm: 9, md: 10 },
                         borderRadius: '50%',
                         backgroundColor: currentBannerIndex === index 
                           ? '#FFFFFF' 
-                          : 'rgba(105, 36, 124, 0.4)',
+                          : 'rgba(105, 36, 124, 0.5)',
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         boxShadow: currentBannerIndex === index 
-                          ? '0 2px 4px rgba(0, 0, 0, 0.2)' 
-                          : 'none',
-                        filter: currentBannerIndex === index 
-                          ? 'none' 
-                          : 'blur(0.5px)',
-                        opacity: currentBannerIndex === index ? 1 : 0.6,
+                          ? '0 2px 6px rgba(0, 0, 0, 0.3)' 
+                          : '0 1px 3px rgba(0, 0, 0, 0.2)',
+                        border: currentBannerIndex === index 
+                          ? '1px solid rgba(105, 36, 124, 0.3)' 
+                          : '1px solid rgba(255, 255, 255, 0.3)',
+                        opacity: currentBannerIndex === index ? 1 : 0.7,
                         '&:hover': {
                           backgroundColor: currentBannerIndex === index 
                             ? '#FFFFFF' 
-                            : 'rgba(105, 36, 124, 0.6)',
-                          transform: 'scale(1.15)',
-                          opacity: 1
+                            : 'rgba(105, 36, 124, 0.7)',
+                          transform: 'scale(1.2)',
+                          opacity: 1,
+                          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.4)'
                         }
                       }}
                     />

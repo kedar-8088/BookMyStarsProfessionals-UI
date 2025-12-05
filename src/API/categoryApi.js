@@ -6,10 +6,16 @@ import { sessionManager } from './authApi';
 // Helper function to get authenticated headers
 const getAuthHeaders = () => {
   const token = sessionManager.getAuthToken();
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+  const headers = {
+    'Content-Type': 'application/json'
   };
+  
+  // Only add Authorization header if token exists
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
 };
 
 // Fetch categories with pagination
