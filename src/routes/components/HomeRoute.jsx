@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Box, Typography, CircularProgress, Card, CardContent, Grid } from '@mui/material';
+import { Container, Box, Typography, CircularProgress, Card, CardContent, Grid, Button } from '@mui/material';
 import { motion } from 'framer-motion';
 import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 import { Hero, CardsSection, LandingHeader } from '../../components';
 import HomeFooter from '../../components/layout/HomeFooter';
 import { getAllCategories } from '../../API/categoryApi';
@@ -127,6 +128,7 @@ const getLocationGradient = (index) => {
 };
 
 const HomeRoute = () => {
+  const navigate = useNavigate();
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -260,6 +262,73 @@ const HomeRoute = () => {
       <LandingHeader />
       <Hero />
       <CardsSection />
+      
+      {/* Agency Banner Section */}
+      <Container 
+        maxWidth={false} 
+        sx={{ 
+          mt: 8, 
+          mb: 6, 
+          px: { xs: 2, sm: 3, md: 4, lg: 6 },
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: '1440px',
+            height: '93px',
+            background: '#FAC67A',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: { xs: 3, sm: 4, md: 6 },
+            opacity: 1,
+          }}
+        >
+          <Typography
+            sx={{
+              fontFamily: 'Be Vietnam Pro',
+              fontWeight: 600,
+              fontStyle: 'normal',
+              fontSize: { xs: '24px', sm: '28px', md: '32px' },
+              lineHeight: '150%',
+              letterSpacing: '0%',
+              color: '#69247C',
+            }}
+          >
+            Are You an agency ?
+          </Typography>
+          <Button
+            onClick={() => navigate('/agency/register')}
+            sx={{
+              minWidth: '109px',
+              height: 'auto',
+              padding: '8px 16px',
+              fontFamily: 'Poppins',
+              fontWeight: 500,
+              fontStyle: 'normal',
+              fontSize: '16px',
+              lineHeight: '150%',
+              letterSpacing: '0%',
+              color: '#444444',
+              backgroundColor: '#FFFFFF',
+              borderRadius: '24px',
+              textTransform: 'none',
+              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+              cursor: 'pointer',
+              '&:hover': {
+                backgroundColor: '#FFFFFF',
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.15)',
+              },
+            }}
+          >
+            Register now
+          </Button>
+        </Box>
+      </Container>
       
       {/* Project Categories Section */}
       <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>

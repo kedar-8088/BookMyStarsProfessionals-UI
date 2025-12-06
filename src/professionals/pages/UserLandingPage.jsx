@@ -44,6 +44,7 @@ const ProfileNavBar = () => {
             component="img"
             src={BookMyStarsLogo}
             alt="BookMyStars Logo"
+            onClick={() => navigate('/')}
             sx={{
               height: { xs: 40, sm: 48, md: 56 },
               width: 'auto',
@@ -54,6 +55,12 @@ const ProfileNavBar = () => {
               backgroundColor: '#fff', // White background
               borderRadius: '6px',    // Rounded corners
               p: 0.5,                 // Padding
+              cursor: 'pointer',      // Pointer cursor on hover
+              transition: 'transform 0.2s ease, boxShadow 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              },
             }}
           />
         </Typography>
@@ -130,33 +137,6 @@ const ProfileNavBar = () => {
             </Box>
             <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
                Profile
-            </Typography>
-          </MenuItem>
-          
-          <MenuItem 
-            onClick={() => { handleMenuClose(); navigate('/'); }}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
-              color: '#333333',
-              fontWeight: 500
-            }}
-          >
-            <Box sx={{ 
-              width: 24, 
-              height: 24, 
-              borderRadius: '50%', 
-              background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white'
-            }}>
-              <HomeIcon sx={{ fontSize: 16 }} />
-            </Box>
-            <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500 }}>
-              Home
             </Typography>
           </MenuItem>
           

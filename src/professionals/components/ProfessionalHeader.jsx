@@ -113,6 +113,7 @@ const ProfessionalHeader = () => {
                 component="img"
                 src={BookMyStarsLogo}
                 alt="BookMyStars Logo"
+                onClick={() => navigate('/')}
                 sx={{
                   height: { xs: 36, sm: 42, md: 50, lg: 56 },
                   width: 'auto',
@@ -123,6 +124,12 @@ const ProfessionalHeader = () => {
                   backgroundColor: '#fff', // White background
                   borderRadius: '6px',    // Rounded corners
                   p: { xs: 0.3, sm: 0.4, md: 0.5 }, // Responsive padding
+                  cursor: 'pointer',      // Pointer cursor on hover
+                  transition: 'transform 0.2s ease, boxShadow 0.2s ease',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  },
                 }}
               />
             </Typography>
@@ -143,22 +150,6 @@ const ProfessionalHeader = () => {
                 flexWrap: 'nowrap',
                 justifyContent: 'flex-end'
               }}>
-                <Button 
-                  color="inherit" 
-                  startIcon={showButtonIcons ? <HomeIcon sx={{ fontSize: { sm: 18, md: 18, lg: 20 } }} /> : null}
-                  sx={{ 
-                    color: 'white', 
-                    fontWeight: 400, 
-                    fontSize: { sm: '12px', md: '13px', lg: '14px' },
-                    minWidth: { sm: 64, md: 'auto', lg: 64 },
-                    px: { sm: 1.5, md: 1.5, lg: 2 },
-                    py: { sm: 0.5, md: 0.75 },
-                    mt: { sm: 0.5, md: 0 }
-                  }}
-                  onClick={() => navigate('/')}
-                >
-                  Home
-                </Button>
                 {isLoggedIn && (
                   <Button 
                     color="inherit" 
@@ -334,34 +325,6 @@ const ProfessionalHeader = () => {
             }}
             sx={{ display: { xs: 'block', md: 'none' } }}
           >
-            <MenuItem 
-              onClick={() => { handleMobileMenuClose(); navigate('/'); }}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.5,
-                color: '#333333',
-                fontWeight: 500
-              }}
-            >
-              <Box sx={{ 
-                width: { xs: 22, sm: 24 }, 
-                height: { xs: 22, sm: 24 }, 
-                borderRadius: '50%', 
-                background: 'linear-gradient(135deg, #DA498D 0%, #69247C 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                flexShrink: 0
-              }}>
-                <HomeIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />
-              </Box>
-              <Typography sx={{ fontFamily: 'Poppins', fontWeight: 500, fontSize: { xs: '14px', sm: '15px' } }}>
-                Home
-              </Typography>
-            </MenuItem>
-            
             {isLoggedIn && (
               <MenuItem 
                 onClick={() => { handleMobileMenuClose(); navigate('/dashboard'); }}

@@ -18,7 +18,7 @@ const LogoSection = () => {
     const isDashboard = location.pathname.startsWith('/dashboard');
 
     return (
-        <ButtonBase disableRipple onClick={() => dispatch({ type: MENU_OPEN, id: defaultId })} component={Link} to={config.defaultPath}>
+        <ButtonBase disableRipple onClick={() => dispatch({ type: MENU_OPEN, id: defaultId })} component={Link} to="/">
             <Logo width={isDashboard ? 120 : 70} />
         </ButtonBase>
     );

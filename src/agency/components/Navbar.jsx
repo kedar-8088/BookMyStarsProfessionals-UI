@@ -14,7 +14,7 @@ const GradientAppBar = styled(AppBar)(({ theme }) => ({
   borderBottom: '1px solid #4a90e2',
 }));
 
-const BasicInfoNavbar = () => {
+const Navbar = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -215,4 +215,5 @@ const BasicInfoNavbar = () => {
   );
 };
 
-export default BasicInfoNavbar;
+export default Navbar;
+

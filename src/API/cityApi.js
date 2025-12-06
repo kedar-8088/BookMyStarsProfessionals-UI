@@ -234,6 +234,13 @@ export const getCitiesByStateId = async (stateId) => {
     // The response.data already contains the backend response structure
     return response;
   } catch (error) {
+    // Silently handle 401 errors (unauthorized) - expected when user is not logged in
+    // Registration page may be accessed without authentication
+    if (error.response?.status === 401) {
+      // Return error response without logging - it's expected for unauthenticated users
+      return error.response;
+    }
+    // Log other errors for debugging
     console.error('Error getting cities by state ID:', error);
     // Return error response in same format for consistency
     if (error.response) {

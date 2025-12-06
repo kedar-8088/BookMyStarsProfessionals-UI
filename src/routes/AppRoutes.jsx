@@ -16,6 +16,8 @@ import {
   UserLandingRoute
 } from './components';
 import Dashboard from '../professionals/pages/Dashboard';
+import RegisterPage from '../agency/pages/RegisterPage';
+import OtpVerificationPage from '../agency/pages/OtpVerificationPage';
 
 const AppRoutes = () => {
   return (
@@ -32,8 +34,10 @@ const AppRoutes = () => {
       <Route path="/login" element={<LoginRoute />} />
       <Route path="/signup" element={<SignupRoute />} />
       <Route path="/otp-verification" element={<OtpVerificationRoute />} />
-  <Route path="/UserLanding" element={<UserLandingRoute />} />
-  <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/UserLanding" element={<UserLandingRoute />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/agency/register" element={<RegisterPage />} />
+      <Route path="/agency/otp-verification" element={<OtpVerificationPage />} />
     </Routes>
   );
 };
