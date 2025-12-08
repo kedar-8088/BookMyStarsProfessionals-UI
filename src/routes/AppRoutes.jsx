@@ -13,7 +13,8 @@ import {
   LoginRoute,
   SignupRoute,
   OtpVerificationRoute,
-  UserLandingRoute
+  UserLandingRoute,
+  SharedProfileRoute
 } from './components';
 import Dashboard from '../professionals/pages/Dashboard';
 import RegisterPage from '../agency/pages/RegisterPage';
@@ -31,6 +32,7 @@ const AppRoutes = () => {
       <Route path="/education-background" element={<EducationBackgroundRoute />} />
       <Route path="/preferences" element={<PreferencesRoute />} />
       <Route path="/complete-profile" element={<CompleteProfileRoute />} />
+      <Route path="/profile/:profileId" element={<SharedProfileRoute />} />
       <Route path="/login" element={<LoginRoute />} />
       <Route path="/signup" element={<SignupRoute />} />
       <Route path="/otp-verification" element={<OtpVerificationRoute />} />

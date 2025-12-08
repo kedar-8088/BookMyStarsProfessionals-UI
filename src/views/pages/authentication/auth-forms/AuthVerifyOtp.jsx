@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -23,6 +24,7 @@ import OTPInput from './OtpInput';
 
 const AuthVerifyOTP = ({ ...others }) => {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const navigate = useNavigate();
     const defaultOtp = '123456'; // Set OTP directly
     const [otp, setOtp] = useState(defaultOtp);
@@ -129,27 +131,63 @@ const AuthVerifyOTP = ({ ...others }) => {
         >
             {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
                 <form noValidate onSubmit={handleSubmit} {...others}>
-                    <FormControl fullWidth error={Boolean(touched.otp && errors.otp)} sx={{ ...theme.typography.customInput }}>
-                        <Typography variant="h6" gutterBottom>
+                    <FormControl 
+                        fullWidth 
+                        error={Boolean(touched.otp && errors.otp)} 
+                        sx={{ 
+                            ...theme.typography.customInput,
+                            mb: { xs: 2, sm: 3 }
+                        }}
+                    >
+                        <Typography 
+                            variant="h6" 
+                            gutterBottom
+                            sx={{
+                                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                                mb: { xs: 1.5, sm: 2 }
+                            }}
+                        >
                             Enter OTP
                         </Typography>
-                        <OTPInput
-                            value={values.otp} // Sync OTPInput with Formik values
-                            onChange={(newOtp) => handleChange({ target: { name: 'otp', value: newOtp } })} // Update Formik values
-                            length={6}
-                        />
+                        <Box sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'center',
+                            mb: { xs: 1, sm: 1.5 }
+                        }}>
+                            <OTPInput
+                                value={values.otp} // Sync OTPInput with Formik values
+                                onChange={(newOtp) => handleChange({ target: { name: 'otp', value: newOtp } })} // Update Formik values
+                                length={6}
+                            />
+                        </Box>
                         {touched.otp && errors.otp && (
-                            <FormHelperText error id="standard-weight-helper-text-otp">
+                            <FormHelperText 
+                                error 
+                                id="standard-weight-helper-text-otp"
+                                sx={{
+                                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                    mt: { xs: 0.5, sm: 1 }
+                                }}
+                            >
                                 {errors.otp}
                             </FormHelperText>
                         )}
                     </FormControl>
 
-                    <Stack direction="row" justifyContent="flex-end" spacing={1}>
+                    <Stack 
+                        direction="row" 
+                        justifyContent="flex-end" 
+                        spacing={1}
+                        sx={{ mb: { xs: 2, sm: 3 } }}
+                    >
                         <Typography
                             variant="subtitle1"
                             color="secondary"
-                            sx={{ textDecoration: 'none', cursor: 'pointer' }}
+                            sx={{ 
+                                textDecoration: 'none', 
+                                cursor: 'pointer',
+                                fontSize: { xs: '0.875rem', sm: '1rem' }
+                            }}
                             onClick={handleResendOTP}
                         >
                             Resend OTP?
@@ -157,22 +195,31 @@ const AuthVerifyOTP = ({ ...others }) => {
                     </Stack>
 
                     {errors.submit && (
-                        <Box sx={{ mt: 3 }}>
-                            <FormHelperText error>{errors.submit}</FormHelperText>
+                        <Box sx={{ mt: { xs: 2, sm: 3 } }}>
+                            <FormHelperText 
+                                error
+                                sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                            >
+                                {errors.submit}
+                            </FormHelperText>
                         </Box>
                     )}
 
-                    <Box sx={{ mt: 2 }}>
+                    <Box sx={{ mt: { xs: 1.5, sm: 2 } }}>
                         <AnimateButton>
                             <Button
                                 disableElevation
                                 fullWidth
-                                size="large"
+                                size={isMobile ? 'medium' : 'large'}
                                 type="submit"
                                 variant="contained"
                                 color="secondary"
                                 disabled={isSubmitting}
                                 onClick={() => navigate('/reset-password')}
+                                sx={{
+                                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                                    py: { xs: 1, sm: 1.25 }
+                                }}
                             >
                                 Verify OTP
                             </Button>

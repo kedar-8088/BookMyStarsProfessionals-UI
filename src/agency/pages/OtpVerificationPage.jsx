@@ -137,12 +137,13 @@ const OtpVerificationPage = () => {
               fontFamily: 'Poppins',
               fontWeight: 600,
               fontStyle: 'normal',
-              fontSize: '24px',
+              fontSize: { xs: '20px', sm: '22px', md: '24px' },
               lineHeight: '140%',
               letterSpacing: '0%',
               textAlign: 'center',
               color: '#DA498D',
               mb: 1.5,
+              px: { xs: 2, sm: 0 },
             }}
           >
             Register Your Agency
@@ -154,12 +155,13 @@ const OtpVerificationPage = () => {
               fontFamily: 'Poppins',
               fontWeight: 500,
               fontStyle: 'normal',
-              fontSize: '14px',
+              fontSize: { xs: '12px', sm: '13px', md: '14px' },
               lineHeight: '140%',
               letterSpacing: '0%',
               textAlign: 'center',
               color: '#69247C',
               mb: 3,
+              px: { xs: 2, sm: 0 },
             }}
           >
             Create your agency account and access tools to post your models or hire new talent.
@@ -179,14 +181,14 @@ const OtpVerificationPage = () => {
           />
           
           {/* Back Link */}
-          <Box sx={{ textAlign: 'left', display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/agency/register')}>
-            <ArrowBackIcon sx={{ color: '#69247C', mr: 0.5, fontSize: '18px' }} />
+          <Box sx={{ textAlign: 'left', display: 'flex', alignItems: 'center', cursor: 'pointer', px: { xs: 2, sm: 0 } }} onClick={() => navigate('/agency/register')}>
+            <ArrowBackIcon sx={{ color: '#69247C', mr: 0.5, fontSize: { xs: '16px', sm: '18px' } }} />
             <Typography
               sx={{
                 fontFamily: 'Poppins',
                 fontWeight: 600,
                 fontStyle: 'normal',
-                fontSize: '18px',
+                fontSize: { xs: '16px', sm: '18px' },
                 lineHeight: '140%',
                 letterSpacing: '0%',
                 color: '#69247C',
@@ -211,17 +213,18 @@ const OtpVerificationPage = () => {
           <Box
             sx={{
               backgroundColor: '#ffffff',
-              borderRadius: '16px',
+              borderRadius: { xs: '12px', sm: '16px' },
               border: '1px solid #F8BBD9',
               boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-              p: { xs: 3, sm: 4, md: 4 },
+              p: { xs: 2.5, sm: 3, md: 4 },
               maxWidth: '700px',
+              width: '100%',
               mx: 'auto',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              minHeight: { xs: '400px', sm: '457px' }
+              minHeight: { xs: 'auto', sm: '400px', md: '457px' }
             }}
           >
             {/* Title */}
@@ -230,26 +233,27 @@ const OtpVerificationPage = () => {
                 fontFamily: 'Poppins',
                 fontWeight: 600,
                 fontStyle: 'normal',
-                fontSize: '22px',
+                fontSize: { xs: '18px', sm: '20px', md: '22px' },
                 lineHeight: '100%',
                 letterSpacing: '0%',
                 color: '#12110D',
-                mb: 3,
-                textAlign: 'center'
+                mb: { xs: 2, sm: 3 },
+                textAlign: 'center',
+                px: { xs: 1, sm: 0 }
               }}
             >
               Enter the Code
             </Typography>
 
             {/* Verification Message */}
-            <Box sx={{ mb: 4, textAlign: 'center' }}>
+            <Box sx={{ mb: { xs: 3, sm: 4 }, textAlign: 'center', px: { xs: 1, sm: 0 } }}>
               <Typography
                 sx={{
                   fontFamily: 'Poppins',
                   fontWeight: 500,
                   fontStyle: 'normal',
-                  fontSize: '16px',
-                  lineHeight: '100%',
+                  fontSize: { xs: '14px', sm: '15px', md: '16px' },
+                  lineHeight: '140%',
                   letterSpacing: '0%',
                   color: '#5A5E60',
                   mb: 0.5
@@ -262,10 +266,11 @@ const OtpVerificationPage = () => {
                   fontFamily: 'Poppins',
                   fontWeight: 600,
                   fontStyle: 'normal',
-                  fontSize: '16px',
-                  lineHeight: '100%',
+                  fontSize: { xs: '14px', sm: '15px', md: '16px' },
+                  lineHeight: '140%',
                   letterSpacing: '0%',
-                  color: '#12110D'
+                  color: '#12110D',
+                  wordBreak: 'break-word'
                 }}
               >
                 {email}
@@ -286,9 +291,11 @@ const OtpVerificationPage = () => {
               <Box
                 sx={{
                   display: 'flex',
-                  gap: { xs: 1.5, sm: 2 },
+                  gap: { xs: 1, sm: 1.5, md: 2 },
                   justifyContent: 'center',
-                  mb: 3
+                  mb: { xs: 2.5, sm: 3 },
+                  flexWrap: 'wrap',
+                  px: { xs: 1, sm: 0 }
                 }}
               >
                 {[1, 2, 3, 4, 5, 6].map((index) => (
@@ -303,12 +310,13 @@ const OtpVerificationPage = () => {
                       style: { textAlign: 'center' }
                     }}
                     sx={{
-                      width: '53px',
-                      height: '53px',
+                      width: { xs: '45px', sm: '48px', md: '53px' },
+                      minWidth: { xs: '45px', sm: '48px', md: '53px' },
+                      height: { xs: '45px', sm: '48px', md: '53px' },
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '50px',
-                        height: '53px',
-                        width: '53px',
+                        height: { xs: '45px', sm: '48px', md: '53px' },
+                        width: { xs: '45px', sm: '48px', md: '53px' },
                         '& fieldset': {
                           borderColor: '#12110D66',
                           borderWidth: '1px'
@@ -323,7 +331,7 @@ const OtpVerificationPage = () => {
                       },
                       '& .MuiInputBase-input': {
                         fontFamily: 'Poppins',
-                        fontSize: '20px',
+                        fontSize: { xs: '18px', sm: '19px', md: '20px' },
                         fontWeight: 600,
                         color: '#12110D',
                         textAlign: 'center',
@@ -340,12 +348,13 @@ const OtpVerificationPage = () => {
                   fontFamily: 'Poppins',
                   fontWeight: 400,
                   fontStyle: 'normal',
-                  fontSize: '18px',
-                  lineHeight: '100%',
+                  fontSize: { xs: '14px', sm: '16px', md: '18px' },
+                  lineHeight: '140%',
                   letterSpacing: '0%',
                   color: '#12110D80',
-                  mb: 4,
-                  textAlign: 'center'
+                  mb: { xs: 3, sm: 4 },
+                  textAlign: 'center',
+                  px: { xs: 1, sm: 0 }
                 }}
               >
                 You can resend the code in {countdown} seconds
@@ -356,19 +365,21 @@ const OtpVerificationPage = () => {
                 type="submit"
                 disabled={loading}
                 sx={{
-                  width: { xs: '100%', sm: '400px' },
-                  height: '55px',
+                  width: { xs: '100%', sm: '400px', md: '400px' },
+                  maxWidth: { xs: '100%', sm: '400px' },
+                  height: { xs: '50px', sm: '52px', md: '55px' },
                   borderRadius: '50px',
                   background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
                   fontFamily: 'Poppins',
                   fontWeight: 500,
                   fontStyle: 'normal',
-                  fontSize: '16px',
+                  fontSize: { xs: '14px', sm: '15px', md: '16px' },
                   lineHeight: '140%',
                   letterSpacing: '0%',
                   textAlign: 'center',
                   color: '#FFFFFF',
                   textTransform: 'none',
+                  px: { xs: 2, sm: 0 },
                   '&:hover': {
                     background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
                     opacity: 0.9

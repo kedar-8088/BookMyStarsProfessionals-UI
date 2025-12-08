@@ -11,3 +11,4 @@ export { default as LoginRoute } from './LoginRoute';
 export { default as SignupRoute } from './SignupRoute';
 export { default as OtpVerificationRoute } from './OtpVerificationRoute';
 export { default as UserLandingRoute } from './UserLandingRoute';
+export { default as SharedProfileRoute } from './SharedProfileRoute';

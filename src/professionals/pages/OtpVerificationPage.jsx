@@ -589,19 +589,19 @@ const OtpVerificationPage = () => {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            px: { xs: 2, sm: 3, md: 4, lg: 6 },
-            py: { xs: 3, sm: 4 },
+            px: { xs: 1.5, sm: 3, md: 4, lg: 6 },
+            py: { xs: 2.5, sm: 3, md: 4 },
             backgroundColor: '#FFFFFF',
             borderRadius: { xs: '8px', md: '0' },
             boxShadow: { xs: '0 4px 20px rgba(0, 0, 0, 0.1)', md: 'none' }
           }}>
             {/* Header */}
             <Box sx={{ mb: { xs: 3, sm: 4 } }}>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 1.5, sm: 2 } }}>
                 <Box
                   sx={{
-                    width: 80,
-                    height: 80,
+                    width: { xs: 70, sm: 75, md: 80 },
+                    height: { xs: 70, sm: 75, md: 80 },
                     borderRadius: '50%',
                     background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
                     display: 'flex',
@@ -609,7 +609,7 @@ const OtpVerificationPage = () => {
                     justifyContent: 'center'
                   }}
                 >
-                  <SecurityIcon sx={{ fontSize: 40, color: 'white' }} />
+                  <SecurityIcon sx={{ fontSize: { xs: 35, sm: 38, md: 40 }, color: 'white' }} />
                 </Box>
               </Box>
               <Typography

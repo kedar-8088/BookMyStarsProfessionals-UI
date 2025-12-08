@@ -137,7 +137,10 @@ export const getAllProjects = async () => {
       headers: headers
     });
   } catch (error) {
-    console.error('Error getting all projects:', error);
+    // Silently handle 401 errors (unauthorized) - expected when user is not logged in
+    if (error.response?.status !== 401) {
+      console.error('Error getting all projects:', error);
+    }
     throw error;
   }
 };

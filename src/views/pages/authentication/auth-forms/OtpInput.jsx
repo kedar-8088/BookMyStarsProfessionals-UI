@@ -121,7 +121,13 @@ function OTP({ separator, length, value, onChange }) {
     };
 
     return (
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ 
+            display: 'flex', 
+            gap: { xs: 0.75, sm: 1 }, 
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+        }}>
             {new Array(length).fill(null).map((_, index) => (
                 <React.Fragment key={index}>
                     <BaseInput
@@ -198,6 +204,7 @@ const grey = {
 const InputElement = styled('input')(
     ({ theme }) => `
   width: 40px;
+  min-width: 40px;
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.875rem;
   font-weight: 400;
@@ -209,6 +216,18 @@ const InputElement = styled('input')(
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   box-shadow: 0px 2px 4px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.05)'};
+
+  @media (max-width: 600px) {
+    width: 36px;
+    min-width: 36px;
+    font-size: 0.75rem;
+    padding: 6px 0px;
+  }
+
+  @media (min-width: 600px) and (max-width: 960px) {
+    width: 38px;
+    min-width: 38px;
+  }
 
   &:hover {
     border-color: ${blue[400]};
