@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Alert, Menu, MenuItem, Switch, FormControlLabel } from '@mui/material';
+import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Alert, Menu, MenuItem } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import EditIcon from '@mui/icons-material/Edit';
@@ -36,8 +36,6 @@ const CompleteProfilePage = () => {
   const headlineMenuOpen = Boolean(headlineAnchorEl);
   const [showAllVideos, setShowAllVideos] = useState(false);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
-  const [isPrivate, setIsPrivate] = useState(false);
-  const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false);
   const isFetchingRef = useRef(false);
   const hasInitializedRef = useRef(false);
 
@@ -218,8 +216,6 @@ const CompleteProfilePage = () => {
         }
         
         setProfileData(profileData);
-        // Initialize Activity Status from profile data (default to false/public if not set)
-        setIsPrivate(profileData.isPrivate === true || profileData.private === true);
         console.log('✅ Profile data loaded successfully');
       } else {
         const errorMessage = response.data?.message || response.data?.error || 'Failed to fetch profile data';
@@ -276,25 +272,6 @@ const CompleteProfilePage = () => {
         title: 'Profile Not Ready',
         text: 'Please wait for your profile to load before sharing.',
         confirmButtonColor: '#69247C'
-      });
-      return;
-    }
-
-    // Check if profile is private
-    if (isPrivate) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Profile is Private',
-        html: `
-          <div style="text-align: left; padding: 10px 0;">
-            <p style="margin-bottom: 15px;">Your profile is currently set to <strong>Private</strong>.</p>
-            <p style="margin-bottom: 15px;">When shared via link, your profile will <strong>not be visible</strong> to others.</p>
-            <p>To make your profile visible when shared, please turn off the Activity Status toggle (set it to Public).</p>
-          </div>
-        `,
-        confirmButtonColor: '#69247C',
-        confirmButtonText: 'OK',
-        width: '500px'
       });
       return;
     }
@@ -1109,65 +1086,6 @@ const CompleteProfilePage = () => {
     }
   };
 
-  // Handle Activity Status toggle
-  const handleActivityStatusChange = async (event) => {
-    const newIsPrivate = event.target.checked;
-    setIsPrivate(newIsPrivate);
-    setIsUpdatingVisibility(true);
-
-    try {
-      if (!profileId) {
-        throw new Error('Profile ID not available');
-      }
-
-      // Prepare update data with visibility status
-      const updateData = {
-        professionalsProfileId: profileId,
-        isPrivate: newIsPrivate,
-        private: newIsPrivate
-      };
-
-      console.log('🔄 Updating profile visibility:', updateData);
-
-      // Update profile visibility
-      const response = await updateProfessionalsProfile(updateData);
-
-      if (response.success) {
-        // Update local profile data
-        setProfileData(prev => ({
-          ...prev,
-          isPrivate: newIsPrivate,
-          private: newIsPrivate
-        }));
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Visibility Updated',
-          text: newIsPrivate 
-            ? 'Your profile is now private. It will not be visible when shared via link.' 
-            : 'Your profile is now public. It will be visible when shared via link.',
-          confirmButtonColor: '#69247C',
-          timer: 2000,
-          showConfirmButton: true
-        });
-      } else {
-        throw new Error(response.error || 'Failed to update visibility');
-      }
-    } catch (error) {
-      console.error('❌ Error updating visibility:', error);
-      // Revert the toggle on error
-      setIsPrivate(!newIsPrivate);
-      
-      Swal.fire({
-        icon: 'error',
-        title: 'Update Failed',
-        text: error.message || 'An error occurred while updating profile visibility. Please try again.',
-        confirmButtonColor: '#69247C'
-      });
-    } finally {
-      setIsUpdatingVisibility(false);
-    }
-  };
 
   return (
     <>
@@ -2342,74 +2260,6 @@ const CompleteProfilePage = () => {
                 </Button>
               </Box>
 
-              {/* Activity Status Toggle Section */}
-              <Box sx={{ mt: { xs: 4, sm: 5 }, px: { xs: 2, sm: 0 } }}>
-                <Box sx={{ 
-                  border: '1px solid #DA498D', 
-                  borderRadius: '12px', 
-                  p: { xs: 2, sm: 3 }, 
-                  backgroundColor: 'white',
-                  maxWidth: '600px',
-                  mx: 'auto'
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-                    <Box sx={{ flex: 1, minWidth: '200px' }}>
-                      <Typography sx={{ 
-                        fontFamily: 'Poppins', 
-                        fontWeight: 600, 
-                        fontSize: { xs: '16px', sm: '18px' }, 
-                        color: '#333333', 
-                        mb: 0.5 
-                      }}>
-                        Activity Status
-                      </Typography>
-                      <Typography sx={{ 
-                        fontFamily: 'Poppins', 
-                        fontWeight: 400, 
-                        fontSize: { xs: '12px', sm: '14px' }, 
-                        color: '#666666',
-                        lineHeight: 1.5
-                      }}>
-                        {isPrivate 
-                          ? 'Your profile is private and will not be visible when shared via link.' 
-                          : 'Your profile is public and will be visible when shared via link.'}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Typography sx={{ 
-                        fontFamily: 'Poppins', 
-                        fontWeight: 500, 
-                        fontSize: { xs: '14px', sm: '16px' }, 
-                        color: isPrivate ? '#666666' : '#69247C'
-                      }}>
-                        {isPrivate ? 'Private' : 'Public'}
-                      </Typography>
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={isPrivate}
-                            onChange={handleActivityStatusChange}
-                            disabled={isUpdatingVisibility || !profileData}
-                            sx={{
-                              '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: '#DA498D',
-                              },
-                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: '#DA498D',
-                              },
-                            }}
-                          />
-                        }
-                        label=""
-                        sx={{ m: 0 }}
-                      />
-                      {isUpdatingVisibility && (
-                        <CircularProgress size={20} sx={{ color: '#DA498D' }} />
-                      )}
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
             </Box>
           </Box>
         </Box>
