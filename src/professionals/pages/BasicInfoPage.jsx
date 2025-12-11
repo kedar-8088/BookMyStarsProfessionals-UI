@@ -1,10 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Box, Container, Typography, Button, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, IconButton, useTheme } from '@mui/material';
+import { Box, Container, Typography, Button, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, IconButton, useTheme, Card } from '@mui/material';
 import Swal from 'sweetalert2';
 import { motion, useInView } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import talentBannerImg from '../../assets/images/Talent  Banner.png';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -18,41 +19,6 @@ import { sessionManager } from '../../API/authApi';
 import { getProfileImageInfo, downloadProfileImage } from '../../API/basicInfoApi';
 import { BaseUrl } from '../../BaseUrl';
 import { fetchBanner } from '../../API/bannerApi';
-import AuthImage from '../../components/common/AuthImage';
-
-const CarouselContainer = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  width: '100%',
-  maxWidth: '80%',
-  minHeight: '150px',
-  borderRadius: '8px',
-  overflow: 'hidden',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  margin: '0 auto',
-  [theme.breakpoints.down('xl')]: {
-    maxWidth: '85%',
-  },
-  [theme.breakpoints.down('lg')]: {
-    maxWidth: '90%',
-  },
-  [theme.breakpoints.down('md')]: {
-    borderRadius: '8px',
-    minHeight: '130px',
-    maxWidth: '95%',
-  },
-  [theme.breakpoints.down('sm')]: {
-    borderRadius: '6px',
-    minHeight: '110px',
-    maxWidth: '98%',
-  },
-  [theme.breakpoints.down('xs')]: {
-    borderRadius: '4px',
-    minHeight: '90px',
-    maxWidth: '100%',
-  },
-}));
 
 const ContentBox = styled(Box)(({ theme }) => ({
   flex: 1,
@@ -120,6 +86,9 @@ const BasicInfoPage = () => {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [banners, setBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
+  const [imageLoadingStates, setImageLoadingStates] = useState({});
+  const [preloadedImages, setPreloadedImages] = useState(new Set());
+  const [failedImages, setFailedImages] = useState(new Set());
 
   // Helper function to clean phone number
   const cleanPhoneNumber = (phoneNumber) => {
@@ -233,7 +202,9 @@ const BasicInfoPage = () => {
           .filter((ad) => ad.filePath && ad.filePath.trim() !== '' && !ad.isDelete)
           .map((ad) => ({
             advertisementId: ad.advertisementId,
-            filePath: ad.filePath
+            filePath: ad.filePath,
+            advertisementName: ad.advertisementName || ad.name,
+            description: ad.description
           }));
         
         setBanners(bannerData);
@@ -255,6 +226,113 @@ const BasicInfoPage = () => {
     }
   }, [banners, currentBannerIndex]);
 
+  // Continuous auto-slide for banner carousel
+  useEffect(() => {
+    if (banners.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % banners.length);
+    }, 6000); // Change slide every 6 seconds
+
+    return () => clearInterval(interval);
+  }, [banners.length]);
+
+  // Normalize file path
+  const normalizePath = (filePath) => {
+    if (!filePath) return '';
+    return filePath.replace(/\\/g, '/');
+  };
+
+  // Get image URL from file path
+  const getImageUrl = (filePath) => {
+    if (!filePath) return '';
+    const normalizedPath = normalizePath(filePath);
+    const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+    return `${BaseUrl}/file/downloadFile/?filePath=${encodeURIComponent(normalizedPath)}`;
+  };
+
+  // Preload image
+  const preloadImage = (url) => {
+    if (!url || preloadedImages.has(url) || failedImages.has(url)) return;
+    
+    const img = new Image();
+    img.onload = () => {
+      setPreloadedImages(prev => new Set([...prev, url]));
+    };
+    img.onerror = () => {
+      setFailedImages(prev => new Set([...prev, url]));
+    };
+    img.src = url;
+  };
+
+  // Preload adjacent images
+  useEffect(() => {
+    if (banners.length === 0) return;
+
+    const currentBanner = banners[currentBannerIndex];
+    if (currentBanner?.filePath) {
+      const currentUrl = getImageUrl(currentBanner.filePath);
+      preloadImage(currentUrl);
+    }
+
+    // Preload next image
+    const nextIndex = (currentBannerIndex + 1) % banners.length;
+    const nextBanner = banners[nextIndex];
+    if (nextBanner?.filePath) {
+      const nextUrl = getImageUrl(nextBanner.filePath);
+      preloadImage(nextUrl);
+    }
+
+    // Preload previous image
+    const prevIndex = (currentBannerIndex - 1 + banners.length) % banners.length;
+    const prevBanner = banners[prevIndex];
+    if (prevBanner?.filePath) {
+      const prevUrl = getImageUrl(prevBanner.filePath);
+      preloadImage(prevUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentBannerIndex, banners.length]);
+
+  // Preload first few images on mount
+  useEffect(() => {
+    if (banners.length > 0) {
+      banners.slice(0, 3).forEach((banner) => {
+        if (banner?.filePath) {
+          const url = getImageUrl(banner.filePath);
+          preloadImage(url);
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [banners]);
+
+  // Handle image load
+  const handleImageLoad = (bannerId) => {
+    setImageLoadingStates(prev => ({
+      ...prev,
+      [bannerId]: 'loaded'
+    }));
+  };
+
+  // Handle image error
+  const handleImageError = (bannerId, e) => {
+    setImageLoadingStates(prev => ({
+      ...prev,
+      [bannerId]: 'error'
+    }));
+    if (e.target) {
+      e.target.style.display = 'none';
+    }
+  };
+
+  // Handle image start loading
+  const handleImageLoadStart = (bannerId) => {
+    setImageLoadingStates(prev => ({
+      ...prev,
+      [bannerId]: 'loading'
+    }));
+  };
+
   // Handle banner navigation
   const handlePreviousBanner = () => {
     setCurrentBannerIndex((prevIndex) => 
@@ -264,8 +342,35 @@ const BasicInfoPage = () => {
 
   const handleNextBanner = () => {
     setCurrentBannerIndex((prevIndex) => 
-      prevIndex === banners.length - 1 ? 0 : prevIndex + 1
+      (prevIndex + 1) % banners.length
     );
+  };
+
+  // Go to specific slide
+  const handleDotClick = (index) => {
+    setCurrentBannerIndex(index);
+  };
+
+  // Get visible cards with center card highlighted
+  const getVisibleCards = () => {
+    if (banners.length === 0) return [];
+    if (banners.length === 1) return [{ banner: banners[0], index: 0, isCenter: true, position: 0 }];
+    
+    const visible = [];
+    const totalCards = banners.length;
+    
+    // Show 3 cards: previous, current (center), next
+    for (let i = -1; i <= 1; i++) {
+      const idx = (currentBannerIndex + i + totalCards) % totalCards;
+      visible.push({
+        banner: banners[idx],
+        index: idx,
+        isCenter: i === 0,
+        position: i // -1 for previous, 0 for current, 1 for next
+      });
+    }
+    
+    return visible;
   };
 
   const handleBrowseClick = () => {
@@ -802,86 +907,277 @@ const BasicInfoPage = () => {
                   <CircularProgress size={40} sx={{ color: '#69247C' }} />
                 </Box>
               ) : banners.length > 0 ? (
-                <motion.div
-                  key={currentBannerIndex}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  style={{ width: '100%' }}
-                >
-                  <CarouselContainer>
                     <Box
                       sx={{
+                    position: 'relative',
                         width: '100%',
+                    maxWidth: '80%',
                         height: { xs: '110px', sm: '150px', md: '190px', lg: '230px' },
+                    overflow: 'hidden',
+                    backgroundColor: 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mx: 'auto',
+                    [theme.breakpoints.down('xl')]: {
+                      maxWidth: '85%',
+                    },
+                    [theme.breakpoints.down('lg')]: {
+                      maxWidth: '90%',
+                    },
+                    [theme.breakpoints.down('md')]: {
+                      maxWidth: '95%',
+                    },
+                    [theme.breakpoints.down('sm')]: {
+                      maxWidth: '98%',
+                    },
+                    [theme.breakpoints.down('xs')]: {
+                      maxWidth: '100%',
+                    },
+                  }}
+                >
+                  {/* Cards Container */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: { xs: 0.5, sm: 0.75, md: 1 },
+                      width: '100%',
+                      height: '100%',
                         position: 'relative',
-                        overflow: 'hidden'
+                      backgroundColor: 'transparent'
                       }}
                     >
-                      <AuthImage
-                        filePath={banners[currentBannerIndex]?.filePath}
-                        alt={`Banner ${currentBannerIndex + 1}`}
-                        fallbackSrc={talentBannerImg}
-                        style={{
+                    {getVisibleCards().map(({ banner, index, isCenter, position }) => {
+                      const imageUrl = getImageUrl(banner.filePath);
+                      const bannerId = banner.advertisementId || index;
+                      const isPreloaded = preloadedImages.has(imageUrl);
+                      const isLoading = (imageLoadingStates[bannerId] === 'loading' || imageLoadingStates[bannerId] === undefined) && !isPreloaded;
+                      const isLoaded = imageLoadingStates[bannerId] === 'loaded' || isPreloaded;
+                      const hasError = imageLoadingStates[bannerId] === 'error';
+                      
+                      return (
+                        <Card
+                          key={`banner-${banner.advertisementId || index}-pos-${position}-idx-${index}`}
+                          sx={{
+                            position: 'relative',
+                            width: isCenter 
+                              ? { xs: '100%', sm: '95%', md: '92%', lg: '90%' }
+                              : { xs: '0%', sm: '25%', md: '20%', lg: '15%' },
+                            height: { xs: '110px', sm: '150px', md: '190px', lg: '230px' },
+                            flexShrink: 0,
+                            borderRadius: { xs: 1.5, sm: 2, md: 3 },
+                            overflow: 'hidden',
+                            backgroundColor: 'transparent',
+                            boxShadow: 'none',
+                            transform: isCenter ? 'scale(1)' : { xs: 'scale(0)', sm: 'scale(0.85)' },
+                            opacity: isCenter ? 1 : { xs: 0, sm: 0.6 },
+                            transition: 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            zIndex: isCenter ? 10 : 1,
+                            cursor: 'pointer',
+                            display: { xs: isCenter ? 'block' : 'none', sm: 'block' },
+                            '&:hover': {
+                              transform: isCenter ? { xs: 'scale(1)', sm: 'scale(1.02)' } : { xs: 'scale(0)', sm: 'scale(0.9)' },
+                              boxShadow: 'none'
+                            }
+                          }}
+                        >
+                          {/* Loading Skeleton */}
+                          {isLoading && !hasError && (
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: '#f0f0f0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 1
+                              }}
+                            >
+                              <CircularProgress 
+                                size={40} 
+                                sx={{ 
+                                  color: '#69247C',
+                                  opacity: 0.6
+                                }} 
+                              />
+                            </Box>
+                          )}
+
+                          {/* Error Placeholder */}
+                          {hasError && (
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: '#f5f5f5',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 1
+                              }}
+                            >
+                              <Box
+                                component="img"
+                                src={talentBannerImg}
+                                alt="Banner"
+                                sx={{
                           width: '100%',
                           height: '100%',
                           objectFit: 'cover',
                           display: 'block'
                         }}
                       />
-                      
+                            </Box>
+                          )}
+
+                          {/* Actual Image */}
+                          {!hasError && (
+                            <Box
+                              component="img"
+                              src={imageUrl}
+                              alt={banner.advertisementName || `Banner ${index + 1}`}
+                              loading={isCenter ? "eager" : "lazy"}
+                              decoding="async"
+                              onLoadStart={() => !isPreloaded && handleImageLoadStart(bannerId)}
+                              onLoad={() => handleImageLoad(bannerId)}
+                              onError={(e) => handleImageError(bannerId, e)}
+                              sx={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                objectPosition: 'center',
+                                opacity: (isLoaded || isPreloaded) ? 1 : 0,
+                                transition: 'opacity 0.3s ease-in-out',
+                                display: (isLoaded || isPreloaded) ? 'block' : 'none',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                zIndex: 0
+                              }}
+                            />
+                          )}
+                          {/* Overlay for description */}
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              background: isCenter
+                                ? 'linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.4), transparent)'
+                                : 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
+                              padding: isCenter 
+                                ? { xs: 1, sm: 1.5, md: 2 }
+                                : { xs: 0.5, sm: 0.75, md: 1 },
+                              color: 'white',
+                              transition: 'all 1.2s ease',
+                              zIndex: 2
+                            }}
+                          >
+                            <Typography
+                              variant={isCenter ? 'h5' : 'h6'}
+                              sx={{
+                                fontWeight: 600,
+                                fontSize: isCenter
+                                  ? { xs: '12px', sm: '14px', md: '16px', lg: '18px' }
+                                  : { xs: '9px', sm: '10px', md: '11px' },
+                                mb: isCenter ? 0.5 : 0.25,
+                                display: '-webkit-box',
+                                WebkitLineClamp: isCenter ? 2 : 1,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                              }}
+                            >
+                              {banner.advertisementName || `Banner ${index + 1}`}
+                            </Typography>
+                            {isCenter && banner.description && (
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: { xs: '10px', sm: '11px', md: '12px', lg: '14px' },
+                                  opacity: 0.95,
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis'
+                                }}
+                              >
+                                {banner.description}
+                              </Typography>
+                            )}
+                          </Box>
+                        </Card>
+                      );
+                    })}
+                  </Box>
+
+                  {/* Navigation Arrows */}
                       {banners.length > 1 && !bannersLoading && (
                         <>
                           <IconButton
                             onClick={handlePreviousBanner}
                             sx={{
                               position: 'absolute',
-                              left: { xs: 4, sm: 6, md: 8 },
+                          left: 0,
                               top: '50%',
                               transform: 'translateY(-50%)',
-                              zIndex: 3,
-                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                              width: { xs: 28, sm: 32, md: 36 },
-                              height: { xs: 28, sm: 32, md: 36 },
+                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                          backdropFilter: 'blur(10px)',
+                          color: '#69247C',
+                          borderRadius: { xs: '0 6px 6px 0', sm: '0 8px 8px 0', md: '0 10px 10px 0' },
                               '&:hover': {
-                                backgroundColor: 'rgba(255, 255, 255, 1)',
-                                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.25)'
-                              },
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            transform: 'translateY(-50%) scale(1.05)'
+                          },
+                          zIndex: 1000,
+                          width: { xs: '28px', sm: '32px', md: '36px' },
+                          height: { xs: '40px', sm: '48px', md: '56px' },
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                          transition: 'all 0.3s ease'
                             }}
                           >
-                            <ChevronLeft sx={{ fontSize: { xs: 18, sm: 20, md: 22 }, color: '#69247C' }} />
+                        <ArrowBackIosIcon sx={{ fontSize: { xs: '14px', sm: '16px', md: '18px' } }} />
                           </IconButton>
                           
                           <IconButton
                             onClick={handleNextBanner}
                             sx={{
                               position: 'absolute',
-                              right: { xs: 4, sm: 6, md: 8 },
+                          right: 0,
                               top: '50%',
                               transform: 'translateY(-50%)',
-                              zIndex: 3,
-                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                              width: { xs: 28, sm: 32, md: 36 },
-                              height: { xs: 28, sm: 32, md: 36 },
+                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                          backdropFilter: 'blur(10px)',
+                          color: '#69247C',
+                          borderRadius: { xs: '6px 0 0 6px', sm: '8px 0 0 8px', md: '10px 0 0 10px' },
                               '&:hover': {
-                                backgroundColor: 'rgba(255, 255, 255, 1)',
-                                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.25)'
-                              },
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            transform: 'translateY(-50%) scale(1.05)'
+                          },
+                          zIndex: 1000,
+                          width: { xs: '28px', sm: '32px', md: '36px' },
+                          height: { xs: '40px', sm: '48px', md: '56px' },
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                          transition: 'all 0.3s ease'
                             }}
                           >
-                            <ChevronRight sx={{ fontSize: { xs: 18, sm: 20, md: 22 }, color: '#69247C' }} />
+                        <ArrowForwardIosIcon sx={{ fontSize: { xs: '14px', sm: '16px', md: '18px' } }} />
                           </IconButton>
                         </>
                       )}
-                    </Box>
-                  </CarouselContainer>
-                </motion.div>
-              ) : null}
 
-
+                  {/* Navigation Dots */}
               {banners.length > 1 && !bannersLoading && (
                 <Box
                   sx={{
@@ -890,45 +1186,36 @@ const BasicInfoPage = () => {
                     left: '50%',
                     transform: 'translateX(-50%)',
                     display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: { xs: 1, sm: 1.25, md: 1.5 },
-                    zIndex: 3
+                        gap: { xs: 0.4, sm: 0.6, md: 0.75 },
+                        zIndex: 20
                   }}
                 >
                   {banners.map((_, index) => (
                     <Box
                       key={index}
-                      onClick={() => setCurrentBannerIndex(index)}
+                          onClick={() => handleDotClick(index)}
                       sx={{
-                        width: { xs: 8, sm: 9, md: 10 },
-                        height: { xs: 8, sm: 9, md: 10 },
+                            width: { xs: '6px', sm: '7px', md: '8px' },
+                            height: { xs: '6px', sm: '7px', md: '8px' },
                         borderRadius: '50%',
-                        backgroundColor: currentBannerIndex === index 
-                          ? '#FFFFFF' 
-                          : 'rgba(105, 36, 124, 0.5)',
+                            backgroundColor: index === currentBannerIndex ? '#69247C' : 'rgba(255, 255, 255, 0.6)',
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
-                        boxShadow: currentBannerIndex === index 
-                          ? '0 2px 6px rgba(0, 0, 0, 0.3)' 
-                          : '0 1px 3px rgba(0, 0, 0, 0.2)',
-                        border: currentBannerIndex === index 
-                          ? '1px solid rgba(105, 36, 124, 0.3)' 
-                          : '1px solid rgba(255, 255, 255, 0.3)',
-                        opacity: currentBannerIndex === index ? 1 : 0.7,
+                            transform: index === currentBannerIndex ? { xs: 'scale(1.4)', sm: 'scale(1.5)' } : 'scale(1)',
+                            boxShadow: index === currentBannerIndex 
+                              ? { xs: '0px 1px 4px rgba(105, 36, 124, 0.8)', sm: '0px 2px 6px rgba(105, 36, 124, 0.6)' }
+                              : 'none',
                         '&:hover': {
-                          backgroundColor: currentBannerIndex === index 
-                            ? '#FFFFFF' 
-                            : 'rgba(105, 36, 124, 0.7)',
-                          transform: 'scale(1.2)',
-                          opacity: 1,
-                          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.4)'
+                              backgroundColor: index === currentBannerIndex ? '#69247C' : 'rgba(255, 255, 255, 0.9)',
+                              transform: { xs: 'scale(1.5)', sm: 'scale(1.6)' }
                         }
                       }}
                     />
                   ))}
                 </Box>
               )}
+                </Box>
+              ) : null}
             </Box>
           </Box>
         </Box>

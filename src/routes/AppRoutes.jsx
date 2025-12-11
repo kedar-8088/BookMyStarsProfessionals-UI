@@ -17,6 +17,8 @@ import {
   SharedProfileRoute
 } from './components';
 import Dashboard from '../professionals/pages/Dashboard';
+import Dashboard1c from '../lms/pages/dashbaord1c';
+import ModulesPage from '../lms/pages/modules';
 import RegisterPage from '../agency/pages/RegisterPage';
 import OtpVerificationPage from '../agency/pages/OtpVerificationPage';
 
@@ -38,6 +40,8 @@ const AppRoutes = () => {
       <Route path="/otp-verification" element={<OtpVerificationRoute />} />
       <Route path="/UserLanding" element={<UserLandingRoute />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/dashboard/lms" element={<Dashboard1c />} />
+      <Route path="/dashboard/lms/modules" element={<ModulesPage />} />
       <Route path="/agency/register" element={<RegisterPage />} />
       <Route path="/agency/otp-verification" element={<OtpVerificationPage />} />
     </Routes>

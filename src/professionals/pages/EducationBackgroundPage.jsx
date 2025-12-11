@@ -5,14 +5,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { motion, useInView } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
-import talentBannerImg from '../../assets/images/Talent  Banner.png';
-import { fetchBanner } from '../../API/bannerApi';
-import AuthImage from '../../components/common/AuthImage';
+import BookmystarsBanner from '../components/BookmystarsBanner';
 import { getAllCategories } from '../../API/categoryApi';
 import { getAllSkills, getSkillsWithPagination } from '../../API/skillsApi';
 import { getAllHighestQualifications } from '../../API/qualificationApi';
@@ -26,40 +23,6 @@ import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/pro
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import Swal from 'sweetalert2';
-
-const CarouselContainer = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  width: '100%',
-  maxWidth: '80%',
-  minHeight: '150px',
-  borderRadius: '8px',
-  overflow: 'hidden',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  margin: '0 auto',
-  [theme.breakpoints.down('xl')]: {
-    maxWidth: '85%',
-  },
-  [theme.breakpoints.down('lg')]: {
-    maxWidth: '90%',
-  },
-  [theme.breakpoints.down('md')]: {
-    borderRadius: '8px',
-    minHeight: '130px',
-    maxWidth: '95%',
-  },
-  [theme.breakpoints.down('sm')]: {
-    borderRadius: '6px',
-    minHeight: '110px',
-    maxWidth: '98%',
-  },
-  [theme.breakpoints.down('xs')]: {
-    borderRadius: '4px',
-    minHeight: '90px',
-    maxWidth: '100%',
-  },
-}));
 
 const ContentBox = styled(Box)(({ theme }) => ({
   flex: 1,
@@ -103,85 +66,6 @@ const EducationBackgroundPage = () => {
   const showcaseInView = useInView(showcaseRef, { once: true, margin: "-50px" });
   const educationInView = useInView(educationRef, { once: true, margin: "-50px" });
 
-  // Banner carousel state
-  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
-  const [banners, setBanners] = useState([]);
-  const [bannersLoading, setBannersLoading] = useState(true);
-
-  // Fetch banners from database
-  useEffect(() => {
-    const fetchBanners = async () => {
-      setBannersLoading(true);
-      try {
-        const user = JSON.parse(sessionStorage.getItem('user') || 'null');
-        const headers = {
-          'Content-Type': 'application/json',
-          ...(user?.accessToken && { Authorization: `Bearer ${user.accessToken}` })
-        };
-
-        const response = await fetchBanner(0, 100, headers);
-        let fetchedData = [];
-        
-        // Handle paginated response structure: { content: [...], totalElements, totalPages, ... }
-        if (response.data) {
-          // Check if response.data has content array (paginated response)
-          if (response.data.content && Array.isArray(response.data.content)) {
-            fetchedData = response.data.content;
-          }
-          // Check if response.data is directly an array
-          else if (Array.isArray(response.data)) {
-            fetchedData = response.data;
-          }
-          // Check for nested data structure
-          else if (response.data.data) {
-            if (response.data.data.content && Array.isArray(response.data.data.content)) {
-              fetchedData = response.data.data.content;
-            } else if (Array.isArray(response.data.data)) {
-              fetchedData = response.data.data;
-            } else {
-              fetchedData = [response.data.data];
-            }
-          }
-        }
-        
-        const bannerData = fetchedData
-          .filter((ad) => ad.filePath && ad.filePath.trim() !== '' && !ad.isDelete)
-          .map((ad) => ({
-            advertisementId: ad.advertisementId,
-            filePath: ad.filePath
-          }));
-        
-        setBanners(bannerData);
-      } catch (error) {
-        console.error('Error fetching banners:', error);
-        setBanners([]);
-      } finally {
-        setBannersLoading(false);
-      }
-    };
-
-    fetchBanners();
-  }, []);
-
-  // Reset banner index when banners change
-  useEffect(() => {
-    if (banners.length > 0 && currentBannerIndex >= banners.length) {
-      setCurrentBannerIndex(0);
-    }
-  }, [banners, currentBannerIndex]);
-
-  // Handle banner navigation
-  const handlePreviousBanner = () => {
-    setCurrentBannerIndex((prevIndex) => 
-      prevIndex === 0 ? banners.length - 1 : prevIndex - 1
-    );
-  };
-
-  const handleNextBanner = () => {
-    setCurrentBannerIndex((prevIndex) => 
-      prevIndex === banners.length - 1 ? 0 : prevIndex + 1
-    );
-  };
 
   // Skills state
   const [searchTerm, setSearchTerm] = useState('');
@@ -1370,164 +1254,10 @@ const EducationBackgroundPage = () => {
               }}
             >
 
-              {bannersLoading ? (
-                <Box
-                  sx={{
-                    width: '100%',
-                    maxWidth: '80%',
-                    height: { xs: '110px', sm: '150px', md: '190px', lg: '230px' },
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: '8px',
-                    mx: 'auto',
-                    [theme.breakpoints.down('xl')]: {
-                      maxWidth: '85%',
-                    },
-                    [theme.breakpoints.down('lg')]: {
-                      maxWidth: '90%',
-                    },
-                    [theme.breakpoints.down('md')]: {
-                      maxWidth: '95%',
-                    },
-                    [theme.breakpoints.down('sm')]: {
-                      maxWidth: '98%',
-                    },
-                    [theme.breakpoints.down('xs')]: {
-                      maxWidth: '100%',
-                    },
-                  }}
-                >
-                  <CircularProgress size={40} sx={{ color: '#69247C' }} />
-                </Box>
-              ) : banners.length > 0 ? (
-                <motion.div
-                  key={currentBannerIndex}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  style={{ width: '100%' }}
-                >
-                  <CarouselContainer>
-                    <Box
-                      sx={{
-                        width: '100%',
-                        height: { xs: '110px', sm: '150px', md: '190px', lg: '230px' },
-                        position: 'relative',
-                        overflow: 'hidden'
-                      }}
-                    >
-                      <AuthImage
-                        filePath={banners[currentBannerIndex]?.filePath}
-                        alt={`Banner ${currentBannerIndex + 1}`}
-                        fallbackSrc={talentBannerImg}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          display: 'block'
-                        }}
-                      />
-                      
-                      {banners.length > 1 && !bannersLoading && (
-                        <>
-                          <IconButton
-                            onClick={handlePreviousBanner}
-                            sx={{
-                              position: 'absolute',
-                              left: { xs: 4, sm: 6, md: 8 },
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              zIndex: 3,
-                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                              width: { xs: 28, sm: 32, md: 36 },
-                              height: { xs: 28, sm: 32, md: 36 },
-                              '&:hover': {
-                                backgroundColor: 'rgba(255, 255, 255, 1)',
-                                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.25)'
-                              },
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
-                            }}
-                          >
-                            <ChevronLeft sx={{ fontSize: { xs: 18, sm: 20, md: 22 }, color: '#69247C' }} />
-                          </IconButton>
-                          
-                          <IconButton
-                            onClick={handleNextBanner}
-                            sx={{
-                              position: 'absolute',
-                              right: { xs: 4, sm: 6, md: 8 },
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              zIndex: 3,
-                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                              width: { xs: 28, sm: 32, md: 36 },
-                              height: { xs: 28, sm: 32, md: 36 },
-                              '&:hover': {
-                                backgroundColor: 'rgba(255, 255, 255, 1)',
-                                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.25)'
-                              },
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
-                            }}
-                          >
-                            <ChevronRight sx={{ fontSize: { xs: 18, sm: 20, md: 22 }, color: '#69247C' }} />
-                          </IconButton>
-                        </>
-                      )}
-                    </Box>
-                  </CarouselContainer>
-                </motion.div>
-              ) : null}
-
-              {banners.length > 1 && !bannersLoading && (
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: { xs: 6, sm: 8, md: 10, lg: 12 },
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: { xs: 1, sm: 1.25, md: 1.5 },
-                    zIndex: 3
-                  }}
-                >
-                  {banners.map((_, index) => (
-                    <Box
-                      key={index}
-                      onClick={() => setCurrentBannerIndex(index)}
-                      sx={{
-                        width: { xs: 8, sm: 9, md: 10 },
-                        height: { xs: 8, sm: 9, md: 10 },
-                        borderRadius: '50%',
-                        backgroundColor: currentBannerIndex === index 
-                          ? '#FFFFFF' 
-                          : 'rgba(105, 36, 124, 0.5)',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        boxShadow: currentBannerIndex === index 
-                          ? '0 2px 6px rgba(0, 0, 0, 0.3)' 
-                          : '0 1px 3px rgba(0, 0, 0, 0.2)',
-                        border: currentBannerIndex === index 
-                          ? '1px solid rgba(105, 36, 124, 0.3)' 
-                          : '1px solid rgba(255, 255, 255, 0.3)',
-                        opacity: currentBannerIndex === index ? 1 : 0.7,
-                        '&:hover': {
-                          backgroundColor: currentBannerIndex === index 
-                            ? '#FFFFFF' 
-                            : 'rgba(105, 36, 124, 0.7)',
-                          transform: 'scale(1.2)',
-                          opacity: 1,
-                          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.4)'
-                        }
-                      }}
-                    />
-                  ))}
-                </Box>
-              )}
+              <BookmystarsBanner 
+                containerHeight={{ xs: '110px', sm: '150px', md: '190px', lg: '230px' }}
+                cardHeight={{ xs: '110px', sm: '150px', md: '190px', lg: '230px' }}
+              />
             </Box>
           </Box>
         </Box>

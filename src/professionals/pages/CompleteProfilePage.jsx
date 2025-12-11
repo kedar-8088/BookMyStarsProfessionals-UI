@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Alert, Menu, MenuItem } from '@mui/material';
+import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Alert, Menu, MenuItem, Switch, FormControlLabel } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import EditIcon from '@mui/icons-material/Edit';
@@ -36,6 +36,8 @@ const CompleteProfilePage = () => {
   const headlineMenuOpen = Boolean(headlineAnchorEl);
   const [showAllVideos, setShowAllVideos] = useState(false);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const isFetchingRef = useRef(false);
   const hasInitializedRef = useRef(false);
 
@@ -214,6 +216,10 @@ const CompleteProfilePage = () => {
         } else {
           console.log('✅ BasicInfo found in profile response');
         }
+        
+        // Initialize activity status (isPrivate)
+        const profileIsPrivate = profileData.isPrivate === true || profileData.private === true;
+        setIsPrivate(profileIsPrivate);
         
         setProfileData(profileData);
         console.log('✅ Profile data loaded successfully');
@@ -970,6 +976,85 @@ const CompleteProfilePage = () => {
         text: 'An error occurred while generating the PDF. Please try again.',
         confirmButtonColor: '#69247C'
       });
+    }
+  };
+
+  // Handle Activity Status Toggle (Public/Private)
+  const handleActivityStatusToggle = async (event) => {
+    const newIsPrivate = event.target.checked; // true if ON (private), false if OFF (public)
+    
+    if (!profileId || !profileData) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Profile Not Ready',
+        text: 'Please wait for your profile to load before updating status.',
+        confirmButtonColor: '#69247C'
+      });
+      return;
+    }
+
+    try {
+      setIsUpdatingStatus(true);
+
+      // Prepare profile data for update
+      const profileUpdateData = {
+        ...profileData,
+        professionalsProfileId: profileId,
+        isPrivate: newIsPrivate,
+        private: newIsPrivate // Some APIs might use 'private' instead of 'isPrivate'
+      };
+
+      console.log('🔄 Updating activity status:', { isPrivate: newIsPrivate });
+
+      // Try update first, if that fails, try save-or-update
+      let response = await updateProfessionalsProfile(profileUpdateData);
+      
+      // If update fails, try save-or-update
+      if (!response.success) {
+        console.log('⚠️ Update failed, trying save-or-update...');
+        const professionalsId = sessionManager.getProfessionalsId();
+        if (professionalsId) {
+          response = await saveOrUpdateProfessionalsProfileByProfessionalsId(professionalsId, profileUpdateData);
+        }
+      }
+      
+      console.log('📡 Update activity status API response:', response);
+
+      if (response.success) {
+        setIsPrivate(newIsPrivate);
+        // Update local profile data
+        setProfileData(prev => ({
+          ...prev,
+          isPrivate: newIsPrivate,
+          private: newIsPrivate
+        }));
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Status Updated!',
+          text: newIsPrivate 
+            ? 'Your profile is now private. Only you can view it.' 
+            : 'Your profile is now public. It can be viewed by others when shared.',
+          confirmButtonColor: '#69247C',
+          timer: 2000
+        });
+      } else {
+        throw new Error(response.error || 'Failed to update activity status');
+      }
+    } catch (error) {
+      console.error('❌ Error updating activity status:', error);
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Update Failed',
+        text: error.message || 'An error occurred while updating your profile status. Please try again.',
+        confirmButtonColor: '#69247C'
+      });
+      
+      // Revert the toggle on error
+      setIsPrivate(!newIsPrivate);
+    } finally {
+      setIsUpdatingStatus(false);
     }
   };
 
@@ -2211,7 +2296,94 @@ const CompleteProfilePage = () => {
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 3 }, justifyContent: 'center', mt: { xs: 4, sm: 6 }, px: { xs: 2, sm: 0 } }}>
+              {/* Activity Status Toggle */}
+              <Box sx={{ 
+                mt: { xs: 4, sm: 6 }, 
+                mb: { xs: 3, sm: 4 },
+                px: { xs: 2, sm: 0 },
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                justifyContent: 'space-between',
+                gap: { xs: 2, sm: 3 },
+                backgroundColor: '#f8f9fa',
+                borderRadius: '12px',
+                padding: { xs: '16px', sm: '20px', md: '24px' },
+                border: '1px solid #e9ecef'
+              }}>
+                <Box sx={{ flex: 1 }}>
+                  <Typography sx={{ 
+                    fontFamily: 'Poppins', 
+                    fontWeight: 600, 
+                    fontSize: { xs: '16px', sm: '18px' }, 
+                    color: '#333333',
+                    mb: 1
+                  }}>
+                    Activity Status
+                  </Typography>
+                  <Typography sx={{ 
+                    fontFamily: 'Poppins', 
+                    fontWeight: 400, 
+                    fontSize: { xs: '13px', sm: '14px' }, 
+                    color: '#666666',
+                    lineHeight: 1.5
+                  }}>
+                    {isPrivate
+                      ? 'Your profile is currently private. Only you can view it.'
+                      : 'Your profile is currently public. It can be viewed by others when shared.'}
+                  </Typography>
+                </Box>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: { xs: 1.5, sm: 2 },
+                  flexShrink: 0
+                }}>
+                  <Typography sx={{ 
+                    fontFamily: 'Poppins', 
+                    fontWeight: 500, 
+                    fontSize: { xs: '13px', sm: '14px' }, 
+                    color: isPrivate ? '#666666' : '#DA498D'
+                  }}>
+                    Public
+                  </Typography>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={isPrivate} // Switch is ON when private
+                        onChange={handleActivityStatusToggle}
+                        disabled={isUpdatingStatus || !profileData}
+                        sx={{
+                          '& .MuiSwitch-switchBase.Mui-checked': {
+                            color: '#DA498D',
+                          },
+                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                            backgroundColor: '#DA498D',
+                          },
+                          '& .MuiSwitch-switchBase.Mui-disabled': {
+                            color: '#cccccc',
+                          },
+                          '& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track': {
+                            backgroundColor: '#e0e0e0',
+                          },
+                        }}
+                      />
+                    }
+                    label=""
+                    sx={{ m: 0 }}
+                  />
+                  <Typography sx={{ 
+                    fontFamily: 'Poppins', 
+                    fontWeight: 500, 
+                    fontSize: { xs: '13px', sm: '14px' }, 
+                    color: isPrivate ? '#DA498D' : '#666666'
+                  }}>
+                    Private
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 3 }, justifyContent: 'center', mt: { xs: 2, sm: 3 }, px: { xs: 2, sm: 0 } }}>
                 <Button 
                   variant="outlined" 
                   onClick={handleShareProfile}

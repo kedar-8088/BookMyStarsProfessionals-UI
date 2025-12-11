@@ -28,7 +28,8 @@ import {
   TuneRounded as TuneRoundedIcon,
   AccountBalanceWalletRounded as AccountBalanceWalletRoundedIcon,
   LogoutRounded as LogoutRoundedIcon,
-  Apps as AppsIcon
+  Apps as AppsIcon,
+  Work as WorkIcon
 } from '@mui/icons-material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -61,7 +62,6 @@ const ProfileNavBar = () => {
     { label: 'E Commarce ', href: '/dashboard/welcome', icon: faPersonChalkboard, comingSoon: true },
     // { label: 'Test Assessment', href: '/dashboard/test-list', icon: faClipboardQuestion },
     // { label: 'AI Mockup', href: '/dashboard/ai-mockup', icon: faMicrochip },
-    { label: 'LMS', href: '/dashboard/lms', icon: faBookOpen, comingSoon: false },
     { label: 'Consultation', href: '/dashboard/placements', icon: faHandshake, comingSoon: true }
   ];
 
@@ -279,6 +279,106 @@ const ProfileNavBar = () => {
               }}
             >
               Dashboard
+            </Typography>
+          </Box>
+
+          {/* LMS Button */}
+          <Box
+            onClick={() => navigate('/dashboard/lms')}
+            sx={{
+              alignItems: 'center',
+              gap: 1,
+              px: 1.5,
+              py: 1,
+              borderRadius: '999px',
+              color: isDashboardNavActive('/dashboard/lms') ? activeNavColor : inactiveNavColor,
+              textDecoration: 'none',
+              cursor: 'pointer',
+              transition: 'color 450ms cubic-bezier(0.4, 0, 0.2, 1), background-color 450ms cubic-bezier(0.4, 0, 0.2, 1), transform 450ms cubic-bezier(0.4, 0, 0.2, 1)',
+              backgroundColor: isDashboardNavActive('/dashboard/lms') ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
+              '&:hover': {
+                color: activeNavColor,
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                transform: 'translateY(-2px)',
+                '& .lms-label': {
+                  maxWidth: 220,
+                  opacity: 1,
+                  mr: 0.5
+                }
+              },
+              '&:focus-visible': {
+                outline: 'none',
+                boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.25)'
+              },
+              display: { xs: 'none', sm: 'flex' }
+            }}
+          >
+            <FontAwesomeIcon icon={faBookOpen} style={{ fontSize: 22, color: '#fff' }} />
+            <Typography
+              component="span"
+              className="lms-label"
+              sx={{
+                fontFamily: '"Poppins", sans-serif',
+                fontWeight: 400,
+                fontSize: '18px',
+                whiteSpace: 'nowrap',
+                maxWidth: isDashboardNavActive('/dashboard/lms') ? 220 : 0,
+                opacity: isDashboardNavActive('/dashboard/lms') ? 1 : 0,
+                overflow: 'hidden',
+                transition: 'max-width 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 450ms cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              LMS
+            </Typography>
+          </Box>
+
+          {/* Job Button */}
+          <Box
+            onClick={() => navigate('/dashboard/jobs')}
+            sx={{
+              alignItems: 'center',
+              gap: 1,
+              px: 1.5,
+              py: 1,
+              borderRadius: '999px',
+              color: isDashboardNavActive('/dashboard/jobs') ? activeNavColor : inactiveNavColor,
+              textDecoration: 'none',
+              cursor: 'pointer',
+              transition: 'color 450ms cubic-bezier(0.4, 0, 0.2, 1), background-color 450ms cubic-bezier(0.4, 0, 0.2, 1), transform 450ms cubic-bezier(0.4, 0, 0.2, 1)',
+              backgroundColor: isDashboardNavActive('/dashboard/jobs') ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
+              '&:hover': {
+                color: activeNavColor,
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                transform: 'translateY(-2px)',
+                '& .job-label': {
+                  maxWidth: 220,
+                  opacity: 1,
+                  mr: 0.5
+                }
+              },
+              '&:focus-visible': {
+                outline: 'none',
+                boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.25)'
+              },
+              display: { xs: 'none', sm: 'flex' }
+            }}
+          >
+            <WorkIcon sx={{ fontSize: 22, color: '#fff' }} />
+            <Typography
+              component="span"
+              className="job-label"
+              sx={{
+                fontFamily: '"Poppins", sans-serif',
+                fontWeight: 400,
+                fontSize: '18px',
+                whiteSpace: 'nowrap',
+                maxWidth: isDashboardNavActive('/dashboard/jobs') ? 220 : 0,
+                opacity: isDashboardNavActive('/dashboard/jobs') ? 1 : 0,
+                overflow: 'hidden',
+                transition: 'max-width 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 450ms cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              Job
             </Typography>
           </Box>
 

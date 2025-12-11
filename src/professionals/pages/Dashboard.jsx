@@ -553,24 +553,24 @@ const Dashboard = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 paddingX: { xs: 1, sm: 2, md: 4, lg: 6 }
-              }}
-            >
+                }}
+              >
               {/* Cards Container */}
-              {bannersLoading ? (
-                <Box
-                  sx={{
-                    width: '100%',
+            {bannersLoading ? (
+              <Box
+                sx={{
+                  width: '100%',
                     height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: '8px'
-                  }}
-                >
-                  <CircularProgress size={40} sx={{ color: '#69247C' }} />
-                </Box>
-              ) : banners.length > 0 ? (
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '8px'
+                }}
+              >
+                <CircularProgress size={40} sx={{ color: '#69247C' }} />
+              </Box>
+            ) : banners.length > 0 ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -657,20 +657,20 @@ const Dashboard = () => {
                               alignItems: 'center',
                               justifyContent: 'center',
                               zIndex: 1
-                            }}
-                          >
-                            <AuthImage
+                  }}
+                >
+                  <AuthImage
                               filePath={null}
                               alt="Banner"
-                              fallbackSrc={talentBannerImg}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                display: 'block'
-                              }}
-                            />
-                          </Box>
+                    fallbackSrc={talentBannerImg}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block'
+                    }}
+                  />
+                </Box>
                         )}
 
                         {/* Actual Image */}
@@ -755,10 +755,10 @@ const Dashboard = () => {
                     );
                   })}
                 </Box>
-              ) : null}
+            ) : null}
 
               {/* Navigation Arrows */}
-              {banners.length > 1 && !bannersLoading && (
+            {banners.length > 1 && !bannersLoading && (
                 <>
                   <IconButton
                     onClick={handlePreviousBanner}
@@ -785,18 +785,18 @@ const Dashboard = () => {
                     <ArrowBackIosIcon sx={{ fontSize: { xs: '18px', sm: '22px', md: '24px', lg: '26px', xl: '28px' } }} />
                   </IconButton>
 
-                  <IconButton
-                    onClick={handleNextBanner}
-                    sx={{
-                      position: 'absolute',
+              <IconButton
+                onClick={handleNextBanner}
+                sx={{
+                  position: 'absolute',
                       right: 0,
                       top: '50%',
                       transform: 'translateY(-50%)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
                       backdropFilter: 'blur(10px)',
                       color: '#69247C',
                       borderRadius: { xs: '8px 0 0 8px', sm: '10px 0 0 10px', md: '12px 0 0 12px' },
-                      '&:hover': {
+                  '&:hover': {
                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
                         transform: 'translateY(-50%) scale(1.05)'
                       },
@@ -805,51 +805,51 @@ const Dashboard = () => {
                       height: { xs: '56px', sm: '64px', md: '72px', lg: '80px', xl: '88px' },
                       boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                       transition: 'all 0.3s ease'
-                    }}
-                  >
+                }}
+              >
                     <ArrowForwardIosIcon sx={{ fontSize: { xs: '18px', sm: '22px', md: '24px', lg: '26px', xl: '28px' } }} />
-                  </IconButton>
+              </IconButton>
                 </>
-              )}
+            )}
 
               {/* Navigation Dots */}
-              {banners.length > 1 && !bannersLoading && (
-                <Box
-                  sx={{
-                    position: 'absolute',
+            {banners.length > 1 && !bannersLoading && (
+              <Box
+                sx={{
+                  position: 'absolute',
                     bottom: { xs: 8, sm: 12, md: 16, lg: 20, xl: 24 },
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    display: 'flex',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
                     gap: { xs: 0.4, sm: 0.6, md: 0.75, lg: 1 },
                     zIndex: 20
-                  }}
-                >
-                  {banners.map((_, index) => (
-                    <Box
-                      key={index}
+                }}
+              >
+                {banners.map((_, index) => (
+                  <Box
+                    key={index}
                       onClick={() => handleDotClick(index)}
-                      sx={{
+                    sx={{
                         width: { xs: '6px', sm: '7px', md: '8px', lg: '9px' },
                         height: { xs: '6px', sm: '7px', md: '8px', lg: '9px' },
-                        borderRadius: '50%',
+                      borderRadius: '50%',
                         backgroundColor: index === currentBannerIndex ? '#69247C' : 'rgba(255, 255, 255, 0.6)',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
                         transform: index === currentBannerIndex ? { xs: 'scale(1.4)', sm: 'scale(1.5)' } : 'scale(1)',
                         boxShadow: index === currentBannerIndex 
                           ? { xs: '0px 1px 4px rgba(105, 36, 124, 0.8)', sm: '0px 2px 6px rgba(105, 36, 124, 0.6)' }
-                          : 'none',
-                        '&:hover': {
+                        : 'none',
+                      '&:hover': {
                           backgroundColor: index === currentBannerIndex ? '#69247C' : 'rgba(255, 255, 255, 0.9)',
                           transform: { xs: 'scale(1.5)', sm: 'scale(1.6)' }
-                        }
-                      }}
-                    />
-                  ))}
-                </Box>
-              )}
-            </Box>
+                      }
+                    }}
+                  />
+                ))}
+              </Box>
+            )}
+          </Box>
         </motion.div>
           </Box>
         </Box>
