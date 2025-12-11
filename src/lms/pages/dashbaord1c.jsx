@@ -5,12 +5,9 @@ import {
   Typography, 
   Card, 
   CardContent, 
-  Grid, 
   Button, 
   TextField, 
   InputAdornment,
-  Chip,
-  IconButton,
   Menu,
   MenuItem,
   CircularProgress
@@ -19,7 +16,6 @@ import {
   Search as SearchIcon, 
   MenuBook as MenuBookIcon, 
   AccessTime as AccessTimeIcon,
-  Star as StarIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
   ArrowForward as ArrowForwardIcon
 } from '@mui/icons-material';
@@ -39,51 +35,39 @@ const HeaderBanner = styled(Box)(({ theme }) => ({
 }));
 
 const CourseCard = styled(Card)(({ theme }) => ({
-  borderRadius: '12px',
+  borderRadius: '8px',
   overflow: 'hidden',
-  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
   transition: 'all 0.3s ease',
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
   '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
   },
 }));
 
-const CourseBanner = styled(Box)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-  padding: theme.spacing(2),
-  position: 'relative',
-  minHeight: '140px',
+const ImagePlaceholder = styled(Box)(({ theme }) => ({
+  backgroundColor: '#1e293b',
+  minHeight: '120px',
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'space-between',
-}));
-
-const MasterclassBadge = styled(Chip)(({ theme }) => ({
-  position: 'absolute',
-  bottom: theme.spacing(2),
-  right: theme.spacing(2),
-  backgroundColor: '#10b981',
-  color: '#ffffff',
-  fontWeight: 700,
-  fontSize: '12px',
-  padding: theme.spacing(0.5, 1.5),
-  height: '28px',
+  alignItems: 'center',
+  justifyContent: 'center',
+  position: 'relative',
 }));
 
 const ViewButton = styled(Button)(({ theme }) => ({
-  background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+  backgroundColor: '#10b981',
   color: '#ffffff',
   fontWeight: 600,
   borderRadius: '8px',
-  padding: theme.spacing(1.25, 3),
+  padding: theme.spacing(0.75, 2),
   textTransform: 'none',
-  fontSize: '15px',
+  fontSize: '13px',
   '&:hover': {
-    background: 'linear-gradient(90deg, #5a1f6a 0%, #C43A7A 100%)',
+    backgroundColor: '#059669',
   },
 }));
 
@@ -134,9 +118,9 @@ const courses = [
   {
     id: 2,
     title: 'PYTHON',
-    fullTitle: 'Python Full Stack',
-    description: 'Oreum Ipsum Ipsum Loreumoreum Ipsum Ipsum Loreum',
-    modules: 10,
+    fullTitle: 'Python Full Stack Development',
+    description: 'Master the art of full stack web development with Python, Django, REST APIs, React, and...',
+    modules: 8,
     duration: '19h 30m',
     uploadedDate: '11/10/2025',
     rating: 4.5,
@@ -445,70 +429,64 @@ const Dashboard1c = () => {
           Available Learning Tracks
         </Typography>
 
-        <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
+        <Box sx={{ 
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3, 1fr)',
+            lg: 'repeat(4, 1fr)'
+          },
+          gap: 2,
+          justifyContent: 'center'
+        }}>
           {courses.map((course, index) => (
-            <Grid item xs={12} sm={12} md={4} key={course.id}>
+            <Box key={course.id}>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <CourseCard>
-                  {/* Course Banner */}
-                  <CourseBanner>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
-                      <Typography
-                        sx={{
-                          fontSize: '36px',
-                          lineHeight: 1,
-                        }}
-                      >
-                        {course.icon}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontFamily: 'Poppins, sans-serif',
-                          fontWeight: 700,
-                          fontSize: { xs: '20px', sm: '24px', md: '26px' },
-                          color: '#ffffff',
-                          flex: 1,
-                        }}
-                      >
-                        {course.title}
-                      </Typography>
+                  {/* Image Placeholder */}
+                  <ImagePlaceholder>
+                    <Box
+                      sx={{
+                        width: '60px',
+                        height: '60px',
+                        border: '2px solid #fbbf24',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        mb: 0.5,
+                      }}
+                    >
+                      <Typography sx={{ fontSize: '30px' }}>{course.icon}</Typography>
                     </Box>
-                    
-                    {/* Technology Icons/Chips */}
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 1.5 }}>
-                      {course.technologies.map((tech, idx) => (
-                        <Chip
-                          key={idx}
-                          label={tech}
-                          size="small"
-                          sx={{
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                            color: '#ffffff',
-                            fontSize: '10px',
-                            height: '20px',
-                            fontWeight: 500,
-                          }}
-                        />
-                      ))}
-                    </Box>
-                    
-                    <MasterclassBadge label="MASTERCLASS" />
-                  </CourseBanner>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins, sans-serif',
+                        color: '#ffffff',
+                        fontSize: '12px',
+                        fontWeight: 400,
+                      }}
+                    >
+                      No Image
+                    </Typography>
+                  </ImagePlaceholder>
 
                   {/* Course Content */}
                   <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2 }}>
                     {/* Modules and Duration */}
-                    <Box sx={{ display: 'flex', gap: 2, mb: 1.5 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <MenuBookIcon sx={{ fontSize: '18px', color: '#6b7280' }} />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                        <MenuBookIcon sx={{ fontSize: '16px', color: '#6b7280' }} />
                         <Typography
                           sx={{
                             fontFamily: 'Poppins, sans-serif',
-                            fontSize: '14px',
+                            fontSize: '12px',
                             color: '#6b7280',
                             fontWeight: 500,
                           }}
@@ -516,12 +494,12 @@ const Dashboard1c = () => {
                           Modules {course.modules}
                         </Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <AccessTimeIcon sx={{ fontSize: '18px', color: '#6b7280' }} />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                        <AccessTimeIcon sx={{ fontSize: '16px', color: '#6b7280' }} />
                         <Typography
                           sx={{
                             fontFamily: 'Poppins, sans-serif',
-                            fontSize: '14px',
+                            fontSize: '12px',
                             color: '#6b7280',
                             fontWeight: 500,
                           }}
@@ -536,10 +514,11 @@ const Dashboard1c = () => {
                       variant="h6"
                       sx={{
                         fontFamily: 'Poppins, sans-serif',
-                        fontWeight: 600,
+                        fontWeight: 700,
                         fontSize: '16px',
                         color: '#1f2937',
                         mb: 1,
+                        lineHeight: 1.3,
                       }}
                     >
                       {course.fullTitle}
@@ -549,52 +528,20 @@ const Dashboard1c = () => {
                     <Typography
                       sx={{
                         fontFamily: 'Poppins, sans-serif',
-                        fontSize: '13px',
+                        fontSize: '12px',
                         color: '#6b7280',
                         mb: 1.5,
-                        lineHeight: 1.5,
+                        lineHeight: 1.4,
                         flex: 1,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
                       }}
                     >
                       {course.description}
                     </Typography>
-
-                    {/* Upload Date */}
-                    <Typography
-                      sx={{
-                        fontFamily: 'Poppins, sans-serif',
-                        fontSize: '11px',
-                        color: '#9ca3af',
-                        mb: 1.5,
-                      }}
-                    >
-                      Uploaded On {course.uploadedDate}
-                    </Typography>
-
-                    {/* Rating */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                      <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        {[...Array(5)].map((_, i) => (
-                          <StarIcon
-                            key={i}
-                            sx={{
-                              fontSize: '18px',
-                              color: i < Math.floor(course.rating) ? '#fbbf24' : '#e5e7eb',
-                            }}
-                          />
-                        ))}
-                      </Box>
-                      <Typography
-                        sx={{
-                          fontFamily: 'Poppins, sans-serif',
-                          fontSize: '14px',
-                          color: '#6b7280',
-                          fontWeight: 600,
-                        }}
-                      >
-                        {course.reviews}
-                      </Typography>
-                    </Box>
 
                     {/* View Modules Button */}
                     <ViewButton 
@@ -606,9 +553,9 @@ const Dashboard1c = () => {
                   </CardContent>
                 </CourseCard>
               </motion.div>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
 
         {/* Load More Course Button */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6, mb: 4 }}>

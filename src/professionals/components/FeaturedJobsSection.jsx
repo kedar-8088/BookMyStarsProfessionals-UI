@@ -1,104 +1,147 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
   Button,
   Card,
   CardContent,
-  Chip
+  Avatar,
+  Chip,
+  Pagination
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import { LocationOn } from '@mui/icons-material';
+import {
+  Event as CalendarIcon,
+  HourglassEmpty as HourglassIcon,
+  School as GraduationIcon,
+  Search as SearchIcon,
+  Work as BriefcaseIcon
+} from '@mui/icons-material';
 
 const FeaturedJobsSection = () => {
-  const jobs = [
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 6;
+  
+  const allJobs = [
     {
       id: 1,
-      role: 'Actor',
-      title: 'Lead Role – Drama',
-      requirements: [
-        'Male, 28–35 yrs',
-        'Fluent in English & Kannada',
-        'Confident screen presence'
-      ],
-      location: 'Bangalore',
-      tags: ['Drama', 'Lead Role', 'Kannada']
+      companyName: 'Infosys Technologies Pvt. Ltd.',
+      companyLogo: 'I',
+      status: 'Open',
+      statusColor: '#0DC46E',
+      jobTitle: 'Software Engineer – Trainee',
+      driveDate: 'Nov 20, 2025',
+      applyBy: 'Nov 18, 2025',
+      eligibility: 'BE/B.Tech/2025 Batch',
+      driveType: 'On-Campus',
+      package: '6.5 lpa'
     },
     {
       id: 2,
-      role: 'Makeup Artist',
-      title: 'On-Set Touch-up',
-      requirements: [
-        'Any gender, 22+ yrs',
-        'on-camera work',
-        'Must carry own kit'
-      ],
-      location: 'Hyderabad',
-      tags: ['Makeup', 'On-Set', 'Touch-up']
+      companyName: 'TCS Ninja Drive',
+      companyLogo: 'CS NIN.',
+      status: 'Upcoming',
+      statusColor: '#F69654',
+      jobTitle: 'Software Engineer – Trainee',
+      driveDate: 'Nov 20, 2025',
+      applyBy: 'Nov 18, 2025',
+      eligibility: 'BE/B.Tech/2025 Batch',
+      driveType: 'On-Campus',
+      package: '6.5 lpa'
     },
     {
       id: 3,
-      role: 'Voice Artist',
-      title: 'Narration',
-      requirements: [
-        'Male or Female, 25–40 yrs',
-        'Neutral Indian accent',
-        'Warm and engaging tone'
-      ],
-      location: 'Remote',
-      tags: ['Voice', 'Narration', 'Remote']
+      companyName: 'Google',
+      companyLogo: 'G',
+      status: 'Closing Soon',
+      statusColor: '#FFD93D',
+      jobTitle: 'Software Engineer – Trainee',
+      driveDate: 'Nov 20, 2025',
+      applyBy: 'Nov 18, 2025',
+      eligibility: 'BE/B.Tech/2025 Batch',
+      driveType: 'On-Campus',
+      package: '6.5 lpa'
+    },
+    {
+      id: 4,
+      companyName: 'Infosys Technologies Pvt. Ltd.',
+      companyLogo: 'I',
+      status: 'Open',
+      statusColor: '#0DC46E',
+      jobTitle: 'Software Engineer – Trainee',
+      driveDate: 'Nov 20, 2025',
+      applyBy: 'Nov 18, 2025',
+      eligibility: 'BE/B.Tech/2025 Batch',
+      driveType: 'On-Campus',
+      package: '6.5 lpa'
+    },
+    {
+      id: 5,
+      companyName: 'Microsoft',
+      companyLogo: 'M',
+      status: 'Closing Soon',
+      statusColor: '#FFD93D',
+      jobTitle: 'Software Engineer – Trainee',
+      driveDate: 'Nov 20, 2025',
+      applyBy: 'Nov 18, 2025',
+      eligibility: 'BE/B.Tech/2025 Batch',
+      driveType: 'On-Campus',
+      package: '6.5 lpa'
+    },
+    {
+      id: 6,
+      companyName: 'Nvidia Drive',
+      companyLogo: 'NV',
+      status: 'Closed',
+      statusColor: '#E63946',
+      jobTitle: 'Software Engineer – Trainee',
+      driveDate: 'Nov 20, 2025',
+      applyBy: 'Nov 18, 2025',
+      eligibility: 'BE/B.Tech/2025 Batch',
+      driveType: 'On-Campus',
+      package: '6.5 lpa'
     }
   ];
+
+  const totalPages = Math.ceil(allJobs.length / jobsPerPage);
+  const startIndex = (currentPage - 1) * jobsPerPage;
+  const jobs = allJobs.slice(startIndex, startIndex + jobsPerPage);
+
+  const getStatusTextColor = (statusColor) => {
+    if (statusColor === '#FFD93D') return '#333333'; // Dark text for yellow background
+    return '#FFFFFF'; // White text for other colors
+  };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <Box sx={{ 
       width: '100%', 
-      maxWidth: { xs: '100%', sm: 600, md: 800, lg: 1000, xl: 1200 }, 
+      maxWidth: { xs: '100%', sm: 600, md: 800, lg: 1000 }, 
       mx: 'auto', 
       mt: { xs: 4, sm: 5, md: 6 },
       px: { xs: 1, sm: 2, md: 3, lg: 4 }
     }}>
-      {/* Title Section */}
-      <Box sx={{ textAlign: 'center', mb: { xs: 3, md: 4 } }}>
-        <Typography
-          variant="h2"
-          sx={{
-            fontFamily: 'Poppins',
-            fontWeight: 600,
-            fontStyle: 'normal',
-            fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
-            lineHeight: '140%',
-            letterSpacing: '0%',
-            color: '#DA498D',
-            textAlign: 'center',
-            mb: 3
-          }}
-        >
-          Featured Jobs/ Auditions
-        </Typography>
-        
-        {/* Separator Line */}
-        <Box
-          sx={{
-            width: { xs: '100%', sm: '80%', md: '90%', lg: '95%', xl: '100%' },
-            height: 1,
-            borderTop: '1px solid #69247C',
-            mx: 'auto'
-          }}
-        />
-      </Box>
-
       {/* Job Cards */}
       <Box sx={{ 
         display: 'grid',
         gridTemplateColumns: {
-          xs: 'repeat(auto-fit, minmax(260px, 1fr))'
+          xs: '1fr',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(3, 1fr)',
+          lg: 'repeat(3, 1fr)'
         },
         gap: { xs: 2, sm: 2.5, md: 3 },
         justifyContent: 'center',
         alignItems: 'stretch',
         maxWidth: { xs: '100%', sm: 800, md: 1000, lg: 1200 },
-        mx: 'auto'
+        mx: 'auto',
+        '& > *': {
+          minHeight: '100%'
+        }
       }}>
         {jobs.map((job, index) => (
           <motion.div
@@ -106,267 +149,383 @@ const FeaturedJobsSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: index * 0.2 }}
-            style={{ display: 'flex' }}
+            style={{ display: 'flex', width: '100%', height: '100%' }}
           >
             <Card
               sx={{
                 width: '100%',
-                maxWidth: '100%',
-                height: '100%',
-                borderRadius: { xs: '18px', sm: '22px', md: '24px' },
-                border: '1px solid rgba(105, 36, 124, 0.12)',
+                maxWidth: { xs: '100%', sm: '336px' },
+                height: { xs: 'auto', sm: '423px' },
+                minHeight: { xs: '400px', sm: '423px' },
+                borderRadius: '10px',
+                border: '1px solid rgba(0, 0, 0, 0.1)',
                 backgroundColor: '#FFFFFF',
-                boxShadow: {
-                  xs: '0 10px 24px rgba(105,36,124,0.08)',
-                  sm: '0 12px 28px rgba(105,36,124,0.12)',
-                  md: '0 16px 32px rgba(105,36,124,0.16)'
-                },
+                boxShadow: '0px 0px 1px 0px rgba(0, 0, 0, 0.09), 0px 0px 1px 0px rgba(0, 0, 0, 0.08), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 0px 1px 0px rgba(0, 0, 0, 0.01), 0px 0px 1px 0px rgba(0, 0, 0, 0)',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                mx: 'auto',
+                position: 'relative',
                 '&:hover': {
-                  transform: 'translateY(-6px)',
-                  boxShadow: '0 18px 36px rgba(105,36,124,0.18)'
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)'
                 }
               }}
             >
-              {/* Header with Gradient Background */}
+              {/* Company Logo and Status Section */}
               <Box
                 sx={{
-                  background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+                  position: 'relative',
+                  background: '#FFFFFF',
                   p: { xs: 1.5, sm: 2 },
-                  textAlign: 'center'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  minHeight: '80px',
+                  borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                {/* Company Logo */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Avatar
+                    sx={{
+                      width: { xs: 48, sm: 58 },
+                      height: { xs: 48, sm: 58 },
+                      bgcolor: '#0E2A46',
+                      color: '#FFFFFF',
+                      fontSize: { xs: '16px', sm: '18px' },
+                      fontWeight: 600,
+                      border: '2px solid rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
+                    {job.companyLogo}
+                  </Avatar>
+                  <Typography
+                    sx={{
+                      fontFamily: 'Poppins',
+                      fontWeight: 500,
+                      fontSize: { xs: '14px', sm: '15px', md: '16px' },
+                      lineHeight: '20px',
+                      color: '#000000',
+                      maxWidth: '150px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {job.companyName}
+                  </Typography>
+                </Box>
+
+                {/* Status Badge */}
+                <Chip
+                  label={job.status}
+                  sx={{
+                    height: { xs: '28px', sm: '33px' },
+                    borderRadius: '10px',
+                    backgroundColor: job.statusColor,
+                    color: getStatusTextColor(job.statusColor),
+                    fontFamily: 'Poppins',
+                    fontWeight: 500,
+                    fontSize: { xs: '12px', sm: '14px' },
+                    px: 1,
+                    minWidth: { xs: '50px', sm: '58px' }
+                  }}
+                />
+              </Box>
+
+              {/* Job Title Bar - Orange */}
+              <Box
+                sx={{
+                  background: '#F69654',
+                  py: { xs: 1, sm: 1.25 },
+                  px: { xs: 1.5, sm: 2 },
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
               >
                 <Typography
-                  variant="h5"
                   sx={{
-                    color: 'white',
                     fontFamily: 'Poppins',
-                    fontWeight: 700,
-                    fontSize: { xs: '16px', sm: '18px', md: '20px' }
+                    fontWeight: 600,
+                    fontSize: { xs: '14px', sm: '16px' },
+                    lineHeight: '32px',
+                    color: '#FFFFFF',
+                    width: '100%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
                   }}
                 >
-                  {job.role}
+                  {job.jobTitle}
                 </Typography>
               </Box>
 
-              {/* Card Content */}
+              {/* Job Details Section */}
               <CardContent sx={{ 
-                flex: 1, 
-                p: { xs: 2.5, sm: 3 }, 
+                flex: '1 1 auto', 
+                p: { xs: 2, sm: 2.5 }, 
                 display: 'flex', 
                 flexDirection: 'column',
-                height: '100%',
-                gap: { xs: 2, sm: 2.5 }
+                gap: { xs: 1.5, sm: 2 },
+                minHeight: 0,
+                overflow: 'auto'
               }}>
-                {/* Job Title */}
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontFamily: 'Poppins',
-                    fontWeight: 700,
-                    fontStyle: 'normal',
-                    fontSize: { xs: '18px', sm: '20px', md: '22px', lg: '24px' },
-                    lineHeight: '140%',
-                    letterSpacing: '0%',
-                    color: '#69247C',
-                    mb: { xs: 1.5, sm: 2 }
-                  }}
-                >
-                  {job.title}
-                </Typography>
-
-                {/* Requirements Section */}
-                <Box sx={{ mb: { xs: 2, sm: 2.5 } }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontFamily: 'Poppins',
-                      fontWeight: 600,
-                      fontStyle: 'normal',
-                      fontSize: { xs: '16px', sm: '18px', md: '20px', lg: '22px' },
-                      lineHeight: '140%',
-                      letterSpacing: '0%',
-                      color: '#DA498D',
-                      mb: 1
-                    }}
-                  >
-                    Requirements
-                  </Typography>
-                  
-                  {job.requirements.map((req, reqIndex) => (
+                {/* Drive Date */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                  <CalendarIcon sx={{ 
+                    color: '#404041', 
+                    fontSize: { xs: '18px', sm: '20px' },
+                    mt: 0.25,
+                    flexShrink: 0
+                  }} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography
-                      key={reqIndex}
-                      variant="body1"
                       sx={{
                         fontFamily: 'Poppins',
-                        fontWeight: 400,
-                        fontStyle: 'normal',
-                        fontSize: { xs: '14px', sm: '16px', md: '18px', lg: '20px' },
-                        lineHeight: '140%',
-                        letterSpacing: '0%',
-                        color: '#333333',
-                        mb: 0.5
+                        fontWeight: 600,
+                        fontSize: { xs: '14px', sm: '16px' },
+                        lineHeight: '32px',
+                        color: '#404041'
                       }}
                     >
-                      • {req}
+                      Drive Date :
                     </Typography>
-                  ))}
-                </Box>
-
-                {/* Tags */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  gap: 1, 
-                  mb: { xs: 2, sm: 2.5 }, 
-                  flexWrap: 'wrap',
-                  justifyContent: { xs: 'flex-start', sm: 'flex-start' }
-                }}>
-                  {job.tags.map((tag, tagIndex) => (
-                    <Chip
-                      key={tagIndex}
-                      label={tag}
-                      size="small"
+                    <Typography
                       sx={{
-                        backgroundColor: '#FAC67A',
-                        color: '#333333',
                         fontFamily: 'Poppins',
                         fontWeight: 400,
-                        fontSize: { xs: '12px', sm: '13px', md: '14px' },
-                        borderRadius: '8px',
-                        height: { xs: 24, sm: 28 }
-                      }}
-                    />
-                  ))}
-                </Box>
-
-                {/* Location and Button */}
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: {
-                      xs: '1fr',
-                      sm: 'minmax(0, 1fr) auto'
-                    },
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: { xs: 2, sm: 1.5 },
-                    mt: 'auto'
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      justifyContent: 'flex-start'
-                    }}
-                  >
-                    <LocationOn sx={{ 
-                      color: '#DA498D', 
-                      fontSize: { xs: '16px', sm: '18px', md: '20px' } 
-                    }} />
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        fontFamily: 'Poppins',
-                        fontWeight: 500,
-                        fontStyle: 'normal',
-                        fontSize: { xs: '16px', sm: '18px', md: '20px' },
-                        lineHeight: '140%',
-                        letterSpacing: '0%',
-                        color: '#69247C'
+                        fontSize: { xs: '12px', sm: '14px' },
+                        lineHeight: '24px',
+                        color: '#333931'
                       }}
                     >
-                      {job.location}
+                      {job.driveDate}
                     </Typography>
                   </Box>
-                  
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: { xs: 'center', sm: 'flex-end' }
-                    }}
-                  >
-                    <Button
-                      variant="contained"
+                </Box>
+
+                {/* Apply By */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                  <HourglassIcon sx={{ 
+                    color: '#404041', 
+                    fontSize: { xs: '18px', sm: '20px' },
+                    mt: 0.25,
+                    flexShrink: 0
+                  }} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
                       sx={{
-                        background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
-                        color: 'white',
-                        borderRadius: '999px',
-                        px: { xs: 3, sm: 3.25 },
-                        py: { xs: 1.25, sm: 1.1 },
                         fontFamily: 'Poppins',
-                        fontWeight: 700,
-                        fontSize: { xs: '15px', sm: '15px', md: '16px' },
-                        textTransform: 'none',
-                        width: { xs: '100%', sm: 'auto' },
-                        minWidth: { xs: 'auto', sm: 135, md: 145 },
-                        letterSpacing: '0.03em',
-                        boxShadow: '0 14px 32px rgba(105, 36, 124, 0.3)',
-                        border: '2px solid rgba(255,255,255,0.9)',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        transition: 'transform 0.25s ease, box-shadow 0.25s ease',
-                        '&::before': {
-                          content: '""',
-                          position: 'absolute',
-                          inset: 0,
-                          background: 'linear-gradient(120deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 55%)',
-                          opacity: 0.6,
-                          pointerEvents: 'none'
-                        },
-                        '&:hover': {
-                          background: 'linear-gradient(90deg, #5A1F6C 0%, #C9397D 100%)',
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 20px 36px rgba(105,36,124,0.35)'
-                        }
+                        fontWeight: 600,
+                        fontSize: { xs: '14px', sm: '16px' },
+                        lineHeight: '32px',
+                        color: '#404041'
                       }}
                     >
-                      Audition Now
-                    </Button>
+                      Apply by :
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontWeight: 400,
+                        fontSize: { xs: '12px', sm: '14px' },
+                        lineHeight: '24px',
+                        color: '#333931'
+                      }}
+                    >
+                      {job.applyBy}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Eligibility */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                  <GraduationIcon sx={{ 
+                    color: '#404041', 
+                    fontSize: { xs: '18px', sm: '20px' },
+                    mt: 0.25,
+                    flexShrink: 0
+                  }} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontWeight: 600,
+                        fontSize: { xs: '14px', sm: '16px' },
+                        lineHeight: '32px',
+                        color: '#404041'
+                      }}
+                    >
+                      Eligibility :
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontWeight: 400,
+                        fontSize: { xs: '12px', sm: '14px' },
+                        lineHeight: '24px',
+                        color: '#333931',
+                        wordBreak: 'break-word'
+                      }}
+                    >
+                      {job.eligibility}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Drive Type */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                  <SearchIcon sx={{ 
+                    color: '#404041', 
+                    fontSize: { xs: '18px', sm: '20px' },
+                    mt: 0.25,
+                    flexShrink: 0
+                  }} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontWeight: 600,
+                        fontSize: { xs: '14px', sm: '16px' },
+                        lineHeight: '32px',
+                        color: '#404041'
+                      }}
+                    >
+                      Drive Type :
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontWeight: 400,
+                        fontSize: { xs: '12px', sm: '14px' },
+                        lineHeight: '24px',
+                        color: '#333931'
+                      }}
+                    >
+                      {job.driveType}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Package */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                  <BriefcaseIcon sx={{ 
+                    color: '#404041', 
+                    fontSize: { xs: '18px', sm: '20px' },
+                    mt: 0.25,
+                    flexShrink: 0
+                  }} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontWeight: 600,
+                        fontSize: { xs: '14px', sm: '16px' },
+                        lineHeight: '32px',
+                        color: '#404041'
+                      }}
+                    >
+                      Package :
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Poppins',
+                        fontWeight: 400,
+                        fontSize: { xs: '12px', sm: '14px' },
+                        lineHeight: '24px',
+                        color: '#333931'
+                      }}
+                    >
+                      {job.package}
+                    </Typography>
                   </Box>
                 </Box>
               </CardContent>
+
+              {/* View Details Button */}
+              <Box sx={{ 
+                p: { xs: 2, sm: 2.5 }, 
+                pt: { xs: 1, sm: 1.5 },
+                pb: { xs: 2, sm: 2.5 },
+                flexShrink: 0,
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mt: 'auto'
+              }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    height: { xs: '35px', sm: '37px' },
+                    minHeight: { xs: '35px', sm: '37px' },
+                    maxHeight: { xs: '35px', sm: '37px' },
+                    borderRadius: '6px',
+                    background: '#2A9D8F',
+                    color: '#FFFFFF',
+                    fontFamily: 'Poppins',
+                    fontWeight: 400,
+                    fontSize: { xs: '14px', sm: '16px' },
+                    lineHeight: '40px',
+                    textTransform: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.1), 0px 4px 4px 0px rgba(0, 0, 0, 0.09), 0px 9px 5px 0px rgba(0, 0, 0, 0.05), 0px 16px 7px 0px rgba(0, 0, 0, 0.01), 0px 25px 7px 0px rgba(0, 0, 0, 0)',
+                    '&:hover': {
+                      background: '#238f82',
+                      boxShadow: '0px 4px 8px rgba(42, 157, 143, 0.3)'
+                    }
+                  }}
+                >
+                  View Details
+                </Button>
+              </Box>
             </Card>
           </motion.div>
         ))}
       </Box>
 
-      {/* Find More Jobs Button */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        mt: { xs: 4, sm: 5, md: 6 } 
-      }}>
-        <Button
-          variant="outlined"
-          sx={{
-            fontFamily: 'Poppins',
-            fontWeight: 600,
-            fontStyle: 'normal',
-            fontSize: { xs: '18px', sm: '20px', md: '22px' },
-            lineHeight: '140%',
-            letterSpacing: '0%',
-            color: '#69247C',
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #69247C',
-            borderRadius: '5px',
-            px: { xs: 4, sm: 6 },
-            py: { xs: 2, sm: 2.5 },
-            textTransform: 'none',
-            '&:hover': {
-              backgroundColor: '#69247C',
-              color: '#FFFFFF',
-              border: '1px solid #69247C'
-            }
-          }}
-        >
-          Find More Jobs
-        </Button>
-      </Box>
+      {/* Pagination */}
+      {allJobs.length > jobsPerPage && (
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          mt: { xs: 4, sm: 5, md: 6 },
+          mb: { xs: 2, sm: 3 }
+        }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            sx={{
+              '& .MuiPaginationItem-root': {
+                fontFamily: 'Poppins',
+                fontSize: { xs: '14px', sm: '16px' },
+                '&.Mui-selected': {
+                  backgroundColor: '#2A9D8F',
+                  color: '#FFFFFF',
+                  '&:hover': {
+                    backgroundColor: '#238f82'
+                  }
+                },
+                '&:hover': {
+                  backgroundColor: 'rgba(42, 157, 143, 0.1)'
+                }
+              },
+              '& .MuiPaginationItem-icon': {
+                color: '#2A9D8F',
+                fontSize: { xs: '20px', sm: '24px' }
+              }
+            }}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

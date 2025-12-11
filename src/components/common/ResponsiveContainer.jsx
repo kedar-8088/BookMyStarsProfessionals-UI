@@ -13,18 +13,17 @@ const ResponsiveContainer = styled(Box)(({ theme }) => ({
     xs: theme.spacing(1),
     sm: theme.spacing(2),
     md: theme.spacing(3),
-    lg: theme.spacing(4),
-    xl: theme.spacing(5)
+    lg: theme.spacing(4)
   },
   maxWidth: {
     xs: '100%',
     sm: '600px',
     md: '800px',
-    lg: '1000px',
-    xl: '1200px'
+    lg: '1000px'
   },
   [theme.breakpoints.up('xl')]: {
-    maxWidth: '1400px'
+    padding: theme.spacing(5),
+    maxWidth: '1200px'
   }
 }));
 

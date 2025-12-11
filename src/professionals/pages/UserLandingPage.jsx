@@ -37,7 +37,8 @@ import {
   // faClipboardQuestion, // Commented out - Test Assessment icon
   // faMicrochip, // Commented out - AI Mockup icon
   faBookOpen,
-  faHandshake
+  faHandshake,
+  faBriefcase
 } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
@@ -59,6 +60,8 @@ const ProfileNavBar = () => {
 
   // Dashboard navigation items
   const dashboardNavItems = [
+    { label: 'LMS', href: '/dashboard/lms', icon: faBookOpen, comingSoon: false },
+    { label: 'Job', href: '/dashboard/jobs', icon: faBriefcase, comingSoon: false },
     { label: 'E Commarce ', href: '/dashboard/welcome', icon: faPersonChalkboard, comingSoon: true },
     // { label: 'Test Assessment', href: '/dashboard/test-list', icon: faClipboardQuestion },
     // { label: 'AI Mockup', href: '/dashboard/ai-mockup', icon: faMicrochip },
@@ -542,7 +545,7 @@ const ProfileNavBar = () => {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <DashboardIcon sx={{ fontSize: 22, color: '#fff' }} />
+              <DashboardIcon sx={{ fontSize: 22, color: location.pathname === '/dashboard' ? '#DA498D' : '#333' }} />
               <Typography component="span">Dashboard</Typography>
             </Box>
           </MenuItem>

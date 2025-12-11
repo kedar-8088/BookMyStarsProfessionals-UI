@@ -100,7 +100,8 @@ const ProfessionalPage = () => {
     if (banners.length > 0 && currentBannerIndex >= banners.length) {
       setCurrentBannerIndex(0);
     }
-  }, [banners, currentBannerIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [banners.length]);
 
   // Continuous auto-slide for banner carousel
   useEffect(() => {
@@ -279,7 +280,7 @@ const ProfessionalPage = () => {
                 sx={{
                   position: 'relative',
                   width: '100%',
-                  height: { xs: '180px', sm: '220px', md: '280px', lg: '320px', xl: '350px' },
+                  height: { xs: '180px', sm: '220px', md: '280px', lg: '320px' },
                   overflow: 'hidden',
                   backgroundColor: 'transparent',
                   display: 'flex',
@@ -330,9 +331,9 @@ const ProfessionalPage = () => {
                           sx={{
                             position: 'relative',
                             width: isCenter 
-                              ? { xs: '100%', sm: '95%', md: '92%', lg: '90%', xl: '88%' }
-                              : { xs: '0%', sm: '25%', md: '20%', lg: '15%', xl: '12%' },
-                            height: { xs: '160px', sm: '200px', md: '250px', lg: '290px', xl: '320px' },
+                              ? { xs: '100%', sm: '95%', md: '92%', lg: '90%' }
+                              : { xs: '0%', sm: '25%', md: '20%', lg: '15%' },
+                            height: { xs: '160px', sm: '200px', md: '250px', lg: '290px' },
                             flexShrink: 0,
                             borderRadius: { xs: 1.5, sm: 2, md: 3, lg: 4 },
                             overflow: 'hidden',
@@ -509,13 +510,13 @@ const ProfessionalPage = () => {
                           transform: 'translateY(-50%) scale(1.05)'
                         },
                         zIndex: 1000,
-                        width: { xs: '36px', sm: '44px', md: '48px', lg: '52px', xl: '56px' },
-                        height: { xs: '56px', sm: '64px', md: '72px', lg: '80px', xl: '88px' },
+                        width: { xs: '36px', sm: '44px', md: '48px', lg: '52px' },
+                        height: { xs: '56px', sm: '64px', md: '72px', lg: '80px' },
                         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      <ArrowBackIosIcon sx={{ fontSize: { xs: '18px', sm: '22px', md: '24px', lg: '26px', xl: '28px' } }} />
+                      <ArrowBackIosIcon sx={{ fontSize: { xs: '18px', sm: '22px', md: '24px', lg: '26px' } }} />
                     </IconButton>
 
                   <IconButton
@@ -534,13 +535,13 @@ const ProfessionalPage = () => {
                           transform: 'translateY(-50%) scale(1.05)'
                         },
                         zIndex: 1000,
-                        width: { xs: '36px', sm: '44px', md: '48px', lg: '52px', xl: '56px' },
-                        height: { xs: '56px', sm: '64px', md: '72px', lg: '80px', xl: '88px' },
+                        width: { xs: '36px', sm: '44px', md: '48px', lg: '52px' },
+                        height: { xs: '56px', sm: '64px', md: '72px', lg: '80px' },
                         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                         transition: 'all 0.3s ease'
                     }}
                   >
-                      <ArrowForwardIosIcon sx={{ fontSize: { xs: '18px', sm: '22px', md: '24px', lg: '26px', xl: '28px' } }} />
+                      <ArrowForwardIosIcon sx={{ fontSize: { xs: '18px', sm: '22px', md: '24px', lg: '26px' } }} />
                   </IconButton>
                   </>
                 )}
@@ -550,7 +551,7 @@ const ProfessionalPage = () => {
                   <Box
                     sx={{
                       position: 'absolute',
-                      bottom: { xs: 8, sm: 12, md: 16, lg: 20, xl: 24 },
+                      bottom: { xs: 8, sm: 12, md: 16, lg: 20 },
                       left: '50%',
                       transform: 'translateX(-50%)',
                       display: 'flex',

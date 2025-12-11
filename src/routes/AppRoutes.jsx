@@ -21,6 +21,7 @@ import Dashboard1c from '../lms/pages/dashbaord1c';
 import ModulesPage from '../lms/pages/modules';
 import RegisterPage from '../agency/pages/RegisterPage';
 import OtpVerificationPage from '../agency/pages/OtpVerificationPage';
+import JobCard from '../job/jobcard';
 
 const AppRoutes = () => {
   return (
@@ -42,6 +43,7 @@ const AppRoutes = () => {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/dashboard/lms" element={<Dashboard1c />} />
       <Route path="/dashboard/lms/modules" element={<ModulesPage />} />
+      <Route path="/dashboard/jobs" element={<JobCard />} />
       <Route path="/agency/register" element={<RegisterPage />} />
       <Route path="/agency/otp-verification" element={<OtpVerificationPage />} />
     </Routes>

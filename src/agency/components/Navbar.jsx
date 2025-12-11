@@ -1,9 +1,9 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Box, Button, IconButton, useMediaQuery, useTheme, Menu, MenuItem } from '@mui/material';
-import { Menu as MenuIcon, Logout as LogoutIcon, Person as PersonIcon, Dashboard as DashboardIcon } from '@mui/icons-material';
+import { Menu as MenuIcon, Logout as LogoutIcon, Person as PersonIcon, Dashboard as DashboardIcon, Work as WorkIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { sessionManager } from '../../API/authApi';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 
@@ -17,10 +17,16 @@ const GradientAppBar = styled(AppBar)(({ theme }) => ({
 const Navbar = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileMenuAnchor, setMobileMenuAnchor] = React.useState(null);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [userData, setUserData] = React.useState(null);
+  
+  // Hide Job button on jobcard page and LMS dashboard page
+  const isJobCardPage = location.pathname === '/dashboard/jobs';
+  const isLMSDashboardPage = location.pathname === '/dashboard/lms';
+  const shouldHideJobButton = isJobCardPage || isLMSDashboardPage;
 
   // Check authentication status on component mount
   React.useEffect(() => {
@@ -140,6 +146,24 @@ const Navbar = () => {
                     >
                       Dashboard
                     </Button>
+                    {!shouldHideJobButton && (
+                      <Button
+                        color="inherit"
+                        onClick={() => navigate('/dashboard/jobs')}
+                        startIcon={<WorkIcon />}
+                        sx={{
+                          color: 'white',
+                          fontWeight: 400,
+                          fontSize: '14px',
+                          textTransform: 'none',
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          },
+                        }}
+                      >
+                        Job
+                      </Button>
+                    )}
                     <Button
                       variant="contained"
                       onClick={handleLogout}
@@ -200,6 +224,12 @@ const Navbar = () => {
               <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/dashboard'); }}>
                 <DashboardIcon sx={{ mr: 1, fontSize: 18 }} />
                 Dashboard
+              </MenuItem>
+            )}
+            {isLoggedIn && userData && !shouldHideJobButton && (
+              <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/dashboard/jobs'); }}>
+                <WorkIcon sx={{ mr: 1, fontSize: 18 }} />
+                Job
               </MenuItem>
             )}
             {isLoggedIn && userData && (

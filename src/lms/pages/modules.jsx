@@ -831,7 +831,7 @@ const ModulesPage = () => {
             width: '241.55px',
             height: '58.5px',
             borderRadius: '200px',
-            background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+            backgroundColor: '#2A9D8F',
             border: 'none',
             display: 'flex',
             alignItems: 'center',
@@ -842,9 +842,9 @@ const ModulesPage = () => {
             overflow: 'hidden',
             transition: 'all 0.3s ease',
             '&:hover': {
-              background: 'linear-gradient(90deg, #5a1f6a 0%, #C43A7A 100%)',
+              backgroundColor: '#238f82',
               transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(218, 73, 141, 0.3)',
+              boxShadow: '0 4px 12px rgba(42, 157, 143, 0.3)',
             },
           }}
         >
@@ -866,7 +866,7 @@ const ModulesPage = () => {
               width: '58.5px',
               height: '58.5px',
               borderRadius: '50%',
-              backgroundColor: '#5a1f6a',
+              backgroundColor: '#238f82',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
