@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardMedia, CardContent, Typography, Button, Box } from '@mui/material';
 import { ArrowForward } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
@@ -13,10 +14,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
   backgroundColor: 'rgba(242, 182, 198, 0.14)',
   borderRadius: { xs: '12px', sm: '14px', md: '18px' },
   overflow: 'hidden',
-  boxShadow: { 
-    xs: '0px 2px 8px rgba(0, 0, 0, 0.15)', 
-    sm: '0px 4px 12px rgba(0, 0, 0, 0.2)', 
-    md: '0px 4px 4px 0px #00000040' 
+  boxShadow: {
+    xs: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+    sm: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+    md: '0px 4px 4px 0px #00000040'
   },
   border: '1px solid rgba(255, 255, 255, 0.2)',
   backdropFilter: 'blur(10px)',
@@ -25,10 +26,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
   flexDirection: 'column',
   '&:hover': {
     transform: 'translateY(-4px)',
-    boxShadow: { 
-      xs: '0px 4px 16px rgba(0, 0, 0, 0.2)', 
-      sm: '0px 8px 20px rgba(0, 0, 0, 0.25)', 
-      md: '0px 8px 8px 0px #00000040' 
+    boxShadow: {
+      xs: '0px 4px 16px rgba(0, 0, 0, 0.2)',
+      sm: '0px 8px 20px rgba(0, 0, 0, 0.25)',
+      md: '0px 8px 8px 0px #00000040'
     },
   },
 }));
@@ -64,10 +65,10 @@ const GradientButton = styled(Button)(({ theme }) => ({
   '&:hover': {
     background: 'linear-gradient(90deg, #5a1f6b 0%, #c43d7a 100%)',
     transform: 'translateY(-2px)',
-    boxShadow: { 
-      xs: '0 4px 15px rgba(105, 36, 124, 0.25)', 
-      sm: '0 6px 20px rgba(105, 36, 124, 0.3)', 
-      md: '0 8px 25px rgba(105, 36, 124, 0.3)' 
+    boxShadow: {
+      xs: '0 4px 15px rgba(105, 36, 124, 0.25)',
+      sm: '0 6px 20px rgba(105, 36, 124, 0.3)',
+      md: '0 8px 25px rgba(105, 36, 124, 0.3)'
     },
   },
   '&::before': {
@@ -86,6 +87,7 @@ const GradientButton = styled(Button)(({ theme }) => ({
 }));
 
 const HirerCard = () => {
+  const navigate = useNavigate();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -111,13 +113,13 @@ const HirerCard = () => {
             />
           </ImageContainer>
         </motion.div>
-        
+
         {/* Card Content */}
-        <CardContent sx={{ 
-          p: { xs: 1.5, sm: 2, md: 2.5 }, 
-          height: { xs: 180, sm: 200, md: 220, lg: 240 }, 
-          display: 'flex', 
-          flexDirection: 'column', 
+        <CardContent sx={{
+          p: { xs: 1.5, sm: 2, md: 2.5 },
+          height: { xs: 180, sm: 200, md: 220, lg: 240 },
+          display: 'flex',
+          flexDirection: 'column',
           justifyContent: 'space-between',
           flex: 1,
           overflow: 'hidden',
@@ -128,10 +130,10 @@ const HirerCard = () => {
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <Typography 
-              variant="h4" 
+            <Typography
+              variant="h4"
               component="h3"
-              sx={{ 
+              sx={{
                 fontWeight: 600,
                 fontSize: { xs: '14px', sm: '16px', md: '18px', lg: '20px' },
                 lineHeight: '140%',
@@ -143,9 +145,9 @@ const HirerCard = () => {
             >
               Cast the perfect role.
             </Typography>
-            <Typography 
+            <Typography
               variant="body1"
-              sx={{ 
+              sx={{
                 fontWeight: 400,
                 fontSize: { xs: '10px', sm: '11px', md: '12px', lg: '13px' },
                 lineHeight: '150%',
@@ -157,7 +159,7 @@ const HirerCard = () => {
               Find verified artists, stylists, and creators who match your exact project requirements — and bring your vision to life.
             </Typography>
           </motion.div>
-          
+
           {/* CTA Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -167,6 +169,7 @@ const HirerCard = () => {
           >
             <GradientButton
               endIcon={<ArrowForward />}
+              onClick={() => navigate('/hire-talent')}
             >
               I'm Hiring Talent
             </GradientButton>

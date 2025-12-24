@@ -5,9 +5,6 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { motion, useInView } from 'framer-motion';
 import ProfessionalHeader from '../components/ProfessionalHeader';
 import OpportunitiesCard from '../components/OpportunitiesCard';
-import FeaturedJobsSection from '../components/FeaturedJobsSection';
-import ExploreCategoriesSection from '../components/ExploreCategoriesSection';
-import StatisticsSection from '../components/StatisticsSection';
 import Footer from '../components/Footer';
 import talentBannerImg from '../../assets/images/Talent  Banner.png';
 import { fetchBanner } from '../../API/bannerApi';
@@ -25,17 +22,11 @@ const ProfessionalPage = () => {
   // Intersection Observer refs
   const talentBannerRef = useRef(null);
   const opportunitiesRef = useRef(null);
-  const featuredJobsRef = useRef(null);
-  const exploreCategoriesRef = useRef(null);
-  const statisticsRef = useRef(null);
   const footerRef = useRef(null);
 
   // Intersection Observer hooks
   const talentBannerInView = useInView(talentBannerRef, { once: true, margin: "-50px" });
   const opportunitiesInView = useInView(opportunitiesRef, { once: true, margin: "-50px" });
-  const featuredJobsInView = useInView(featuredJobsRef, { once: true, margin: "-50px" });
-  const exploreCategoriesInView = useInView(exploreCategoriesRef, { once: true, margin: "-50px" });
-  const statisticsInView = useInView(statisticsRef, { once: true, margin: "-50px" });
   const footerInView = useInView(footerRef, { once: true, margin: "-50px" });
 
   // Fetch banners from database
@@ -606,50 +597,6 @@ const ProfessionalPage = () => {
             <OpportunitiesCard />
           </motion.div>
         </Container>
-        
-        {/* Featured Jobs Section */}
-        <Container 
-          maxWidth="xl"
-          sx={{ 
-            px: { xs: 1, sm: 2, md: 3, lg: 4 }
-          }}
-        >
-          <motion.div
-            ref={featuredJobsRef}
-            initial={{ opacity: 0, y: 30 }}
-            animate={featuredJobsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-          >
-            <FeaturedJobsSection />
-          </motion.div>
-        </Container>
-        
-        {/* Explore Categories Section */}
-        <Container 
-          maxWidth="xl"
-          sx={{ 
-            px: { xs: 1, sm: 2, md: 3, lg: 4 }
-          }}
-        >
-          <motion.div
-            ref={exploreCategoriesRef}
-            initial={{ opacity: 0, y: 30 }}
-            animate={exploreCategoriesInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-          >
-            <ExploreCategoriesSection />
-          </motion.div>
-        </Container>
-        
-        {/* Statistics Section */}
-        <motion.div
-          ref={statisticsRef}
-          initial={{ opacity: 0, y: 30 }}
-          animate={statisticsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          <StatisticsSection />
-        </motion.div>
       </Box>
                   
                   {/* Footer */}

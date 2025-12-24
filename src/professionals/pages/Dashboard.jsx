@@ -185,6 +185,9 @@ const Dashboard = () => {
 
   const session = sessionManager.getUserSession();
   const user = session?.user || null;
+  const userProfessionalsId = user?.professionalsId;
+  const userFirstNameFromSession = user?.firstName;
+  const userLastNameFromSession = user?.lastName;
   const [userFirstName, setUserFirstName] = useState('');
   const [userLastName, setUserLastName] = useState('');
   const [profileCompletion, setProfileCompletion] = useState(0);
@@ -460,39 +463,39 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUserNamesAndProfile = async () => {
       // First, check if firstName and lastName are already in the user session
-      if (user?.firstName) {
-        setUserFirstName(user.firstName);
+      if (userFirstNameFromSession && userFirstName !== userFirstNameFromSession) {
+        setUserFirstName(userFirstNameFromSession);
       }
-      if (user?.lastName) {
-        setUserLastName(user.lastName);
+      if (userLastNameFromSession && userLastName !== userLastNameFromSession) {
+        setUserLastName(userLastNameFromSession);
       }
 
       // If not in session and we have a professionalsId, fetch from profile
-      if (user?.professionalsId) {
+      if (userProfessionalsId && !profileData) {
         try {
-          const response = await getProfessionalsProfileByProfessional(user.professionalsId);
+          const response = await getProfessionalsProfileByProfessional(userProfessionalsId);
           if (response.success && response.data?.code === 1000) {
-            const profileData = response.data.data;
-            setProfileData(profileData);
+            const fetchedProfileData = response.data.data;
+            setProfileData(fetchedProfileData);
             
             // Calculate profile completion
-            const completion = calculateProfileCompletion(profileData);
+            const completion = calculateProfileCompletion(fetchedProfileData);
             setProfileCompletion(completion);
 
             // Check if firstName and lastName are in professionalsDto
-            if (profileData?.professionalsDto?.firstName && !user?.firstName) {
-              setUserFirstName(profileData.professionalsDto.firstName);
+            if (fetchedProfileData?.professionalsDto?.firstName && !userFirstNameFromSession && userFirstName !== fetchedProfileData.professionalsDto.firstName) {
+              setUserFirstName(fetchedProfileData.professionalsDto.firstName);
             }
-            if (profileData?.professionalsDto?.lastName && !user?.lastName) {
-              setUserLastName(profileData.professionalsDto.lastName);
+            if (fetchedProfileData?.professionalsDto?.lastName && !userLastNameFromSession && userLastName !== fetchedProfileData.professionalsDto.lastName) {
+              setUserLastName(fetchedProfileData.professionalsDto.lastName);
             }
             // If firstName or lastName not in professionalsDto, check if fullName exists in basicInfo and split it
-            if ((!profileData?.professionalsDto?.firstName || !profileData?.professionalsDto?.lastName) && profileData?.basicInfo?.fullName) {
-              const nameParts = profileData.basicInfo.fullName.trim().split(' ');
-              if (nameParts.length > 0 && !user?.firstName && !profileData?.professionalsDto?.firstName) {
+            if ((!fetchedProfileData?.professionalsDto?.firstName || !fetchedProfileData?.professionalsDto?.lastName) && fetchedProfileData?.basicInfo?.fullName) {
+              const nameParts = fetchedProfileData.basicInfo.fullName.trim().split(' ');
+              if (nameParts.length > 0 && !userFirstNameFromSession && !fetchedProfileData?.professionalsDto?.firstName && userFirstName !== nameParts[0]) {
                 setUserFirstName(nameParts[0]);
               }
-              if (nameParts.length > 1 && !user?.lastName && !profileData?.professionalsDto?.lastName) {
+              if (nameParts.length > 1 && !userLastNameFromSession && !fetchedProfileData?.professionalsDto?.lastName && userLastName !== nameParts.slice(1).join(' ')) {
                 setUserLastName(nameParts.slice(1).join(' '));
               }
             }
@@ -504,7 +507,8 @@ const Dashboard = () => {
     };
 
     fetchUserNamesAndProfile();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userProfessionalsId, userFirstNameFromSession, userLastNameFromSession]);
 
 
   // Search and filter state

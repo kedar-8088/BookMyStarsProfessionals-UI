@@ -201,7 +201,15 @@ const ProfileNavBar = () => {
           }
         `}
       </style>
-      <AppBar position="static" sx={{ background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)' }}>
+      <AppBar 
+        position="sticky" 
+        sx={{ 
+          background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+          top: 0,
+          zIndex: 1100,
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+        }}
+      >
       <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Logo Section */}
         <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>

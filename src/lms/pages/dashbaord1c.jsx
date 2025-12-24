@@ -254,7 +254,7 @@ const Dashboard1c = () => {
               fontSize: { xs: '28px', sm: '36px', md: '42px' },
               mb: 2,
               lineHeight: 1.2,
-            }}
+            }} 
           >
             Learn. Practice. Improve — One Module at a Time
           </Typography>

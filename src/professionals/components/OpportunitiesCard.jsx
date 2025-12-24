@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Typography, Chip } from '@mui/material';
-import { sessionManager } from '../../API/authApi';
-import profileFlowManager from '../../utils/profileFlowManager';
-import { getProfessionalSkillsByProfileId } from '../../API/professionalSkillsApi';
+import { getAllSkills, getSkillsWithPagination } from '../../API/skillsApi';
 
 const OpportunitiesCard = () => {
   const defaultOptions = useMemo(
@@ -22,53 +20,110 @@ const OpportunitiesCard = () => {
 
     const loadSkills = async () => {
       try {
-        if (!sessionManager.isLoggedIn()) {
-          return;
-        }
-
-        let profileId = sessionManager.getProfessionalsProfileId();
-
-        if (!profileId) {
-          const initResult = await profileFlowManager.initialize();
-
-          profileId =
-            sessionManager.getProfessionalsProfileId() ||
-            initResult.profileId;
-
-          if (!profileId) {
-            const profileResult = await profileFlowManager.createOrGetProfile();
-            if (profileResult?.success && profileResult.profileId) {
-              profileId = profileResult.profileId;
-              sessionManager.setProfessionalsProfileId(profileId);
+        let allSkills = [];
+        
+        // First try getAllSkills
+        try {
+          const skillsResponse = await getAllSkills();
+          console.log('getAllSkills response:', skillsResponse);
+          
+          if (skillsResponse && skillsResponse.data) {
+            const responseData = skillsResponse.data;
+            
+            // Check different response structures
+            if (responseData.code === 200 || responseData.code === 1000) {
+              let skillsData = [];
+              
+              if (responseData.data) {
+                if (Array.isArray(responseData.data)) {
+                  skillsData = responseData.data;
+                } else if (responseData.data.content && Array.isArray(responseData.data.content)) {
+                  skillsData = responseData.data.content;
+                } else if (responseData.data.data && Array.isArray(responseData.data.data)) {
+                  skillsData = responseData.data.data;
+                }
+              }
+              
+              if (skillsData.length > 0) {
+                allSkills = skillsData;
+                console.log(`✅ getAllSkills returned ${allSkills.length} skills`);
+              }
             }
+          }
+        } catch (getAllError) {
+          console.warn('getAllSkills failed, trying pagination:', getAllError);
+          
+          // Fallback to pagination if getAllSkills fails
+          try {
+            let pageNumber = 0;
+            const pageSize = 1000; // Large page size to fetch all at once
+            let hasMore = true;
+            
+            while (hasMore && isMounted) {
+              const paginatedResponse = await getSkillsWithPagination(pageNumber, pageSize);
+              
+              if (paginatedResponse && paginatedResponse.data) {
+                const responseData = paginatedResponse.data;
+                let skillsData = [];
+                
+                if (responseData.code === 200 || responseData.code === 1000) {
+                  if (responseData.data) {
+                    if (Array.isArray(responseData.data)) {
+                      skillsData = responseData.data;
+                    } else if (responseData.data.content && Array.isArray(responseData.data.content)) {
+                      skillsData = responseData.data.content;
+                      hasMore = pageNumber < (responseData.data.totalPages - 1);
+                    } else if (responseData.data.data && Array.isArray(responseData.data.data)) {
+                      skillsData = responseData.data.data;
+                    }
+                  }
+                  
+                  if (skillsData.length > 0) {
+                    allSkills = [...allSkills, ...skillsData];
+                    pageNumber++;
+                  } else {
+                    hasMore = false;
+                  }
+                } else {
+                  hasMore = false;
+                }
+              } else {
+                hasMore = false;
+              }
+            }
+            
+            console.log(`✅ Pagination returned ${allSkills.length} skills`);
+          } catch (paginationError) {
+            console.error('Error fetching skills with pagination:', paginationError);
           }
         }
 
-        if (!profileId) {
-          return;
-        }
-
-        const skillsResponse = await getProfessionalSkillsByProfileId(profileId);
-
-        const skillNames = Array.isArray(skillsResponse?.data)
-          ? skillsResponse.data
-              .map(skill => skill?.skillName?.trim())
-              .filter(Boolean)
-          : Array.isArray(skillsResponse?.data?.data)
-            ? skillsResponse.data.data
-                .map(skill => skill?.skillName?.trim())
-                .filter(Boolean)
-            : [];
-
-        if (isMounted && skillNames.length > 0) {
+        if (isMounted && allSkills.length > 0) {
+          // Extract skill names and remove duplicates
+          const skillNames = allSkills
+            .map(skill => {
+              // Handle different possible field names
+              return skill?.skillName?.trim() || 
+                     skill?.name?.trim() || 
+                     skill?.skill?.trim() || 
+                     '';
+            })
+            .filter(Boolean);
+          
+          // Remove duplicates based on skill name
           const uniqueSkills = Array.from(new Set(skillNames));
-          setOptions(uniqueSkills);
-          setSelectedOption(prev => (prev < uniqueSkills.length ? prev : 0));
+          
+          if (uniqueSkills.length > 0) {
+            setOptions(uniqueSkills);
+            setSelectedOption(prev => (prev < uniqueSkills.length ? prev : 0));
+            console.log(`✅ Loaded ${uniqueSkills.length} unique skills from database`);
+          }
+        } else if (isMounted) {
+          console.warn('⚠️ No skills were loaded from database, using default options');
         }
       } catch (error) {
-        console.warn('Unable to load professional skills for opportunities list:', error);
-      } finally {
-        // No-op: we silently fall back to default options on error
+        console.error('Error loading skills from database:', error);
+        // Silently fall back to default options on error
       }
     };
 

@@ -16,12 +16,16 @@ import {
   UserLandingRoute,
   SharedProfileRoute
 } from './components';
+
 import Dashboard from '../professionals/pages/Dashboard';
 import Dashboard1c from '../lms/pages/dashbaord1c';
 import ModulesPage from '../lms/pages/modules';
 import RegisterPage from '../agency/pages/RegisterPage';
 import OtpVerificationPage from '../agency/pages/OtpVerificationPage';
 import JobCard from '../job/jobcard';
+
+
+import LandingPage from '../Hiring-talent/Pages/landingPage';
 
 const AppRoutes = () => {
   return (
@@ -44,9 +48,11 @@ const AppRoutes = () => {
       <Route path="/dashboard/lms" element={<Dashboard1c />} />
       <Route path="/dashboard/lms/modules" element={<ModulesPage />} />
       <Route path="/dashboard/jobs" element={<JobCard />} />
+      <Route path="/hire-talent" element={<LandingPage />} />
       <Route path="/agency/register" element={<RegisterPage />} />
       <Route path="/agency/otp-verification" element={<OtpVerificationPage />} />
     </Routes>
   );
 };
+
 export default AppRoutes;
