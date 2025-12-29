@@ -7,6 +7,7 @@ import Box from '@mui/material/Box';
 // project imports
 import Banner from './Banner';
 import { gridSpacing } from 'store/constant';
+import AIAssistant from '../../components/ai-assistant/AIAssistant';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
@@ -28,6 +29,7 @@ const Dashboard = () => {
                     </Grid>
                 </Grid>
             </Grid>
+            <AIAssistant />
         </Box>
     );
 };

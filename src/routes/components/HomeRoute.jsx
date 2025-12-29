@@ -8,6 +8,7 @@ import HomeFooter from '../../components/layout/HomeFooter';
 import { getAllCategories } from '../../API/categoryApi';
 import { getAllProjects } from '../../API/projectApi';
 import { getAllStates } from '../../API/stateApi';
+import { sessionManager } from '../../API/authApi';
 
 const LocationCard = styled(Box)(({ theme }) => ({
   borderRadius: '12px',
@@ -142,6 +143,14 @@ const HomeRoute = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       setCategoriesLoading(true);
+
+      // Check if user is logged in before making API call to avoid 401 errors
+      if (!sessionManager.isLoggedIn()) {
+        setCategories(dummyCategories);
+        setCategoriesLoading(false);
+        return;
+      }
+
       try {
         const response = await getAllCategories();
         if (response.data && response.data.code === 200 && response.data.data) {
@@ -174,6 +183,14 @@ const HomeRoute = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       setProjectsLoading(true);
+
+      // Check if user is logged in before making API call to avoid 401 errors
+      if (!sessionManager.isLoggedIn()) {
+        setProjects(dummyProjects);
+        setProjectsLoading(false);
+        return;
+      }
+
       try {
         const response = await getAllProjects();
         if (response.data && response.data.code === 200 && response.data.data) {
@@ -201,6 +218,15 @@ const HomeRoute = () => {
   useEffect(() => {
     const fetchStates = async () => {
       setStatesLoading(true);
+
+      // Check if user is logged in before making API call to avoid 401 errors
+      if (!sessionManager.isLoggedIn()) {
+        const activeDummyLocations = dummyLocations.filter(loc => loc.isActive !== false);
+        setStates(activeDummyLocations);
+        setStatesLoading(false);
+        return;
+      }
+
       try {
         const response = await getAllStates();
         if (response.data && response.data.code === 200 && response.data.data) {
@@ -244,12 +270,12 @@ const HomeRoute = () => {
     return displayStates.map((state) => {
       // Calculate project count based on stateId or stateName matching
       const projectCount = projects.filter(
-        (project) => 
-          project.stateId === state.stateId || 
+        (project) =>
+          project.stateId === state.stateId ||
           project.stateName === state.name ||
           project.state === state.name
       ).length;
-      
+
       return {
         ...state,
         projects: projectCount,
@@ -262,13 +288,13 @@ const HomeRoute = () => {
       <LandingHeader />
       <Hero />
       <CardsSection />
-      
+
       {/* Agency Banner Section */}
-      <Container 
-        maxWidth={false} 
-        sx={{ 
-          mt: 8, 
-          mb: 6, 
+      <Container
+        maxWidth={false}
+        sx={{
+          mt: 8,
+          mb: 6,
           px: { xs: 2, sm: 3, md: 4, lg: 6 },
           display: 'flex',
           justifyContent: 'center',
@@ -329,7 +355,7 @@ const HomeRoute = () => {
           </Button>
         </Box>
       </Container>
-      
+
       {/* Project Categories Section */}
       <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
         <motion.div
@@ -374,11 +400,11 @@ const HomeRoute = () => {
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: { 
-                  xs: 'repeat(2, 1fr)', 
-                  sm: 'repeat(3, 1fr)', 
-                  md: 'repeat(4, 1fr)', 
-                  lg: 'repeat(6, 1fr)' 
+                gridTemplateColumns: {
+                  xs: 'repeat(2, 1fr)',
+                  sm: 'repeat(3, 1fr)',
+                  md: 'repeat(4, 1fr)',
+                  lg: 'repeat(6, 1fr)'
                 },
                 gap: { xs: 2, sm: 2.5, md: 3 },
                 justifyContent: 'center',
@@ -395,8 +421,8 @@ const HomeRoute = () => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ 
-                      duration: 0.3, 
+                    transition={{
+                      duration: 0.3,
                       delay: index * 0.05,
                     }}
                     onMouseEnter={() => setHoveredCategory(category.name)}
@@ -414,7 +440,7 @@ const HomeRoute = () => {
                         padding: '1px',
                         background: 'linear-gradient(180deg, #DA498D 0%, #69247C 100%)',
                         transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-                        boxShadow: isHovered 
+                        boxShadow: isHovered
                           ? '0 4px 12px rgba(105, 36, 124, 0.2)'
                           : '0 2px 4px rgba(0, 0, 0, 0.05)',
                       }}
@@ -424,7 +450,7 @@ const HomeRoute = () => {
                           width: '100%',
                           height: '100%',
                           borderRadius: '28px',
-                          backgroundColor: isSelected 
+                          backgroundColor: isSelected
                             ? 'transparent'
                             : '#ffffff',
                           background: isSelected
@@ -465,7 +491,7 @@ const HomeRoute = () => {
           )}
         </motion.div>
       </Container>
-      
+
       {/* Project Locations Section */}
       <Container maxWidth={false} sx={{ mt: 8, mb: 6, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
         <motion.div
@@ -524,81 +550,81 @@ const HomeRoute = () => {
                   gradientStart: gradient.gradientStart,
                   gradientEnd: gradient.gradientEnd,
                 };
-              return (
-                <motion.div
-                  key={location.name}
-                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, amount: 0.1 }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: index * 0.1,
-                    ease: "easeOut" 
-                  }}
-                >
-                  <LocationCard>
-                    <Box
-                      sx={{
-                        position: 'relative',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '40px',
-                        height: '40px',
-                      }}
-                    >
-                      <svg
-                        width="36"
-                        height="36"
-                        viewBox="0 0 24 24"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
-                          position: 'relative',
-                          zIndex: 2,
-                        }}
-                      >
-                        <defs>
-                          <linearGradient id={`pin-gradient-${location.name.replace(/\s+/g, '-')}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor={location.gradientStart} />
-                            <stop offset="100%" stopColor={location.gradientEnd} />
-                          </linearGradient>
-                        </defs>
-                        <path
-                          d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                          fill={`url(#pin-gradient-${location.name.replace(/\s+/g, '-')})`}
-                        />
-                      </svg>
+                return (
+                  <motion.div
+                    key={location.name}
+                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: index * 0.1,
+                      ease: "easeOut"
+                    }}
+                  >
+                    <LocationCard>
                       <Box
                         sx={{
-                          position: 'absolute',
-                          bottom: '-4px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          width: '16px',
-                          height: '4px',
-                          borderRadius: '50%',
-                          background: 'rgba(0, 0, 0, 0.15)',
-                          filter: 'blur(3px)',
-                          zIndex: 0,
-                        }}
-                      />
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: '16px',
-                          color: '#333333',
-                          lineHeight: 1.2,
+                          position: 'relative',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '40px',
+                          height: '40px',
                         }}
                       >
-                        {location.name}
-                      </Typography>
-                    </Box>
-                  </LocationCard>
-                </motion.div>
-              );
+                        <svg
+                          width="36"
+                          height="36"
+                          viewBox="0 0 24 24"
+                          style={{
+                            filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+                            position: 'relative',
+                            zIndex: 2,
+                          }}
+                        >
+                          <defs>
+                            <linearGradient id={`pin-gradient-${location.name.replace(/\s+/g, '-')}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                              <stop offset="0%" stopColor={location.gradientStart} />
+                              <stop offset="100%" stopColor={location.gradientEnd} />
+                            </linearGradient>
+                          </defs>
+                          <path
+                            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                            fill={`url(#pin-gradient-${location.name.replace(/\s+/g, '-')})`}
+                          />
+                        </svg>
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            bottom: '-4px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '16px',
+                            height: '4px',
+                            borderRadius: '50%',
+                            background: 'rgba(0, 0, 0, 0.15)',
+                            filter: 'blur(3px)',
+                            zIndex: 0,
+                          }}
+                        />
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '16px',
+                            color: '#333333',
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {location.name}
+                        </Typography>
+                      </Box>
+                    </LocationCard>
+                  </motion.div>
+                );
               })}
             </Box>
           ) : (

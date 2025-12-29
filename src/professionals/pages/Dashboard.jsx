@@ -36,6 +36,7 @@ import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/pro
 import { fetchBanner } from '../../API/bannerApi';
 import AuthImage from '../../components/common/AuthImage';
 import menImage from '../../assets/images/Men.jpg';
+import AIAssistant from '../../components/ai-assistant/AIAssistant';
 import { 
   CheckCircle as CheckCircleIcon, 
   Person as PersonIcon,
@@ -1414,8 +1415,32 @@ const Dashboard = () => {
         </Container>
       )}
 
+      {/* Find your Opportunities Heading */}
+      <Container maxWidth={false} sx={{ mt: { xs: 4, sm: 5, md: 6 }, mb: { xs: 2, sm: 3, md: 4 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: 700,
+              fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+              color: '#DA498D',
+              textAlign: 'center',
+              mb: { xs: 2, sm: 3 },
+              fontFamily: 'Poppins, sans-serif',
+            }}
+          >
+            Find your Opportunities
+          </Typography>
+        </motion.div>
+      </Container>
+
       {/* Opportunities Section with Categories */}
-      <Container maxWidth={false} sx={{ mt: { xs: 4, sm: 6, md: 8 }, mb: { xs: 4, sm: 5, md: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
+      <Container maxWidth={false} sx={{ mt: { xs: 0, sm: 0, md: 0 }, mb: { xs: 4, sm: 5, md: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1574,6 +1599,8 @@ const Dashboard = () => {
         </motion.div>
       </Container>
 
+      {/* AI Assistant */}
+      <AIAssistant />
 
     </Box>
   );

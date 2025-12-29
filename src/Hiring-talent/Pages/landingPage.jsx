@@ -1,145 +1,16 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     Typography,
     Divider,
-    Button
+    Button,
+    IconButton
 } from "@mui/material";
-import { ArrowForward, VerifiedUser, Speed, LocationOn, Dashboard } from '@mui/icons-material';
-// ... previous imports
-
-// ... inside component ...
-
-{/* Why Choose Bookmystars Section */ }
-<Box
-    sx={{
-        width: "100%",
-        minHeight: "621px",
-        background: "linear-gradient(180deg, #69247C 0%, #DA498D 100%)",
-        py: 8,
-        px: 4,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        mt: 8,
-    }}
->
-    <Typography
-        sx={{
-            fontFamily: "Poppins",
-            fontWeight: 600,
-            fontSize: "48px",
-            lineHeight: "140%",
-            color: "#FFFFFF",
-            textAlign: "center",
-            mb: 8,
-        }}
-    >
-        Why Choose Bookmystars?
-    </Typography>
-
-    <Box
-        sx={{
-            display: "grid",
-            gridTemplateColumns: {
-                xs: "repeat(1, 1fr)",
-                md: "repeat(2, 1fr)",
-                lg: "repeat(4, 1fr)",
-            },
-            gap: 4,
-            maxWidth: "1350px",
-            width: "100%",
-        }}
-    >
-        {[
-            {
-                icon: <VerifiedUser sx={{ fontSize: 60, color: "#69247C" }} />,
-                title: "Verified Talent Only",
-                desc: "Every profile is manually screened for authenticity."
-            },
-            {
-                icon: <Speed sx={{ fontSize: 60, color: "#69247C" }} />,
-                title: "Faster Hiring Process",
-                desc: "Post roles, browse profiles, and manage hiring all in one place"
-            },
-            {
-                icon: <LocationOn sx={{ fontSize: 60, color: "#69247C" }} />,
-                title: "Find Talent by Location",
-                desc: "Easily shortlist artists available in your shoot city or region."
-            },
-            {
-                icon: <Dashboard sx={{ fontSize: 60, color: "#69247C" }} />,
-                title: "Built-in Project Tools",
-                desc: "Chat, schedule, and finalize within your dashboard."
-            },
-        ].map((item, index) => (
-            <Box
-                key={index}
-                sx={{
-                    width: "100%",
-                    maxWidth: "304px",
-                    height: "388px",
-                    backgroundColor: "#FFFFFF",
-                    borderRadius: "16px",
-                    mx: "auto",
-                    p: 4,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    boxShadow: "0px 8px 20px rgba(0,0,0,0.1)",
-                    transition: "transform 0.3s ease",
-                    "&:hover": {
-                        transform: "translateY(-5px)",
-                    },
-                }}
-            >
-                <Box
-                    sx={{
-                        width: "100px",
-                        height: "100px",
-                        borderRadius: "50%",
-                        backgroundColor: "rgba(105, 36, 124, 0.1)", // Light purple bg for icon
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        mb: 4,
-                    }}
-                >
-                    {item.icon}
-                </Box>
-
-                <Typography
-                    sx={{
-                        fontFamily: "Poppins",
-                        fontWeight: 600,
-                        fontSize: "24px",
-                        lineHeight: "140%",
-                        color: "#69247C",
-                        mb: 2,
-                    }}
-                >
-                    {item.title}
-                </Typography>
-
-                <Typography
-                    sx={{
-                        fontFamily: "Poppins",
-                        fontWeight: 400,
-                        fontSize: "18px", // Adjusted 22px to 18px for better fit in cards
-                        lineHeight: "140%",
-                        color: "#000000",
-                    }}
-                >
-                    {item.desc}
-                </Typography>
-            </Box>
-        ))}
-    </Box>
-</Box>
-
+import { ArrowForward, VerifiedUser, Speed, LocationOn, Dashboard, ArrowBackIos, ArrowForwardIos, FiberManualRecord } from '@mui/icons-material';
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from 'react-responsive-carousel';
 import Navbar from '../../agency/components/Navbar';
+import Footer from '../../agency/components/Footer';
 
 // ✅ ONLY ONE image import
 import heroImage from "../../assets/images/hirie-land.png.jpg";
@@ -154,8 +25,34 @@ import HairImage from "../../assets/images/article3.png";
 import CostumeImage from "../../assets/images/professionalcard.png";
 import MenImage from "../../assets/images/Men.jpg";
 import BannerImage from "../../assets/images/Talent  Banner.png";
+import VerifiedTalentImage from "../../assets/images/Verified Talent Only.png";
+import FasterHiringImage from "../../assets/images/Faster Hiring Process.png";
+import FindTalentLocationImage from "../../assets/images/Find Talent by Location.png";
+import BuiltInProjectToolsImage from "../../assets/images/Built-in Project Tools.png";
+import JoinOurTeamImage from "../../assets/images/join our team.jpg";
 
 const LandingPage = () => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const totalSlides = 3; // We have 3 static slides currently
+
+    useEffect(() => {
+        if (isHovered) return;
+        const interval = setInterval(() => {
+            setCurrentIndex((prev) => (prev + 1) % totalSlides);
+        }, 3000); // Change slide every 3 seconds
+
+        return () => clearInterval(interval);
+    }, [isHovered, totalSlides]);
+
+    const handleNext = () => {
+        setCurrentIndex((prev) => (prev + 1) % totalSlides);
+    };
+
+    const handlePrev = () => {
+        setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
+    };
+
     return (
         <Box sx={{ fontFamily: "Poppins, sans-serif" }}>
             {/* Navbar */}
@@ -907,10 +804,13 @@ const LandingPage = () => {
                     height: "103px",
                     backgroundColor: "#FAC67A",
                     display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
                     justifyContent: "space-between",
                     alignItems: "center",
                     px: { xs: 4, md: 8 },
+                    py: { xs: 4, md: 0 },
                     mt: 8,
+                    gap: { xs: 3, md: 0 }
                 }}
             >
                 <Typography
@@ -953,6 +853,7 @@ const LandingPage = () => {
                         },
                     }}
                 >
+                    Send Enquiry Now
                 </Button>
             </Box>
 
@@ -999,22 +900,70 @@ const LandingPage = () => {
                 >
                     {[
                         {
-                            icon: <VerifiedUser sx={{ fontSize: 60, color: "#69247C" }} />,
+                            disableBg: true,
+                            icon: (
+                                <Box
+                                    component="img"
+                                    src={VerifiedTalentImage}
+                                    alt="Verified Talent"
+                                    sx={{
+                                        width: "170px",
+                                        height: "150px",
+                                        objectFit: "contain"
+                                    }}
+                                />
+                            ),
                             title: "Verified Talent Only",
                             desc: "Every profile is manually screened for authenticity."
                         },
                         {
-                            icon: <Speed sx={{ fontSize: 60, color: "#69247C" }} />,
+                            disableBg: true,
+                            icon: (
+                                <Box
+                                    component="img"
+                                    src={FasterHiringImage}
+                                    alt="Faster Hiring Process"
+                                    sx={{
+                                        width: "170px",
+                                        height: "150px",
+                                        objectFit: "contain"
+                                    }}
+                                />
+                            ),
                             title: "Faster Hiring Process",
                             desc: "Post roles, browse profiles, and manage hiring all in one place"
                         },
                         {
-                            icon: <LocationOn sx={{ fontSize: 60, color: "#69247C" }} />,
+                            disableBg: true,
+                            icon: (
+                                <Box
+                                    component="img"
+                                    src={FindTalentLocationImage}
+                                    alt="Find Talent by Location"
+                                    sx={{
+                                        width: "170px",
+                                        height: "150px",
+                                        objectFit: "contain"
+                                    }}
+                                />
+                            ),
                             title: "Find Talent by Location",
                             desc: "Easily shortlist artists available in your shoot city or region."
                         },
                         {
-                            icon: <Dashboard sx={{ fontSize: 60, color: "#69247C" }} />,
+                            disableBg: true,
+                            icon: (
+                                <Box
+                                    component="img"
+                                    src={BuiltInProjectToolsImage}
+                                    alt="Built-in Project Tools"
+                                    sx={{
+                                        width: "170px",
+                                        height: "150px",
+                                        objectFit: "contain"
+                                    }}
+                                />
+                            ),
                             title: "Built-in Project Tools",
                             desc: "Chat, schedule, and finalize within your dashboard."
                         },
@@ -1043,10 +992,10 @@ const LandingPage = () => {
                         >
                             <Box
                                 sx={{
-                                    width: "100px",
-                                    height: "100px",
+                                    width: item.disableBg ? "auto" : "100px",
+                                    height: item.disableBg ? "auto" : "100px",
                                     borderRadius: "50%",
-                                    backgroundColor: "rgba(105, 36, 124, 0.1)", // Light purple bg for icon
+                                    backgroundColor: item.disableBg ? "transparent" : "rgba(105, 36, 124, 0.1)", // Light purple bg for icon (conditional)
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
@@ -1084,6 +1033,337 @@ const LandingPage = () => {
                     ))}
                 </Box>
             </Box>
+
+            {/* Testimonial Section */}
+            <Box sx={{ py: 8, backgroundColor: "#FFFFFF" }}>
+                <Typography
+                    sx={{
+                        fontFamily: "Roboto",
+                        fontWeight: 500,
+                        fontStyle: "normal", // 'Medium' maps to 500 usually
+                        fontSize: "48px",
+                        lineHeight: "140%",
+                        letterSpacing: "0%",
+                        textAlign: "center",
+                        color: "#DA498D",
+                        mb: 1
+                    }}
+                >
+                    Testimonial
+                </Typography>
+                <Typography
+                    sx={{
+                        fontFamily: "Roboto",
+                        fontWeight: 400,
+                        fontSize: "28px",
+                        lineHeight: "150%",
+                        letterSpacing: "0%",
+                        textAlign: "center",
+                        color: "#666666", // var(--Color-Neutral-neutral, #666666)
+                        mb: 8
+                    }}
+                >
+                    Featuring success stories from both talents and recruiters
+                </Typography>
+
+                <Box
+                    sx={{ maxWidth: "100%", overflow: "hidden", px: 0, display: "flex", flexDirection: "column", alignItems: "center" }}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
+                    <Box sx={{ width: "100%", mb: 4 }}>
+                        <Carousel
+                            selectedItem={currentIndex}
+                            onChange={(index) => setCurrentIndex(index)}
+                            showArrows={false}
+                            showThumbs={false}
+                            showStatus={false}
+                            showIndicators={false}
+                            infiniteLoop={true}
+                            autoPlay={false} // Using custom useEffect for better control
+                            interval={5000} // Irrelevant now but kept for prop consistency
+                            centerMode={true}
+                            centerSlidePercentage={60}
+                        >
+                            {/* Slide 1 */}
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4, px: { xs: 1, md: 0 } }}>
+                                <Box sx={{
+                                    width: "100%",
+                                    maxWidth: "745px",
+                                    minHeight: "296px",
+                                    display: "flex",
+                                    flexDirection: { xs: "column", md: "row" },
+                                    borderRadius: "12px",
+                                    boxShadow: "0px 0px 10px 0px #0000001A",
+                                    backgroundColor: "#FFFFFF",
+                                    textAlign: "left",
+                                    overflow: "hidden"
+                                }}>
+                                    {/* Image Side */}
+                                    <Box sx={{
+                                        width: { xs: "100%", md: "245px" },
+                                        minWidth: { md: "245px" },
+                                        height: { xs: "200px", md: "auto" },
+                                        backgroundColor: "#C4C4C4",
+                                        borderRadius: { xs: "12px 12px 0 0", md: "12px 0 0 12px" },
+                                        overflow: "hidden"
+                                    }}>
+                                        <Box component="img" src={FilmImage} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                    </Box>
+                                    {/* Text Side */}
+                                    <Box sx={{ flex: 1, p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                        <Typography sx={{ fontFamily: "Poppins", fontWeight: 700, fontStyle: "Bold", fontSize: { xs: "20px", md: "24px" }, lineHeight: "100%", color: "#525252", mb: 2 }}>
+                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                        </Typography>
+                                        <Typography sx={{ fontFamily: "Poppins", fontWeight: 400, fontStyle: "Regular", fontSize: { xs: "14px", md: "16px" }, lineHeight: "130%", color: "#525252" }}>
+                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cursus nibh mauris, nec turpis orci lectus maecenas. Suspendisse sed magna eget nibh in turpis. Consequat duis diam lacus arcu. Faucibus venenatis felis id auguet,
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
+
+                            {/* Slide 2 */}
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4, px: { xs: 1, md: 0 } }}>
+                                <Box sx={{
+                                    width: "100%",
+                                    maxWidth: "745px",
+                                    minHeight: "296px",
+                                    display: "flex",
+                                    flexDirection: { xs: "column", md: "row" },
+                                    borderRadius: "12px",
+                                    boxShadow: "0px 0px 10px 0px #0000001A",
+                                    backgroundColor: "#FFFFFF",
+                                    textAlign: "left",
+                                    overflow: "hidden"
+                                }}>
+                                    {/* Image Side */}
+                                    <Box sx={{
+                                        width: { xs: "100%", md: "245px" },
+                                        minWidth: { md: "245px" },
+                                        height: { xs: "200px", md: "auto" },
+                                        backgroundColor: "#C4C4C4",
+                                        borderRadius: { xs: "12px 12px 0 0", md: "12px 0 0 12px" },
+                                        overflow: "hidden"
+                                    }}>
+                                        <Box component="img" src={MenImage} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                    </Box>
+                                    {/* Text Side */}
+                                    <Box sx={{ flex: 1, p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                        <Typography sx={{ fontFamily: "Poppins", fontWeight: 700, fontStyle: "Bold", fontSize: { xs: "20px", md: "24px" }, lineHeight: "100%", color: "#525252", mb: 2 }}>
+                                            Exceptional Talent Pool!
+                                        </Typography>
+                                        <Typography sx={{ fontFamily: "Poppins", fontWeight: 400, fontStyle: "Regular", fontSize: { xs: "14px", md: "16px" }, lineHeight: "130%", color: "#525252" }}>
+                                            Finding the right cast was a nightmare before. With BookMyStars, I found exactly who I needed in record time. The verification adds a layer of trust that is invaluable.
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
+
+                            {/* Slide 3 */}
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4, px: { xs: 1, md: 0 } }}>
+                                <Box sx={{
+                                    width: "100%",
+                                    maxWidth: "745px",
+                                    minHeight: "296px",
+                                    display: "flex",
+                                    flexDirection: { xs: "column", md: "row" },
+                                    borderRadius: "12px",
+                                    boxShadow: "0px 0px 10px 0px #0000001A",
+                                    backgroundColor: "#FFFFFF",
+                                    textAlign: "left",
+                                    overflow: "hidden"
+                                }}>
+                                    {/* Image Side */}
+                                    <Box sx={{
+                                        width: { xs: "100%", md: "245px" },
+                                        minWidth: { md: "245px" },
+                                        height: { xs: "200px", md: "auto" },
+                                        backgroundColor: "#C4C4C4",
+                                        borderRadius: { xs: "12px 12px 0 0", md: "12px 0 0 12px" },
+                                        overflow: "hidden"
+                                    }}>
+                                        <Box component="img" src={ModelImage} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                    </Box>
+                                    {/* Text Side */}
+                                    <Box sx={{ flex: 1, p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                        <Typography sx={{ fontFamily: "Poppins", fontWeight: 700, fontStyle: "Bold", fontSize: { xs: "20px", md: "24px" }, lineHeight: "100%", color: "#525252", mb: 2 }}>
+                                            Highly Recommend!
+                                        </Typography>
+                                        <Typography sx={{ fontFamily: "Poppins", fontWeight: 400, fontStyle: "Regular", fontSize: { xs: "14px", md: "16px" }, lineHeight: "130%", color: "#525252" }}>
+                                            The platform is user-friendly and the support team is amazing. I landed my first big gig through BookMyStars within a week of joining.
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
+                        </Carousel>
+                    </Box>
+
+                    {/* Custom Bottom Navigation */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+                        <IconButton
+                            onClick={handlePrev}
+                            sx={{
+                                color: "#69247C",
+                                "&:hover": { backgroundColor: "rgba(105, 36, 124, 0.04)" }
+                            }}
+                        >
+                            <ArrowBackIos sx={{ fontSize: "24px" }} />
+                        </IconButton>
+
+                        <Box sx={{ display: "flex", gap: 1.5 }}>
+                            {Array.from({ length: totalSlides }).map((_, index) => (
+                                <FiberManualRecord
+                                    key={index}
+                                    onClick={() => setCurrentIndex(index)}
+                                    sx={{
+                                        fontSize: "14px",
+                                        color: currentIndex === index ? "#69247C" : "#D9D9D9",
+                                        cursor: "pointer",
+                                        transition: "color 0.3s ease",
+                                        "&:hover": { color: currentIndex === index ? "#69247C" : "#b0b0b0" }
+                                    }}
+                                />
+                            ))}
+                        </Box>
+
+                        <IconButton // Note: Original icon was ArrowForwardIos, using that
+                            onClick={handleNext}
+                            sx={{
+                                color: "#69247C",
+                                "&:hover": { backgroundColor: "rgba(105, 36, 124, 0.04)" }
+                            }}
+                        >
+                            <ArrowForwardIos sx={{ fontSize: "24px" }} />
+                        </IconButton>
+                    </Box>
+                </Box>
+            </Box>
+
+            {/* Join Our Team CTA Section */}
+            <Box
+                sx={{
+                    width: "100%",
+                    minHeight: "410px",
+                    background: "linear-gradient(90deg, #69247C 0%, #DA498D 100%)",
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    px: { xs: 4, md: 10 },
+                    py: { xs: 6, md: 0 },
+                    mt: 8,
+                    overflow: "hidden",
+                    position: "relative"
+                }}
+            >
+                {/* Left Content */}
+                <Box sx={{ maxWidth: { xs: "100%", md: "800px" }, zIndex: 1 }}>
+                    <Typography
+                        sx={{
+                            fontFamily: "Roboto",
+                            fontWeight: 700,
+                            fontStyle: "italic", // User said 'Bold' style but usually means weight. 'font-style: Bold' is invalid CSS (normal/italic/oblique). User might mean just 'Bold'. I'll stick to fontWeight: 700. Wait, input said 'font-style: Bold'. That's likely a misread from design tool. I will use normal unless it looks italic.
+                            fontSize: { xs: "32px", md: "48px" },
+                            lineHeight: "120%",
+                            letterSpacing: "0%",
+                            color: "#FFFFFF",
+                            mb: 2
+                        }}
+                    >
+                        Start Hiring the Right Talent Today.
+                    </Typography>
+
+                    <Typography
+                        sx={{
+                            fontFamily: "Roboto",
+                            fontWeight: 400,
+                            fontSize: { xs: "20px", md: "32px" },
+                            lineHeight: "150%",
+                            letterSpacing: "0%",
+                            color: "#FFFFFF",
+                            mb: 4,
+                            maxWidth: "950px"
+                        }}
+                    >
+                        Join hundreds of casting directors, brands, and agencies using BookMyStars to hire trusted professionals — faster.
+                    </Typography>
+
+                    <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+                        {/* Post a Job Button */}
+                        <Button
+                            sx={{
+                                width: "150px",
+                                height: "57px",
+                                backgroundColor: "#FFFFFF",
+                                borderRadius: "10px",
+                                textTransform: "none",
+                                "&:hover": {
+                                    backgroundColor: "#f5f5f5",
+                                },
+                            }}
+                        >
+                            <Typography
+                                sx={{
+                                    fontFamily: "Poppins",
+                                    fontWeight: 400,
+                                    fontSize: "24px",
+                                    lineHeight: "150%",
+                                    background: "linear-gradient(90deg, #69247C 0%, #DA498D 100%)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                }}
+                            >
+                                Post a Job
+                            </Typography>
+                        </Button>
+
+                        {/* Browse Talent Button */}
+                        <Button
+                            sx={{
+                                width: "193px",
+                                height: "57px",
+                                backgroundColor: "#FFFFFF",
+                                borderRadius: "10px",
+                                textTransform: "none",
+                                "&:hover": {
+                                    backgroundColor: "#f5f5f5",
+                                },
+                            }}
+                        >
+                            <Typography
+                                sx={{
+                                    fontFamily: "Poppins",
+                                    fontWeight: 400,
+                                    fontSize: "24px",
+                                    lineHeight: "150%",
+                                    background: "linear-gradient(90deg, #69247C 0%, #DA498D 100%)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                }}
+                            >
+                                Browse Talent
+                            </Typography>
+                        </Button>
+                    </Box>
+                </Box>
+
+                {/* Right Image */}
+                <Box
+                    component="img"
+                    src={JoinOurTeamImage}
+                    alt="Join Our Team"
+                    sx={{
+                        width: { xs: "100%", sm: "288px" },
+                        height: "352px",
+                        borderRadius: "10px",
+                        boxShadow: "0px 4px 4px 0px #00000040",
+                        objectFit: "cover",
+                        mt: { xs: 6, md: 0 }
+                    }}
+                />
+            </Box>
+
+            <Footer />
         </Box>
     );
 };
