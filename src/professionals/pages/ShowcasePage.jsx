@@ -79,6 +79,8 @@ const ShowcasePage = () => {
   // Intersection Observer refs
   const showcaseRef = useRef(null);
   const nextButtonRef = useRef(null);
+  const photosSectionRef = useRef(null);
+  const videosSectionRef = useRef(null);
 
   // Intersection Observer hooks
   const showcaseInView = useInView(showcaseRef, { once: true, margin: "-50px" });
@@ -680,6 +682,50 @@ const ShowcasePage = () => {
 
     initializeData();
   }, []);
+
+  // Handle activeSection to expand correct dropdown and scroll to section
+  useEffect(() => {
+    if (activeSection) {
+      // Set dropdown states based on activeSection
+      if (activeSection === 'photos') {
+        setDropdownStates(prev => ({
+          ...prev,
+          photos: true,
+          videos: false
+        }));
+        // Scroll to photos section after a short delay to ensure it's rendered
+        setTimeout(() => {
+          if (photosSectionRef.current) {
+            photosSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      } else if (activeSection === 'videos') {
+        setDropdownStates(prev => ({
+          ...prev,
+          photos: false,
+          videos: true
+        }));
+        // Scroll to videos section after a short delay to ensure it's rendered
+        setTimeout(() => {
+          if (videosSectionRef.current) {
+            videosSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      } else if (activeSection === 'social-media') {
+        setDropdownStates(prev => ({
+          ...prev,
+          photos: false,
+          videos: false
+        }));
+      } else if (activeSection === 'languages') {
+        setDropdownStates(prev => ({
+          ...prev,
+          photos: false,
+          videos: false
+        }));
+      }
+    }
+  }, [activeSection]);
 
   // Filter languages based on search term
   const filteredLanguages = languages.filter(language =>
@@ -1324,7 +1370,7 @@ const ShowcasePage = () => {
 
               {/* Videos Section */}
               {(!activeSection || activeSection === 'videos') && (
-              <Box>
+              <Box ref={videosSectionRef}>
               {/* Videos Section Header */}
               <Box sx={{
                 display: 'flex',
@@ -1692,7 +1738,7 @@ const ShowcasePage = () => {
 
               {/* Photos Section */}
               {(!activeSection || activeSection === 'photos') && (
-              <Box sx={{ mt: 6 }}>
+              <Box ref={photosSectionRef} sx={{ mt: 6 }}>
                 {/* Photos Header */}
                 <Box sx={{
                   display: 'flex',

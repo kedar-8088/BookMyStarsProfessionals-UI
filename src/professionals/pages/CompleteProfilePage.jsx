@@ -3,13 +3,15 @@ import { Box, Typography, Grid, Avatar, IconButton, Button, CircularProgress, Al
 import { useNavigate, useLocation } from 'react-router-dom';
 import BasicInfoNavbar from '../components/BasicInfoNavbar';
 import EditIcon from '@mui/icons-material/Edit';
-import { Person as PersonIcon, Phone as PhoneIcon, Work as WorkIcon, CalendarToday as CalendarTodayIcon, Favorite as FavoriteIcon, Email as EmailIcon, LocationOn as LocationOnIcon, ArrowDropDown as ArrowDropDownIcon, Language as LanguageIcon } from '@mui/icons-material';
+import { Person as PersonIcon, Phone as PhoneIcon, Work as WorkIcon, CalendarToday as CalendarTodayIcon, Favorite as FavoriteIcon, Email as EmailIcon, LocationOn as LocationOnIcon, ArrowDropDown as ArrowDropDownIcon, Language as LanguageIcon, Collections as PhotoIcon, Videocam as VideoLibraryIcon } from '@mui/icons-material';
 import menImage from '../../assets/images/Men.jpg';
 import instagramIcon from '../../assets/images/instagram.png';
 import facebookIcon from '../../assets/images/facebook.png';
 import youtubeIcon from '../../assets/images/youtube.png';
 import linkedinIcon from '../../assets/images/linkedin.png';
 import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
+import photoIcon from '../../assets/images/Photo.png';
+import videoIcon from '../../assets/images/Vedio.png';
 import { getProfessionalsProfileById, saveOrUpdateProfessionalsProfile, updateProfessionalsProfile } from '../../API/professionalsProfileApi';
 import { sessionManager } from '../../API/authApi';
 import profileFlowManager from '../../utils/profileFlowManager';
@@ -38,6 +40,7 @@ const CompleteProfilePage = () => {
   const [showAllPhotos, setShowAllPhotos] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('photos'); // null = both, 'photos' = photos only, 'videos' = videos only
   const isFetchingRef = useRef(false);
   const hasInitializedRef = useRef(false);
 
@@ -465,6 +468,14 @@ const CompleteProfilePage = () => {
 
   const handleEditVideos = () => {
     navigate('/showcase?section=videos');
+  };
+
+  const handlePhotoIconClick = () => {
+    setActiveFilter(activeFilter === 'photos' ? null : 'photos');
+  };
+
+  const handleVideoIconClick = () => {
+    setActiveFilter(activeFilter === 'videos' ? null : 'videos');
   };
 
   const handleEditEducationBackground = () => {
@@ -1560,7 +1571,72 @@ const CompleteProfilePage = () => {
           {/* Divider Line */}
           <Box sx={{ borderBottom: '2px solid #69247C', mb: 4, mx: { xs: 2, sm: 3, md: 4 } }} />
 
+          {/* Photo and Video Icons */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: { xs: 2, sm: 3, md: 4 }, mb: 4, px: { xs: 2, sm: 3, md: 4 } }}>
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                padding: { xs: '6px', sm: '8px' },
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: activeFilter === 'photos' ? 'rgba(218, 73, 141, 0.1)' : activeFilter === null ? 'rgba(218, 73, 141, 0.05)' : 'transparent',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  backgroundColor: 'rgba(218, 73, 141, 0.1)'
+                }
+              }}
+              onClick={handlePhotoIconClick}
+            >
+              <Box
+                component="img"
+                src={photoIcon}
+                alt="Photos"
+                sx={{
+                  width: { xs: '30px', sm: '35px', md: '40px' },
+                  height: { xs: '30px', sm: '35px', md: '40px' },
+                  objectFit: 'contain',
+                  opacity: activeFilter === 'photos' ? 1 : activeFilter === null ? 1 : 0.5
+                }}
+              />
+            </Box>
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                padding: { xs: '6px', sm: '8px' },
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: activeFilter === 'videos' ? 'rgba(218, 73, 141, 0.1)' : activeFilter === null ? 'rgba(218, 73, 141, 0.05)' : 'transparent',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  backgroundColor: 'rgba(218, 73, 141, 0.1)'
+                }
+              }}
+              onClick={handleVideoIconClick}
+            >
+              <Box
+                component="img"
+                src={videoIcon}
+                alt="Videos"
+                sx={{
+                  width: { xs: '30px', sm: '35px', md: '40px' },
+                  height: { xs: '30px', sm: '35px', md: '40px' },
+                  objectFit: 'contain',
+                  opacity: activeFilter === 'videos' ? 1 : activeFilter === null ? 1 : 0.5
+                }}
+              />
+            </Box>
+          </Box>
+
           {/* Videos Section */}
+          {(activeFilter === null || activeFilter === 'videos') && (
           <Box sx={{ mb: 4, px: { xs: 2, sm: 3, md: 4 } }}>
             {(() => {
               const videos = profileData.showcase?.files?.filter(file => file.isVideo) || [];
@@ -1653,8 +1729,10 @@ const CompleteProfilePage = () => {
               );
             })()}
           </Box>
+          )}
 
           {/* Photos Section */}
+          {(activeFilter === null || activeFilter === 'photos') && (
           <Box sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
             {(() => {
               const photos = profileData.showcase?.files?.filter(file => file.isImage) || [];
@@ -1742,6 +1820,7 @@ const CompleteProfilePage = () => {
               );
             })()}
           </Box>
+          )}
 
           {/* Social Media Section */}
           <Box sx={{ 
