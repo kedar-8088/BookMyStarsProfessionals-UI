@@ -962,29 +962,41 @@ const Dashboard = () => {
         </Container>
       )}
 
-      {/* User Information Box - Only show when logged in */}
+      {/* User Information and Profile Completion Boxes - Side by Side */}
       {session?.token && user && (
         <Container maxWidth={false} sx={{ pt: { xs: 3, sm: 4, md: 5, lg: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.05 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', md: 'row' },
+              gap: { xs: 3, sm: 4, md: 3, lg: 4 },
+              alignItems: 'stretch'
+            }}
           >
-            <Paper 
-              sx={{ 
-                p: { xs: 2, sm: 3, md: 4 }, 
-                borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                backgroundColor: 'white',
-                width: '100%',
-                maxWidth: '100%',
-                border: '1px solid #DA498D',
-                boxShadow: 'none',
-              }} 
-              elevation={0}
-            >
+            {/* User Information Box - Left Side */}
+            <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' }, minWidth: 0 }}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.05 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <Paper 
+                  sx={{ 
+                    p: { xs: 1.5, sm: 2, md: 2.5 }, 
+                    borderRadius: { xs: '8px', sm: '10px', md: '12px' },
+                    backgroundColor: 'white',
+                    width: '100%',
+                    height: '100%',
+                    border: '1px solid #DA498D',
+                    boxShadow: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }} 
+                  elevation={0}
+                >
             {/* Header */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 2.5, md: 3 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1.5, sm: 2, md: 2.5 } }}>
               <Box
                 sx={{
                   width: { xs: 32, sm: 36, md: 40 },
@@ -1039,17 +1051,16 @@ const Dashboard = () => {
 
             <Box 
               sx={{ 
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
-                gap: { xs: 2, sm: 3, md: 4 },
-                justifyContent: 'space-between'
+                display: 'flex',
+                flexDirection: 'column',
+                gap: { xs: 1, sm: 1.25, md: 1.5 },
               }}
             >
               {/* Username */}
-              <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ width: '100%' }}>
                 <Box 
                   sx={{ 
-                    p: { xs: 1.5, sm: 1.75, md: 2 },
+                    p: { xs: 1, sm: 1.25, md: 1.5 },
                     borderRadius: { xs: '6px', sm: '8px' },
                     transition: 'all 0.3s ease-in-out',
                     cursor: 'pointer',
@@ -1066,13 +1077,13 @@ const Dashboard = () => {
                     },
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, sm: 1.25, md: 1.5 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 0.5, sm: 0.75, md: 1 } }}>
                     <PersonIcon 
                       className="field-icon"
                       sx={{ 
-                        fontSize: { xs: 16, sm: 17, md: 18 }, 
+                        fontSize: { xs: 14, sm: 15, md: 16 }, 
                         color: '#666666', 
-                        mr: { xs: 0.75, sm: 1 },
+                        mr: { xs: 0.5, sm: 0.75 },
                         transition: 'all 0.3s ease-in-out',
                         flexShrink: 0,
                       }} 
@@ -1083,7 +1094,7 @@ const Dashboard = () => {
                       sx={{ 
                         color: '#666666', 
                         fontWeight: 600,
-                        fontSize: { xs: '0.7rem', sm: '0.72rem', md: '0.75rem' },
+                        fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.72rem' },
                         transition: 'color 0.3s ease-in-out',
                       }}
                     >
@@ -1095,7 +1106,7 @@ const Dashboard = () => {
                     sx={{ 
                       fontWeight: 500, 
                       color: '#333333',
-                      fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' },
+                      fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
                       wordBreak: 'break-word',
                     }}
                   >
@@ -1105,10 +1116,10 @@ const Dashboard = () => {
               </Box>
 
               {/* Email */}
-              <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ width: '100%' }}>
                 <Box 
                   sx={{ 
-                    p: { xs: 1.5, sm: 1.75, md: 2 },
+                    p: { xs: 1, sm: 1.25, md: 1.5 },
                     borderRadius: { xs: '6px', sm: '8px' },
                     transition: 'all 0.3s ease-in-out',
                     cursor: 'pointer',
@@ -1125,13 +1136,13 @@ const Dashboard = () => {
                     },
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, sm: 1.25, md: 1.5 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 0.5, sm: 0.75, md: 1 } }}>
                     <EmailIcon 
                       className="field-icon"
                       sx={{ 
-                        fontSize: { xs: 16, sm: 17, md: 18 }, 
+                        fontSize: { xs: 14, sm: 15, md: 16 }, 
                         color: '#666666', 
-                        mr: { xs: 0.75, sm: 1 },
+                        mr: { xs: 0.5, sm: 0.75 },
                         transition: 'all 0.3s ease-in-out',
                         flexShrink: 0,
                       }} 
@@ -1142,7 +1153,7 @@ const Dashboard = () => {
                       sx={{ 
                         color: '#666666', 
                         fontWeight: 600,
-                        fontSize: { xs: '0.7rem', sm: '0.72rem', md: '0.75rem' },
+                        fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.72rem' },
                         transition: 'color 0.3s ease-in-out',
                       }}
                     >
@@ -1154,7 +1165,7 @@ const Dashboard = () => {
                     sx={{ 
                       fontWeight: 500, 
                       color: '#333333',
-                      fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' },
+                      fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
                       wordBreak: 'break-word'
                     }}
                   >
@@ -1164,10 +1175,10 @@ const Dashboard = () => {
               </Box>
 
               {/* Mobile */}
-              <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ width: '100%' }}>
                 <Box 
                   sx={{ 
-                    p: { xs: 1.5, sm: 1.75, md: 2 },
+                    p: { xs: 1, sm: 1.25, md: 1.5 },
                     borderRadius: { xs: '6px', sm: '8px' },
                     transition: 'all 0.3s ease-in-out',
                     cursor: 'pointer',
@@ -1184,13 +1195,13 @@ const Dashboard = () => {
                     },
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, sm: 1.25, md: 1.5 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 0.5, sm: 0.75, md: 1 } }}>
                     <PhoneIcon 
                       className="field-icon"
                       sx={{ 
-                        fontSize: { xs: 16, sm: 17, md: 18 }, 
+                        fontSize: { xs: 14, sm: 15, md: 16 }, 
                         color: '#666666', 
-                        mr: { xs: 0.75, sm: 1 },
+                        mr: { xs: 0.5, sm: 0.75 },
                         transition: 'all 0.3s ease-in-out',
                         flexShrink: 0,
                       }} 
@@ -1201,7 +1212,7 @@ const Dashboard = () => {
                       sx={{ 
                         color: '#666666', 
                         fontWeight: 600,
-                        fontSize: { xs: '0.7rem', sm: '0.72rem', md: '0.75rem' },
+                        fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.72rem' },
                         transition: 'color 0.3s ease-in-out',
                       }}
                     >
@@ -1213,7 +1224,7 @@ const Dashboard = () => {
                     sx={{ 
                       fontWeight: 500, 
                       color: '#333333',
-                      fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' }
+                      fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' }
                     }}
                   >
                     {user.mobileNumber || '—'}
@@ -1222,100 +1233,96 @@ const Dashboard = () => {
               </Box>
             </Box>
             </Paper>
-          </motion.div>
-        </Container>
-      )}
+              </motion.div>
+            </Box>
 
-      {/* Profile Completion Indicator */}
-      {session?.token && user && (
-        <Container maxWidth={false} sx={{ pt: { xs: 3, sm: 4, md: 5, lg: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.05 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          >
-            <Paper 
-              sx={{ 
-                p: { xs: 2, sm: 3, md: 4 }, 
-                borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                backgroundColor: 'white',
-                width: '100%',
-                maxWidth: '100%',
-                border: '1px solid #DA498D',
-                boxShadow: 'none',
-              }} 
-              elevation={0}
-            >
+            {/* Profile Completion Box - Right Side */}
+            <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' }, minWidth: 0 }}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.05 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <Paper 
+                  sx={{ 
+                    p: { xs: 1.5, sm: 2, md: 2.5 }, 
+                    borderRadius: { xs: '8px', sm: '10px', md: '12px' },
+                    backgroundColor: 'white',
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    boxShadow: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }} 
+                  elevation={0}
+                >
             {/* Header */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 2.5, md: 3 } }}>
-              <Box
-                sx={{
-                  width: { xs: 32, sm: 36, md: 40 },
-                  height: { xs: 32, sm: 36, md: 40 },
-                  borderRadius: '50%',
-                  backgroundColor: '#69247C',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mr: { xs: 1.5, sm: 2 },
-                  flexShrink: 0,
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: { xs: 1, sm: 1.5, md: 2 } }}>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 700,
+                  fontSize: { xs: '16px', sm: '18px', md: '20px' },
+                  color: '#333333',
+                  wordBreak: 'break-word',
                 }}
               >
-                <AssignmentIcon 
-                  sx={{ 
-                    fontSize: { xs: 20, sm: 22, md: 24 }, 
-                    color: 'white',
-                  }} 
-                />
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
-                <Typography 
-                  variant="h4" 
-                  sx={{ 
-                    fontWeight: 700,
-                    fontSize: { xs: '18px', sm: '20px', md: '24px', lg: '28px' },
-                    color: '#333333',
-                    wordBreak: 'break-word',
-                  }}
-                >
-                  Profile Completion
-                </Typography>
-                <Typography
-                  sx={{
-                    fontFamily: 'Poppins',
-                    fontWeight: 700,
-                    fontSize: { xs: '20px', sm: '22px', md: '26px' },
-                    color: profileCompletion === 100 ? '#4CAF50' : '#69247C',
-                  }}
-                >
-                  {profileCompletion}%
-                </Typography>
-              </Box>
+                Profile Completion
+              </Typography>
             </Box>
-                
-                <LinearProgress
+
+            {/* Circular Progress Indicator */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: { xs: 1.5, sm: 2, md: 2.5 } }}>
+              <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                <CircularProgress
                   variant="determinate"
                   value={profileCompletion}
+                  size={140}
+                  thickness={3.6}
                   sx={{
-                    height: { xs: 10, sm: 12 },
-                    borderRadius: '8px',
-                    backgroundColor: profileCompletion === 100 
-                      ? 'rgba(76, 175, 80, 0.15)' 
-                      : 'rgba(218, 73, 141, 0.15)',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: profileCompletion === 100 ? '#4CAF50' : '#DA498D',
-                      borderRadius: '8px',
-                      transition: 'width 0.8s ease-in-out',
+                    color: profileCompletion === 100 ? '#4CAF50' : '#DA498D',
+                    transform: 'rotate(-90deg)',
+                    '& .MuiCircularProgress-circle': {
+                      strokeLinecap: 'round',
+                      transition: 'stroke-dashoffset 0.8s ease-in-out',
                     },
                   }}
                 />
+                <Box
+                  sx={{
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    position: 'absolute',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    component="div"
+                    sx={{
+                      fontSize: { xs: '24px', sm: '28px', md: '32px' },
+                      fontWeight: 700,
+                      color: profileCompletion === 100 ? '#4CAF50' : '#69247C',
+                      fontFamily: 'Poppins, sans-serif',
+                    }}
+                  >
+                    {profileCompletion}%
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
                 
                 <Box sx={{ 
-                  mt: 2.5, 
+                  mt: { xs: 1.5, sm: 2 }, 
                   display: 'flex', 
                   flexWrap: 'wrap', 
-                  gap: { xs: 1, sm: 1.25 }, 
+                  gap: { xs: 0.75, sm: 1 }, 
                   justifyContent: 'center',
                   alignItems: 'center'
                 }}>
@@ -1353,11 +1360,11 @@ const Dashboard = () => {
                         key={index}
                         label={section.label}
                         size="small"
-                        icon={section.completed ? <CheckCircleIcon sx={{ fontSize: 16, color: '#2E7D32' }} /> : undefined}
+                        icon={section.completed ? <CheckCircleIcon sx={{ fontSize: 14, color: '#2E7D32' }} /> : undefined}
                         sx={{
-                          fontSize: { xs: '11px', sm: '12px' },
-                          height: { xs: '28px', sm: '32px' },
-                          px: { xs: 1, sm: 1.5 },
+                          fontSize: { xs: '10px', sm: '11px' },
+                          height: { xs: '24px', sm: '28px' },
+                          px: { xs: 0.75, sm: 1 },
                           backgroundColor: section.completed 
                             ? '#E8F5E9' 
                             : '#F5F5F5',
@@ -1370,10 +1377,10 @@ const Dashboard = () => {
                             : '1px solid #E0E0E0',
                           borderRadius: '20px',
                           '& .MuiChip-label': {
-                            px: { xs: 1, sm: 1.5 },
+                            px: { xs: 0.75, sm: 1 },
                           },
                           '& .MuiChip-icon': {
-                            marginLeft: '8px',
+                            marginLeft: '6px',
                             marginRight: '-4px',
                           }
                         }}
@@ -1383,7 +1390,7 @@ const Dashboard = () => {
                 </Box>
                 
                 {profileCompletion < 100 && (
-                  <Box sx={{ mt: 2.5, textAlign: 'center' }}>
+                  <Box sx={{ mt: { xs: 1.5, sm: 2 }, textAlign: 'center' }}>
                     <Button
                       variant="outlined"
                       size="small"
@@ -1411,7 +1418,9 @@ const Dashboard = () => {
                   </Box>
                 )}
             </Paper>
-          </motion.div>
+              </motion.div>
+            </Box>
+          </Box>
         </Container>
       )}
 
