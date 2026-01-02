@@ -4,13 +4,13 @@ import { Card, CardMedia, CardContent, Typography, Button, Box } from '@mui/mate
 import { ArrowForward } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { motion, useInView } from 'framer-motion';
-import hiringImage from '../../assets/images/hiringcard.png';
+import makeupImage from '../../assets/images/makeup.png';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   width: '100%',
-  maxWidth: { xs: 240, sm: 280, md: 320, lg: 360 },
-  height: { xs: 'auto', sm: 260, md: 290, lg: 320 },
-  minHeight: { xs: 240, sm: 260, md: 290, lg: 320 },
+  maxWidth: { xs: 200, sm: 220, md: 240, lg: 260 },
+  height: { xs: 'auto', sm: 220, md: 240, lg: 260 },
+  minHeight: { xs: 200, sm: 220, md: 240, lg: 260 },
   backgroundColor: 'rgba(242, 182, 198, 0.14)',
   borderRadius: { xs: '12px', sm: '14px', md: '18px' },
   overflow: 'hidden',
@@ -36,7 +36,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
 const ImageContainer = styled('div')(({ theme }) => ({
   width: '100%',
-  height: { xs: 90, sm: 100, md: 110, lg: 120 },
+  height: { xs: 70, sm: 80, md: 85, lg: 90 },
   borderTopLeftRadius: { xs: '12px', sm: '14px', md: '18px' },
   borderTopRightRadius: { xs: '12px', sm: '14px', md: '18px' },
   overflow: 'hidden',
@@ -65,10 +65,10 @@ const GradientButton = styled(Button)(({ theme }) => ({
   '&:hover': {
     background: 'linear-gradient(90deg, #5a1f6b 0%, #c43d7a 100%)',
     transform: 'translateY(-2px)',
-    boxShadow: {
-      xs: '0 4px 15px rgba(105, 36, 124, 0.25)',
-      sm: '0 6px 20px rgba(105, 36, 124, 0.3)',
-      md: '0 8px 25px rgba(105, 36, 124, 0.3)'
+    boxShadow: { 
+      xs: '0 4px 15px rgba(105, 36, 124, 0.25)', 
+      sm: '0 6px 20px rgba(105, 36, 124, 0.3)', 
+      md: '0 8px 25px rgba(105, 36, 124, 0.3)' 
     },
   },
   '&::before': {
@@ -86,7 +86,7 @@ const GradientButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const HirerCard = () => {
+const AgentCard = () => {
   const navigate = useNavigate();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -108,16 +108,16 @@ const HirerCard = () => {
           <ImageContainer>
             <StyledCardMedia
               component="img"
-              src={hiringImage}
-              alt="Professional videographer with camera"
+              src={makeupImage}
+              alt="Agent representing talent"
             />
           </ImageContainer>
         </motion.div>
 
         {/* Card Content */}
         <CardContent sx={{
-          p: { xs: 1.5, sm: 2, md: 2.5 },
-          height: { xs: 150, sm: 160, md: 180, lg: 200 },
+          p: { xs: 1.2, sm: 1.5, md: 1.8 },
+          height: { xs: 130, sm: 140, md: 155, lg: 170 },
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -135,7 +135,7 @@ const HirerCard = () => {
               component="h3"
               sx={{
                 fontWeight: 600,
-                fontSize: { xs: '14px', sm: '16px', md: '18px', lg: '20px' },
+                fontSize: { xs: '12px', sm: '14px', md: '16px', lg: '18px' },
                 lineHeight: '140%',
                 letterSpacing: '0%',
                 color: '#69247C',
@@ -143,20 +143,20 @@ const HirerCard = () => {
                 fontFamily: 'Poppins'
               }}
             >
-              Cast the perfect role.
+              Represent talent with confidence.
             </Typography>
             <Typography
               variant="body1"
               sx={{
                 fontWeight: 400,
-                fontSize: { xs: '10px', sm: '11px', md: '12px', lg: '13px' },
+                fontSize: { xs: '9px', sm: '10px', md: '11px', lg: '12px' },
                 lineHeight: '150%',
                 letterSpacing: '0%',
                 color: '#666666',
                 fontFamily: 'Poppins'
               }}
             >
-              Find verified artists, stylists, and creators who match your exact project requirements — and bring your vision to life.
+              Connect with verified professionals, manage your talent roster, and discover opportunities that match your clients' needs.
             </Typography>
           </motion.div>
 
@@ -169,9 +169,9 @@ const HirerCard = () => {
           >
             <GradientButton
               endIcon={<ArrowForward />}
-              onClick={() => navigate('/hire-talent')}
+              onClick={() => navigate('/agency/register')}
             >
-              I'm Hiring Talent/Business.
+              I'm an Agency
             </GradientButton>
           </motion.div>
         </CardContent>
@@ -180,4 +180,5 @@ const HirerCard = () => {
   );
 };
 
-export default HirerCard;
+export default AgentCard;
+

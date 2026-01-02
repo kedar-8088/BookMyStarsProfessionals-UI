@@ -26,6 +26,7 @@ import JobCard from '../job/jobcard';
 
 
 import LandingPage from '../Hiring-talent/Pages/landingPage';
+import HiringFor from '../Hiring-talent/Pages/HiringFor';
 
 const AppRoutes = () => {
   return (
@@ -49,6 +50,7 @@ const AppRoutes = () => {
       <Route path="/dashboard/lms/modules" element={<ModulesPage />} />
       <Route path="/dashboard/jobs" element={<JobCard />} />
       <Route path="/hire-talent" element={<LandingPage />} />
+      <Route path="/hire-talent/hiring-for" element={<HiringFor />} />
       <Route path="/agency/register" element={<RegisterPage />} />
       <Route path="/agency/otp-verification" element={<OtpVerificationPage />} />
     </Routes>

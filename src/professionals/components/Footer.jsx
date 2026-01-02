@@ -29,9 +29,9 @@ const Footer = () => {
       sx={{
         width: '100vw',
         maxWidth: '100%',
-        height: { xs: 'auto', sm: 505 },
+        height: { xs: 'auto', sm: 'auto' },
         mx: 0,
-        mt: { xs: 2, sm: 3, md: 5, lg: 8 },
+        mt: { xs: 2, sm: 3, md: 4, lg: 5 },
         background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
         opacity: 1,
         borderRadius: '0px',
@@ -46,8 +46,8 @@ const Footer = () => {
         flex: 1,
         display: 'flex',
         flexDirection: { xs: 'column', lg: 'row' },
-        p: { xs: 1.5, sm: 2.5, md: 4, lg: 6, xl: 8 },
-        gap: { xs: 1.5, sm: 2, md: 3, lg: 5, xl: 6 }
+        p: { xs: 1, sm: 1.5, md: 2, lg: 2.5, xl: 3 },
+        gap: { xs: 1, sm: 1.5, md: 2, lg: 2.5, xl: 3 }
       }}>
         {/* Left Section - Company Branding & Contact */}
         <Box sx={{ 
@@ -65,11 +65,11 @@ const Footer = () => {
                 fontFamily: 'Roboto',
                 fontWeight: 700,
                 fontStyle: 'normal',
-                fontSize: { xs: '18px', sm: '24px', md: '32px', lg: '42px', xl: '48px' },
+                fontSize: { xs: '14px', sm: '18px', md: '22px', lg: '26px', xl: '30px' },
                 lineHeight: '120%',
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: { xs: 1, sm: 1.5, md: 2, lg: 3 }
+                mb: { xs: 0.5, sm: 1, md: 1.5, lg: 2 }
               }}
             >
               Bookmystars
@@ -162,11 +162,11 @@ const Footer = () => {
                 fontFamily: 'Roboto',
                 fontWeight: 700,
                 fontStyle: 'normal',
-                fontSize: { xs: '11px', sm: '14px', md: '20px', lg: '28px', xl: '32px' },
+                fontSize: { xs: '12px', sm: '14px', md: '18px', lg: '22px', xl: '24px' },
                 lineHeight: '130%',
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: { xs: 0.5, md: 2 }
+                mb: { xs: 0.5, md: 1 }
               }}
             >
               Company
@@ -178,11 +178,11 @@ const Footer = () => {
                   fontFamily: 'Roboto',
                   fontWeight: 400,
                   fontStyle: 'normal',
-                  fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                  fontSize: { xs: '10px', sm: '12px', md: '14px', lg: '16px', xl: '18px' },
                   lineHeight: { xs: 1.4, md: '150%' },
                   letterSpacing: '0%',
                   color: '#FFFFFF',
-                  mb: { xs: 0.25, md: 1 },
+                  mb: { xs: 0.5, md: 1 },
                   cursor: 'pointer',
                   '&:hover': {
                     opacity: 0.8
@@ -207,11 +207,11 @@ const Footer = () => {
                 fontFamily: 'Roboto',
                 fontWeight: 700,
                 fontStyle: 'normal',
-                fontSize: { xs: '11px', sm: '14px', md: '20px', lg: '28px', xl: '32px' },
+                fontSize: { xs: '12px', sm: '14px', md: '18px', lg: '22px', xl: '24px' },
                 lineHeight: '130%',
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: { xs: 0.5, md: 2 }
+                mb: { xs: 0.5, md: 1 }
               }}
             >
               Resources
@@ -223,11 +223,11 @@ const Footer = () => {
                   fontFamily: 'Roboto',
                   fontWeight: 400,
                   fontStyle: 'normal',
-                  fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                  fontSize: { xs: '10px', sm: '12px', md: '14px', lg: '16px', xl: '18px' },
                   lineHeight: { xs: 1.4, md: '150%' },
                   letterSpacing: '0%',
                   color: '#FFFFFF',
-                  mb: { xs: 0.25, md: 1 },
+                  mb: { xs: 0.2, md: 0.5 },
                   cursor: 'pointer',
                   '&:hover': {
                     opacity: 0.8
@@ -252,11 +252,11 @@ const Footer = () => {
                 fontFamily: 'Roboto',
                 fontWeight: 700,
                 fontStyle: 'normal',
-                fontSize: { xs: '11px', sm: '14px', md: '20px', lg: '28px', xl: '32px' },
+                fontSize: { xs: '12px', sm: '14px', md: '18px', lg: '22px', xl: '24px' },
                 lineHeight: '130%',
                 letterSpacing: '0%',
                 color: '#FFFFFF',
-                mb: { xs: 0.5, md: 2 }
+                mb: { xs: 0.5, md: 1 }
               }}
             >
               Follow us
@@ -268,11 +268,11 @@ const Footer = () => {
                   fontFamily: 'Roboto',
                   fontWeight: 400,
                   fontStyle: 'normal',
-                  fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+                  fontSize: { xs: '10px', sm: '12px', md: '14px', lg: '16px', xl: '18px' },
                   lineHeight: { xs: 1.4, md: '150%' },
                   letterSpacing: '0%',
                   color: '#FFFFFF',
-                  mb: { xs: 0.25, md: 1 },
+                  mb: { xs: 0.2, md: 0.5 },
                   cursor: 'pointer',
                   '&:hover': {
                     opacity: 0.8
@@ -290,7 +290,7 @@ const Footer = () => {
       {/* Bottom Border and Copyright */}
       <Box sx={{
         borderTop: '1px solid #FFFFFF',
-        p: { xs: 0.75, sm: 1, md: 2, lg: 3, xl: 4 },
+        p: { xs: 0.5, sm: 0.75, md: 1, lg: 1.5, xl: 2 },
         textAlign: 'center'
       }}>
         <motion.div
@@ -303,7 +303,7 @@ const Footer = () => {
               fontFamily: 'Roboto',
               fontWeight: 400,
               fontStyle: 'normal',
-              fontSize: { xs: '9px', sm: '11px', md: '14px', lg: '18px', xl: '20px' },
+              fontSize: { xs: '8px', sm: '9px', md: '11px', lg: '13px', xl: '14px' },
               lineHeight: { xs: 1.4, md: '150%' },
               letterSpacing: '0%',
               color: '#FFFFFF'

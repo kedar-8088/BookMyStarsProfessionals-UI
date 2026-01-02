@@ -131,16 +131,21 @@ export const getProjectByName = async (projectName) => {
 export const getAllProjects = async () => {
   try {
     const headers = getAuthHeaders();
-    return await axios({
+    const response = await axios({
       method: 'GET',
       url: `${BaseUrl}/v1/project/all`,
       headers: headers
     });
+    return response;
   } catch (error) {
-    // Silently handle 401 errors (unauthorized) - expected when user is not logged in
-    if (error.response?.status !== 401) {
-      console.error('Error getting all projects:', error);
+    // Silently handle 401 errors (unauthorized) - expected when user is not logged in or token expired
+    // Don't log 401 errors as they're expected behavior when token is missing/expired
+    if (error.response?.status === 401) {
+      // Return a rejected promise with the error but don't log it
+      return Promise.reject(error);
     }
+    // Only log non-401 errors for debugging
+    console.error('Error getting all projects:', error);
     throw error;
   }
 };

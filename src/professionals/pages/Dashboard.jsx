@@ -40,6 +40,11 @@ import menImage from '../../assets/images/Men.jpg';
 import successStoryImage1 from '../../assets/images/b84f7b71a548a5c88bc78ec64f28a3afac5cfc76.png';
 import successStoryImage2 from '../../assets/images/girl.png';
 import successStoryImage3 from '../../assets/images/b8695ce468a392b0cc189dece608bad7e14effe8.png';
+import successStoryImage4 from '../../assets/images/c916fe6f758639b5378ce985272ff24f5136fb45.png';
+import successStoryImage5 from '../../assets/images/d03dddb8288207ef52ee1bc03c709febb1689cda.png';
+import successStoryImage6 from '../../assets/images/6cd4e40c81ab3124fe28f2d3dd05005c228471cd.png';
+import successStoryImage7 from '../../assets/images/a3ec275d339a0a44ccca3ccd49416f5d8fc57ccc.png';
+import successStoryImage8 from '../../assets/images/hirie-land.png.jpg';
 import AIAssistant from '../../components/ai-assistant/AIAssistant';
 import { 
   CheckCircle as CheckCircleIcon, 
@@ -626,9 +631,16 @@ const Dashboard = () => {
   // Fetch success stories from projects
   useEffect(() => {
     const fetchSuccessStories = async () => {
-      // Check if user is authenticated before making the API call
+      // Check if user is authenticated and has a valid token before making the API call
       if (!sessionManager.isLoggedIn()) {
-        console.log('User not authenticated, using default success stories');
+        // Silently use default stories if user is not logged in
+        return;
+      }
+
+      // Check if auth token exists
+      const token = sessionManager.getAuthToken();
+      if (!token) {
+        // Silently use default stories if no token
         return;
       }
 
@@ -641,7 +653,7 @@ const Dashboard = () => {
           
           // Transform projects to success stories format
           // You can customize this mapping based on your project data structure
-          const stories = projectList.slice(0, 6).map((project, index) => ({
+          const stories = projectList.slice(0, 8).map((project, index) => ({
             batch: project.year ? `${project.year} batch` : '2025 batch',
             name: project.projectName || `Professional ${index + 1}`,
             placement: project.roleTitle ? `Placed at ${project.roleTitle}` : 'Placed at Entertainment Company',
@@ -652,13 +664,12 @@ const Dashboard = () => {
           setSuccessStories(stories);
         }
       } catch (error) {
-        // Handle 401 errors (unauthorized) - user might have logged out or token expired
-        if (error.response?.status === 401) {
-          console.warn('Unauthorized access to projects API. Using default success stories.');
-        } else {
+        // Silently handle 401 errors (unauthorized) - expected when token is expired or invalid
+        // Only log non-401 errors for debugging
+        if (error.response?.status !== 401) {
           console.error('Error fetching success stories:', error);
         }
-        // Keep default stories on error
+        // Keep default stories on error (already set in initial state)
       }
     };
 
@@ -1847,7 +1858,42 @@ const Dashboard = () => {
                   name: 'Rahul Kumar',
                   placement: 'Placed at Productions',
                   testimonial: "BookMyStars Professionals connected me with amazing opportunities transformed!",
+                  imageUrl: successStoryImage8,
+                },
+                {
+                  batch: '2024 batch',
+                  name: 'Sneha Patel',
+                  placement: 'Placed at Dharma Productions',
+                  testimonial: "BookMyStars Professionals opened doors I never thought possible. The platform's support and opportunities are incredible!",
+                  imageUrl: successStoryImage6,
+                },
+                {
+                  batch: '2024 batch',
+                  name: 'Vikram Singh',
+                  placement: 'Placed at Red Chillies Entertainment',
+                  testimonial: "I'm grateful for the guidance and connections I made through BookMyStars Professionals. It changed my career!",
+                  imageUrl: successStoryImage5,
+                },
+                {
+                  batch: '2023 batch',
+                  name: 'Ananya Reddy',
+                  placement: 'Placed at Excel Entertainment',
+                  testimonial: "The platform helped me build my portfolio and connect with industry professionals. Highly recommended!",
                   imageUrl: successStoryImage3,
+                },
+                {
+                  batch: '2023 batch',
+                  name: 'Karan Mehta',
+                  placement: 'Placed at Eros International',
+                  testimonial: "BookMyStars Professionals provided me with the tools and opportunities to showcase my talent effectively.",
+                  imageUrl: successStoryImage4,
+                },
+                {
+                  batch: '2025 batch',
+                  name: 'Meera Joshi',
+                  placement: 'Placed at Balaji Telefilms',
+                  testimonial: "The support and resources available on this platform are outstanding. It's been a game-changer for my career!",
+                  imageUrl: successStoryImage7,
                 },
               ].map((story, index) => (
                 <SuccessStoryCard key={index}>

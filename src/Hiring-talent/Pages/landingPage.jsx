@@ -7,6 +7,7 @@ import {
     IconButton
 } from "@mui/material";
 import { ArrowForward, VerifiedUser, Speed, LocationOn, Dashboard, ArrowBackIos, ArrowForwardIos, FiberManualRecord } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from 'react-responsive-carousel';
 import Navbar from '../../agency/components/Navbar';
@@ -32,6 +33,7 @@ import BuiltInProjectToolsImage from "../../assets/images/Built-in Project Tools
 import JoinOurTeamImage from "../../assets/images/join our team.jpg";
 
 const LandingPage = () => {
+    const navigate = useNavigate();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const totalSlides = 3; // We have 3 static slides currently
@@ -115,6 +117,7 @@ const LandingPage = () => {
 
                     <Button
                         variant="contained"
+                        onClick={() => navigate('/hire-talent/hiring-for')}
                         sx={{
                             background: "linear-gradient(90deg, #69247C 0%, #DA498D 100%)",
                             borderRadius: "10px",
@@ -1319,6 +1322,7 @@ const LandingPage = () => {
 
                         {/* Browse Talent Button */}
                         <Button
+                            onClick={() => navigate('/hire-talent/hiring-for')}
                             sx={{
                                 width: "193px",
                                 height: "57px",
