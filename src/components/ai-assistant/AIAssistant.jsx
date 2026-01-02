@@ -61,7 +61,8 @@ const ChatWindow = styled(Paper)(({ theme }) => ({
   overflow: 'hidden',
   [theme.breakpoints.down('sm')]: {
     width: 'calc(100% - 32px)',
-    height: 'calc(100vh - 100px)',
+    height: '70vh',
+    maxHeight: '500px',
     bottom: 80,
     right: 16,
     left: 16,
@@ -98,7 +99,9 @@ const MessagesContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const MessageBubble = styled(Box)(({ theme, isUser }) => ({
+const MessageBubble = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'isUser',
+})(({ theme, isUser }) => ({
   display: 'flex',
   gap: theme.spacing(1),
   justifyContent: isUser ? 'flex-end' : 'flex-start',

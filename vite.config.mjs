@@ -17,6 +17,7 @@ export default defineConfig({
       'ui-component': path.resolve(__dirname, './src/ui-component'),
       'store': path.resolve(__dirname, './src/store'),
       'layout': path.resolve(__dirname, './src/layout'),
+      'BaseUrl': path.resolve(__dirname, './src/BaseUrl.js'),
     },
   },
   // https://github.com/jpuri/react-draft-wysiwyg/issues/1317

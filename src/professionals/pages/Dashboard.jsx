@@ -34,8 +34,12 @@ import { getProfessionalsProfileById, getProfessionalsProfileByProfessional } fr
 import profileFlowManager from '../../utils/profileFlowManager';
 import { saveOrUpdateProfessionalsProfileByProfessionalsId } from '../../API/professionalsProfileApi';
 import { fetchBanner } from '../../API/bannerApi';
+import { getAllProjects } from '../../API/projectApi';
 import AuthImage from '../../components/common/AuthImage';
 import menImage from '../../assets/images/Men.jpg';
+import successStoryImage1 from '../../assets/images/b84f7b71a548a5c88bc78ec64f28a3afac5cfc76.png';
+import successStoryImage2 from '../../assets/images/girl.png';
+import successStoryImage3 from '../../assets/images/b8695ce468a392b0cc189dece608bad7e14effe8.png';
 import AIAssistant from '../../components/ai-assistant/AIAssistant';
 import { 
   CheckCircle as CheckCircleIcon, 
@@ -178,6 +182,112 @@ const ProjectCard = styled(Card)(({ theme }) => ({
   },
 }));
 
+// Success Story Card Component
+const SuccessStoryCard = styled(Card)(({ theme }) => ({
+  width: '286px',
+  height: '357px',
+  borderRadius: '10px',
+  border: '2px solid #DA498D', // Project pink color
+  borderWidth: '2px',
+  position: 'relative',
+  overflow: 'hidden',
+  backgroundColor: '#FFFFFF',
+  display: 'flex',
+  flexDirection: 'column',
+  transition: 'all 0.3s ease',
+  boxShadow: 'none',
+  opacity: 1,
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    maxWidth: '286px',
+    height: 'auto',
+    minHeight: '357px',
+  },
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 8px 24px rgba(105, 36, 124, 0.2)',
+    borderColor: '#69247C', // Project purple color on hover
+  },
+}));
+
+const Badge = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '8px',
+  left: '8px',
+  backgroundColor: '#DA498D', // Project pink color
+  borderRadius: '6px',
+  padding: '4px 8px',
+  zIndex: 2,
+  fontFamily: 'Poppins, sans-serif',
+  fontSize: '12px',
+  fontWeight: 500,
+  color: '#FFFFFF', // White text for better contrast
+}));
+
+const StoryImageContainer = styled(Box)(({ theme }) => ({
+  width: '281px',
+  height: '173px',
+  position: 'absolute',
+  top: '2px',
+  left: '2px',
+  overflow: 'hidden',
+  backgroundColor: '#f5f5f5',
+  borderTopLeftRadius: '10px',
+  borderTopRightRadius: '10px',
+  zIndex: 1,
+}));
+
+const StoryImage = styled('img')({
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  borderTopLeftRadius: '10px',
+  borderTopRightRadius: '10px',
+});
+
+const StoryName = styled(Typography)({
+  fontFamily: 'Poppins, sans-serif',
+  fontWeight: 500,
+  fontStyle: 'normal',
+  fontSize: '20px',
+  lineHeight: '18.7px',
+  letterSpacing: '0%',
+  verticalAlign: 'middle',
+  color: '#0E2A46',
+  padding: '12px 16px 8px 16px',
+  margin: 0,
+  marginTop: '175px', // 173px image height + 2px top position
+});
+
+const PlacementBar = styled(Box)({
+  backgroundColor: '#69247C', // Project purple color
+  padding: '8px 16px',
+  fontFamily: 'Poppins, sans-serif',
+  fontWeight: 600,
+  fontStyle: 'normal',
+  fontSize: '18px',
+  lineHeight: '32px',
+  letterSpacing: '0%',
+  verticalAlign: 'middle',
+  color: '#FFFFFF',
+  textAlign: 'left',
+});
+
+const TestimonialText = styled(Typography)({
+  fontFamily: 'Poppins, sans-serif',
+  fontWeight: 400,
+  fontStyle: 'normal',
+  fontSize: '14px',
+  lineHeight: '24px',
+  letterSpacing: '0%',
+  verticalAlign: 'middle',
+  color: '#333931',
+  padding: '12px 16px',
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+});
+
 
 
 
@@ -193,6 +303,7 @@ const Dashboard = () => {
   const [userLastName, setUserLastName] = useState('');
   const [profileCompletion, setProfileCompletion] = useState(0);
   const [profileData, setProfileData] = useState(null);
+  const [successStories, setSuccessStories] = useState([]);
 
   // Banner carousel state
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
@@ -511,6 +622,48 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userProfessionalsId, userFirstNameFromSession, userLastNameFromSession]);
 
+
+  // Fetch success stories from projects
+  useEffect(() => {
+    const fetchSuccessStories = async () => {
+      // Check if user is authenticated before making the API call
+      if (!sessionManager.isLoggedIn()) {
+        console.log('User not authenticated, using default success stories');
+        return;
+      }
+
+      try {
+        const response = await getAllProjects();
+        if (response.data && response.data.code === 200 && response.data.data) {
+          const projectList = Array.isArray(response.data.data) 
+            ? response.data.data 
+            : [response.data.data];
+          
+          // Transform projects to success stories format
+          // You can customize this mapping based on your project data structure
+          const stories = projectList.slice(0, 6).map((project, index) => ({
+            batch: project.year ? `${project.year} batch` : '2025 batch',
+            name: project.projectName || `Professional ${index + 1}`,
+            placement: project.roleTitle ? `Placed at ${project.roleTitle}` : 'Placed at Entertainment Company',
+            testimonial: project.description || "BookMyStars Professionals helped me showcase my talent and connect with amazing opportunities in the entertainment industry.",
+            imageUrl: project.imagePath || null,
+          }));
+          
+          setSuccessStories(stories);
+        }
+      } catch (error) {
+        // Handle 401 errors (unauthorized) - user might have logged out or token expired
+        if (error.response?.status === 401) {
+          console.warn('Unauthorized access to projects API. Using default success stories.');
+        } else {
+          console.error('Error fetching success stories:', error);
+        }
+        // Keep default stories on error
+      }
+    };
+
+    fetchSuccessStories();
+  }, []);
 
   // Search and filter state
   const [selectedLocation, setSelectedLocation] = useState('');
@@ -970,7 +1123,11 @@ const Dashboard = () => {
               display: 'flex', 
               flexDirection: { xs: 'column', md: 'row' },
               gap: { xs: 3, sm: 4, md: 3, lg: 4 },
-              alignItems: 'stretch'
+              alignItems: 'stretch',
+              border: '1px solid #DA498D',
+              borderRadius: { xs: '8px', sm: '10px', md: '12px' },
+              p: { xs: 1.5, sm: 2, md: 2.5 },
+              backgroundColor: 'white',
             }}
           >
             {/* User Information Box - Left Side */}
@@ -983,12 +1140,12 @@ const Dashboard = () => {
               >
                 <Paper 
                   sx={{ 
-                    p: { xs: 1.5, sm: 2, md: 2.5 }, 
-                    borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                    backgroundColor: 'white',
+                    p: 0, 
+                    borderRadius: 0,
+                    backgroundColor: 'transparent',
                     width: '100%',
                     height: '100%',
-                    border: '1px solid #DA498D',
+                    border: 'none',
                     boxShadow: 'none',
                     display: 'flex',
                     flexDirection: 'column',
@@ -1246,9 +1403,9 @@ const Dashboard = () => {
               >
                 <Paper 
                   sx={{ 
-                    p: { xs: 1.5, sm: 2, md: 2.5 }, 
-                    borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                    backgroundColor: 'white',
+                    p: 0, 
+                    borderRadius: 0,
+                    backgroundColor: 'transparent',
                     width: '100%',
                     height: '100%',
                     border: 'none',
@@ -1604,6 +1761,121 @@ const Dashboard = () => {
                 Search
               </Button>
             </Box>
+          </Box>
+        </motion.div>
+      </Container>
+
+      {/* Success Stories Section */}
+      <Container maxWidth={false} sx={{ mt: { xs: 6, sm: 8, md: 10 }, mb: { xs: 4, sm: 5, md: 6 }, px: { xs: 1.5, sm: 2, md: 3, lg: 4, xl: 6 } }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: 700,
+              fontSize: { xs: '24px', sm: '28px', md: '32px', lg: '36px' },
+              color: '#DA498D',
+              textAlign: 'center',
+              mb: { xs: 3, sm: 4, md: 5 },
+              fontFamily: 'Poppins, sans-serif',
+            }}
+          >
+            Success Stories That Inspire
+          </Typography>
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: { xs: 2, sm: 3, md: 4 },
+              justifyContent: 'center',
+              alignItems: 'flex-start',
+            }}
+          >
+            {successStories.length > 0 ? (
+              successStories.map((story, index) => (
+                <SuccessStoryCard key={index}>
+                  <Badge>{story.batch || '2025 batch'}</Badge>
+                  <StoryImageContainer>
+                    {story.imageUrl ? (
+                      <StoryImage src={story.imageUrl} alt={story.name} />
+                    ) : (
+                      <Box
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: '#f0f0f0',
+                        }}
+                      >
+                        <PersonIcon sx={{ fontSize: 60, color: '#ccc' }} />
+                      </Box>
+                    )}
+                  </StoryImageContainer>
+                  <StoryName>{story.name || 'Aashish P'}</StoryName>
+                  <PlacementBar>{story.placement || 'Placed at Infosys'}</PlacementBar>
+                  <TestimonialText>
+                    {story.testimonial || "BookMyStars Professionals helped me showcase my talent the entertainment industry."}
+                  </TestimonialText>
+                </SuccessStoryCard>
+              ))
+            ) : (
+              // Default success stories if no data
+              [
+                {
+                  batch: '2025 batch',
+                  name: 'Aashish P',
+                  placement: 'Placed at Yash Raj Films',
+                  testimonial: "BookMyStars Professionals helped me showcase my talent and connectthe entertainment industry.",
+                  imageUrl: successStoryImage1,
+                },
+                {
+                  batch: '2025 batch',
+                  name: 'Priya Sharma',
+                  placement: 'Placed at T-Series',
+                  testimonial: "The platform helped me showcase my skills and land my  so easy!",
+                  imageUrl: successStoryImage2,
+                },
+                {
+                  batch: '2024 batch',
+                  name: 'Rahul Kumar',
+                  placement: 'Placed at Productions',
+                  testimonial: "BookMyStars Professionals connected me with amazing opportunities transformed!",
+                  imageUrl: successStoryImage3,
+                },
+              ].map((story, index) => (
+                <SuccessStoryCard key={index}>
+                  <Badge>{story.batch}</Badge>
+                  <StoryImageContainer>
+                    {story.imageUrl ? (
+                      <StoryImage src={story.imageUrl} alt={story.name} />
+                    ) : (
+                      <Box
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: '#f0f0f0',
+                        }}
+                      >
+                        <PersonIcon sx={{ fontSize: 60, color: '#ccc' }} />
+                      </Box>
+                    )}
+                  </StoryImageContainer>
+                  <StoryName>{story.name}</StoryName>
+                  <PlacementBar>{story.placement}</PlacementBar>
+                  <TestimonialText>{story.testimonial}</TestimonialText>
+                </SuccessStoryCard>
+              ))
+            )}
           </Box>
         </motion.div>
       </Container>
