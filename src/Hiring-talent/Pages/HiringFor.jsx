@@ -131,9 +131,7 @@ const HiringFor = () => {
           <Button
             variant="contained"
             onClick={() => {
-              // Navigate to next step (you can update this route later)
-              console.log("Selected role:", selectedRole);
-              // navigate('/hire-talent/step-2');
+              navigate('/hire-talent/your-project');
             }}
             sx={{
               background: "linear-gradient(90deg, #69247C 0%, #DA498D 100%)",

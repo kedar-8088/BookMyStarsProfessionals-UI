@@ -27,6 +27,7 @@ import JobCard from '../job/jobcard';
 
 import LandingPage from '../Hiring-talent/Pages/landingPage';
 import HiringFor from '../Hiring-talent/Pages/HiringFor';
+import YourProject from '../Hiring-talent/Pages/YourProject';
 
 const AppRoutes = () => {
   return (
@@ -51,6 +52,7 @@ const AppRoutes = () => {
       <Route path="/dashboard/jobs" element={<JobCard />} />
       <Route path="/hire-talent" element={<LandingPage />} />
       <Route path="/hire-talent/hiring-for" element={<HiringFor />} />
+      <Route path="/hire-talent/your-project" element={<YourProject />} />
       <Route path="/agency/register" element={<RegisterPage />} />
       <Route path="/agency/otp-verification" element={<OtpVerificationPage />} />
     </Routes>
