@@ -22,6 +22,8 @@ import Dashboard1c from '../lms/pages/dashbaord1c';
 import ModulesPage from '../lms/pages/modules';
 import RegisterPage from '../agency/pages/RegisterPage';
 import OtpVerificationPage from '../agency/pages/OtpVerificationPage';
+import BasicDetails from '../agency/pages/BasicDetails';
+import VerifyAgency from '../agency/pages/VerifyAgency';
 import JobCard from '../job/jobcard';
 
 
@@ -55,6 +57,8 @@ const AppRoutes = () => {
       <Route path="/hire-talent/your-project" element={<YourProject />} />
       <Route path="/agency/register" element={<RegisterPage />} />
       <Route path="/agency/otp-verification" element={<OtpVerificationPage />} />
+      <Route path="/agency/basicdetails" element={<BasicDetails />} />
+      <Route path="/agency/verifyagency" element={<VerifyAgency />} />
     </Routes>
   );
 };

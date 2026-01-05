@@ -85,6 +85,42 @@ const OtpVerificationPage = () => {
     });
   };
 
+  const handleResendCode = async () => {
+    if (countdown > 0) {
+      showErrorAlert('Please wait', `You can resend the code in ${countdown} seconds`);
+      return;
+    }
+
+    try {
+      // TODO: Replace with actual resend OTP API call
+      // const response = await resendAgencyOtp(email);
+      
+      // Simulate API call for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Reset countdown timer
+      setCountdown(24);
+      
+      // Clear OTP fields
+      setFormData({
+        otp1: '',
+        otp2: '',
+        otp3: '',
+        otp4: '',
+        otp5: '',
+        otp6: ''
+      });
+      
+      showSuccessAlert('Code Resent!', 'A new verification code has been sent to your email.');
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      showErrorAlert(
+        'Resend Failed',
+        error.response?.data?.message || 'Failed to resend code. Please try again.'
+      );
+    }
+  };
+
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     
@@ -352,13 +388,65 @@ const OtpVerificationPage = () => {
                   lineHeight: '140%',
                   letterSpacing: '0%',
                   color: '#12110D80',
-                  mb: { xs: 3, sm: 4 },
+                  mb: { xs: 2, sm: 3 },
                   textAlign: 'center',
                   px: { xs: 1, sm: 0 }
                 }}
               >
                 You can resend the code in {countdown} seconds
               </Typography>
+
+              {/* Resend the code Button */}
+              <Box
+                sx={{
+                  width: { xs: '100%', sm: '400px', md: '400px' },
+                  maxWidth: { xs: '100%', sm: '400px' },
+                  height: { xs: '50px', sm: '52px', md: '55px' },
+                  borderRadius: '50px',
+                  background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+                  padding: '1px',
+                  mb: { xs: 2, sm: 2.5 },
+                  cursor: countdown > 0 ? 'not-allowed' : 'pointer',
+                  opacity: countdown > 0 ? 0.6 : 1,
+                  transition: 'opacity 0.3s ease',
+                  '&:hover': {
+                    opacity: countdown > 0 ? 0.6 : 0.9
+                  }
+                }}
+                onClick={handleResendCode}
+              >
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50px',
+                    background: '#FFFFFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: 'Poppins',
+                      fontWeight: 500,
+                      fontStyle: 'normal',
+                      fontSize: { xs: '14px', sm: '15px', md: '16px' },
+                      lineHeight: '140%',
+                      letterSpacing: '0%',
+                      textAlign: 'center',
+                      background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
+                      backgroundClip: 'text',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      color: 'transparent',
+                      userSelect: 'none'
+                    }}
+                  >
+                    Resend the code
+                  </Typography>
+                </Box>
+              </Box>
 
               {/* Create Agency Account Button */}
               <Button
