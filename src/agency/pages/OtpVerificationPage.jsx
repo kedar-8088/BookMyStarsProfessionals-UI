@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import Navbar from '../components/Navbar';
 import Swal from 'sweetalert2';
+import { verifyOtpByEmail, resendOtp } from '../../API/agencyRegisterApi';
 
 const OtpVerificationPage = () => {
   const navigate = useNavigate();
@@ -92,31 +93,34 @@ const OtpVerificationPage = () => {
     }
 
     try {
-      // TODO: Replace with actual resend OTP API call
-      // const response = await resendAgencyOtp(email);
+      const response = await resendOtp(email);
       
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Reset countdown timer
-      setCountdown(24);
-      
-      // Clear OTP fields
-      setFormData({
-        otp1: '',
-        otp2: '',
-        otp3: '',
-        otp4: '',
-        otp5: '',
-        otp6: ''
-      });
-      
-      showSuccessAlert('Code Resent!', 'A new verification code has been sent to your email.');
+      if (response.success) {
+        // Reset countdown timer
+        setCountdown(24);
+        
+        // Clear OTP fields
+        setFormData({
+          otp1: '',
+          otp2: '',
+          otp3: '',
+          otp4: '',
+          otp5: '',
+          otp6: ''
+        });
+        
+        showSuccessAlert('Code Resent!', 'A new verification code has been sent to your email.');
+      } else {
+        showErrorAlert(
+          'Resend Failed',
+          response.error || 'Failed to resend code. Please try again.'
+        );
+      }
     } catch (error) {
       console.error('Resend OTP error:', error);
       showErrorAlert(
         'Resend Failed',
-        error.response?.data?.message || 'Failed to resend code. Please try again.'
+        error.message || 'Failed to resend code. Please try again.'
       );
     }
   };
@@ -136,24 +140,27 @@ const OtpVerificationPage = () => {
     setLoading(true);
 
     try {
-      // TODO: Replace with actual agency OTP verification API call
-      // const response = await verifyAgencyOtp(email, parseInt(otp, 10));
+      const response = await verifyOtpByEmail(email, parseInt(otp, 10));
       
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      showSuccessAlert('Verification Successful!', 'Your agency account has been created successfully!');
-      
-      // Navigate to agency dashboard or login page
-      setTimeout(() => {
-        navigate('/agency/dashboard');
-      }, 2000);
+      if (response.success) {
+        showSuccessAlert('Verification Successful!', 'Your agency account has been created successfully!');
+        
+        // Navigate to login page after successful verification
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else {
+        showErrorAlert(
+          'Verification Failed',
+          response.error || 'Invalid OTP. Please try again.'
+        );
+      }
 
     } catch (error) {
       console.error('OTP Verification error:', error);
       showErrorAlert(
         'Verification Failed',
-        error.response?.data?.message || 'Invalid OTP. Please try again.'
+        error.message || 'Invalid OTP. Please try again.'
       );
     } finally {
       setLoading(false);

@@ -35,6 +35,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getAllCities } from '../../API/cityApi';
 import { sessionManager } from '../../API/authApi';
+import { createAgencyRegister, checkEmailExists, checkPhoneNoExists, checkBusinessNameExists } from '../../API/agencyRegisterApi';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -55,17 +56,6 @@ const RegisterPage = () => {
   const [cities, setCities] = useState([]);
   const [loadingCities, setLoadingCities] = useState(false);
   
-  // Business Type Options
-  const businessTypes = [
-    'Modeling Agency',
-    'Talent Agency',
-    'Entertainment Agency',
-    'Event Management',
-    'Photography Studio',
-    'Film Production',
-    'Music Label',
-    'Other'
-  ];
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
@@ -153,7 +143,7 @@ const RegisterPage = () => {
     
     // Validate form data
     if (!formData.businessName || !formData.email || !formData.phoneNumber || 
-        !formData.state || !formData.city || !formData.businessType || !formData.password || !formData.confirmPassword) {
+        !formData.city || !formData.businessType || !formData.password || !formData.confirmPassword) {
       showErrorAlert('Validation Error', 'Please fill in all required fields');
       return;
     }
@@ -165,14 +155,18 @@ const RegisterPage = () => {
       return;
     }
 
+    // Trim password fields to avoid whitespace issues
+    const trimmedPassword = formData.password.trim();
+    const trimmedConfirmPassword = formData.confirmPassword.trim();
+
     // Validate password match
-    if (formData.password !== formData.confirmPassword) {
+    if (trimmedPassword !== trimmedConfirmPassword) {
       showErrorAlert('Password Mismatch', 'Passwords do not match');
       return;
     }
 
     // Validate password strength
-    if (formData.password.length < 8) {
+    if (trimmedPassword.length < 8) {
       showErrorAlert('Weak Password', 'Password must be at least 8 characters long');
       return;
     }
@@ -185,38 +179,108 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      // TODO: Replace with actual agency registration API call to generate OTP
-      // const registerData = {
-      //   businessName: formData.businessName,
-      //   email: formData.email,
-      //   phoneNumber: formData.phoneNumber,
-      //   city: formData.city,
-      //   businessType: formData.businessType,
-      //   website: formData.website,
-      //   password: formData.password
-      // };
-      // const response = await generateAgencyOTP(registerData);
+      // Check if email already exists (skip if database error - allow registration to proceed)
+      try {
+        const emailCheck = await checkEmailExists(formData.email);
+        if (emailCheck.success && emailCheck.data === true) {
+          showErrorAlert('Email Already Exists', 'This email is already registered. Please use a different email.');
+          setLoading(false);
+          return;
+        }
+        // If check failed due to database issue, log but continue
+        if (!emailCheck.success && emailCheck.error && emailCheck.error.includes('database')) {
+          console.warn('Email check skipped due to database issue:', emailCheck.error);
+        }
+      } catch (emailError) {
+        console.warn('Email check error (continuing anyway):', emailError);
+        // Continue with registration even if check fails
+      }
 
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Check if phone number already exists (skip if database error)
+      try {
+        const phoneCheck = await checkPhoneNoExists(formData.phoneNumber);
+        if (phoneCheck.success && phoneCheck.data === true) {
+          showErrorAlert('Phone Number Already Exists', 'This phone number is already registered. Please use a different phone number.');
+          setLoading(false);
+          return;
+        }
+        // If check failed due to database issue, log but continue
+        if (!phoneCheck.success && phoneCheck.error && phoneCheck.error.includes('database')) {
+          console.warn('Phone check skipped due to database issue:', phoneCheck.error);
+        }
+      } catch (phoneError) {
+        console.warn('Phone check error (continuing anyway):', phoneError);
+        // Continue with registration even if check fails
+      }
 
-      showSuccessAlert('OTP Generated', 'OTP has been sent to your email and phone number!');
-      
-      // Navigate to OTP verification page after successful OTP generation
-      setTimeout(() => {
-        navigate('/agency/otp-verification', { 
-          state: { 
-            email: formData.email,
-            formData: formData 
-          } 
-        });
-      }, 2000);
+      // Check if business name already exists (skip if database error)
+      try {
+        const businessNameCheck = await checkBusinessNameExists(formData.businessName);
+        if (businessNameCheck.success && businessNameCheck.data === true) {
+          showErrorAlert('Business Name Already Exists', 'This business name is already registered. Please use a different business name.');
+          setLoading(false);
+          return;
+        }
+        // If check failed due to database issue, log but continue
+        if (!businessNameCheck.success && businessNameCheck.error && businessNameCheck.error.includes('database')) {
+          console.warn('Business name check skipped due to database issue:', businessNameCheck.error);
+        }
+      } catch (businessError) {
+        console.warn('Business name check error (continuing anyway):', businessError);
+        // Continue with registration even if check fails
+      }
+
+      // Prepare registration data (trim all string fields)
+      // Note: Backend expects 'phoneNo' not 'phoneNumber'
+      const registerData = {
+        businessName: formData.businessName.trim(),
+        email: formData.email.trim(),
+        phoneNo: formData.phoneNumber.trim(), // Backend expects 'phoneNo'
+        cityId: formData.city ? parseInt(formData.city) : null,
+        businessType: formData.businessType.trim(),
+        website: formData.website ? formData.website.trim() : '',
+        password: trimmedPassword,
+        confirmPassword: trimmedConfirmPassword
+      };
+
+      // Debug: Log password comparison
+      console.log('Password validation:', {
+        password: trimmedPassword,
+        confirmPassword: trimmedConfirmPassword,
+        match: trimmedPassword === trimmedConfirmPassword,
+        passwordLength: trimmedPassword.length,
+        confirmPasswordLength: trimmedConfirmPassword.length
+      });
+
+      // Create agency register (this will generate and send OTP)
+      const response = await createAgencyRegister(registerData);
+
+      if (response.success) {
+        showSuccessAlert('Registration Successful', 'OTP has been sent to your email!');
+        
+        // Navigate to OTP verification page after successful registration
+        setTimeout(() => {
+          navigate('/agency/otp-verification', { 
+            state: { 
+              email: formData.email,
+              formData: formData 
+            } 
+          });
+        }, 2000);
+      } else {
+        // Show user-friendly error message
+        const errorMessage = response.error || 'An error occurred during registration. Please try again.';
+        showErrorAlert(
+          'Registration Failed',
+          errorMessage
+        );
+      }
 
     } catch (error) {
-      console.error('OTP Generation error:', error);
+      console.error('Registration error:', error);
       showErrorAlert(
-        'OTP Generation Failed',
-        error.response?.data?.message || 'An error occurred during OTP generation. Please try again.'
+        'Registration Failed',
+        error.message || 'An error occurred during registration. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -489,38 +553,38 @@ const RegisterPage = () => {
                   >
                     Business Type*
                   </Typography>
-                    <FormControl fullWidth required>
-                      <Select
-                        name="businessType"
-                        value={formData.businessType}
-                        onChange={handleInputChange}
-                        displayEmpty
-                        sx={{
-                          height: { xs: '48px', sm: '51.33px' },
-                          borderRadius: '8px',
-                          fontFamily: 'Poppins',
-                          '& fieldset': {
-                            borderColor: '#e0e0e0',
-                            borderWidth: '1px',
-                          },
-                          '&:hover fieldset': {
-                            borderColor: '#69247C',
-                          },
-                          '&.Mui-focused fieldset': {
-                            borderColor: '#69247C',
-                          },
-                        }}
-                      >
-                      <MenuItem value="" disabled>
-                        <em>Select Business Type</em>
-                      </MenuItem>
-                      {businessTypes.map((type) => (
-                        <MenuItem key={type} value={type}>
-                          {type}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <TextField
+                    name="businessType"
+                    value={formData.businessType}
+                    onChange={handleInputChange}
+                    placeholder="Enter Business Type"
+                    required
+                    fullWidth
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CategoryIcon sx={{ color: '#69247C', fontSize: { xs: '18px', sm: '20px' } }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        height: { xs: '48px', sm: '51.33px' },
+                        borderRadius: '8px',
+                        fontFamily: 'Poppins',
+                        '& fieldset': {
+                          borderColor: '#e0e0e0',
+                          borderWidth: '1px',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#69247C',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#69247C',
+                        },
+                      },
+                    }}
+                  />
                 </Box>
               </Box>
 

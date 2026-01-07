@@ -24,6 +24,7 @@ import RegisterPage from '../agency/pages/RegisterPage';
 import OtpVerificationPage from '../agency/pages/OtpVerificationPage';
 import BasicDetails from '../agency/pages/BasicDetails';
 import VerifyAgency from '../agency/pages/VerifyAgency';
+import AgencyDashboard from '../agency/pages/AgencyDashboard';
 import JobCard from '../job/jobcard';
 
 
@@ -59,6 +60,7 @@ const AppRoutes = () => {
       <Route path="/agency/otp-verification" element={<OtpVerificationPage />} />
       <Route path="/agency/basicdetails" element={<BasicDetails />} />
       <Route path="/agency/verifyagency" element={<VerifyAgency />} />
+      <Route path="/agency/dashboard" element={<AgencyDashboard />} />
     </Routes>
   );
 };

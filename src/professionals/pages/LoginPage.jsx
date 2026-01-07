@@ -34,6 +34,7 @@ import BookMyStarsLogo from '../../assets/images/BookMyStarsLogo.png.png';
 import loginBackground from '../../assets/images/film-596009.jpg';
 import { loginProfessional, sessionManager } from '../../API/authApi';
 import { getProfessionalsProfileByProfessional } from '../../API/professionalsProfileApi';
+import { loginAgency, checkEmailExists } from '../../API/agencyRegisterApi';
 
 const GradientAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #69247C 0%, #DA498D 100%)',
@@ -138,7 +139,69 @@ const LoginPage = () => {
         password: formData.password
       };
 
-      const response = await loginProfessional(credentials);
+      // Check if username is an email and if it exists in agency register
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.userName);
+      let isAgency = false;
+      
+      if (isEmail) {
+        try {
+          const emailCheck = await checkEmailExists(formData.userName);
+          isAgency = emailCheck.success && emailCheck.data === true;
+        } catch (error) {
+          console.log('Email check failed, trying professional login:', error);
+          // If check fails, proceed with professional login
+        }
+      }
+
+      let response;
+      
+      // Try agency login if email exists in agency register
+      if (isAgency) {
+        console.log('Attempting agency login with email:', formData.userName);
+        response = await loginAgency(credentials);
+        
+        if (response.success && response.token) {
+          // Handle agency login success
+          const token = response.token;
+          const agencyData = response.data;
+          
+          // Store agency session
+          const agencyInfo = {
+            agencyId: agencyData.id || agencyData.agencyId,
+            email: agencyData.email || formData.userName,
+            businessName: agencyData.businessName || '',
+            phoneNo: agencyData.phoneNo || '',
+            businessType: agencyData.businessType || '',
+            userType: 'agency'
+          };
+          
+          sessionManager.setUserSession(agencyInfo, token);
+          localStorage.setItem('agencyId', (agencyData.id || agencyData.agencyId)?.toString());
+          localStorage.setItem('agencyEmail', agencyData.email || formData.userName);
+          
+          showSuccessAlert('Login Successful', 'Welcome back!');
+          
+          // Navigate to agency dashboard
+          setTimeout(() => {
+            navigate('/agency/dashboard');
+          }, 1500);
+          
+          setLoading(false);
+          return;
+        } else {
+          // Agency login failed, show error
+          showErrorAlert(
+            'Login Failed',
+            response.error || 'Invalid email or password. Please try again.'
+          );
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // Try professional login (existing flow)
+      console.log('Attempting professional login...');
+      response = await loginProfessional(credentials);
       
       console.log('Full login response:', response);
 

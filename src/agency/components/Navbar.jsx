@@ -23,10 +23,11 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [userData, setUserData] = React.useState(null);
   
-  // Hide Job button on jobcard page and LMS dashboard page
+  // Hide Job button on jobcard page, LMS dashboard page, and agency pages
   const isJobCardPage = location.pathname === '/dashboard/jobs';
   const isLMSDashboardPage = location.pathname === '/dashboard/lms';
-  const shouldHideJobButton = isJobCardPage || isLMSDashboardPage;
+  const isAgencyPage = location.pathname.startsWith('/agency');
+  const shouldHideJobButton = isJobCardPage || isLMSDashboardPage || isAgencyPage;
 
   // Check authentication status on component mount
   React.useEffect(() => {
@@ -68,6 +69,19 @@ const Navbar = () => {
     setIsLoggedIn(false);
     setUserData(null);
     navigate('/login');
+  };
+
+  // Determine dashboard route based on context
+  const getDashboardRoute = () => {
+    // Check if on agency page or if user is an agency user
+    if (isAgencyPage || userData?.userType === 'agency' || localStorage.getItem('agencyId')) {
+      return '/agency/dashboard';
+    }
+    return '/dashboard';
+  };
+
+  const handleDashboardClick = () => {
+    navigate(getDashboardRoute());
   };
 
   return (
@@ -132,7 +146,7 @@ const Navbar = () => {
                     </Box>
                     <Button
                       color="inherit"
-                      onClick={() => navigate('/dashboard')}
+                      onClick={handleDashboardClick}
                       startIcon={<DashboardIcon />}
                       sx={{
                         color: 'white',
@@ -221,7 +235,7 @@ const Navbar = () => {
               </MenuItem>
             )}
             {isLoggedIn && userData && (
-              <MenuItem onClick={() => { handleMobileMenuClose(); navigate('/dashboard'); }}>
+              <MenuItem onClick={() => { handleMobileMenuClose(); handleDashboardClick(); }}>
                 <DashboardIcon sx={{ mr: 1, fontSize: 18 }} />
                 Dashboard
               </MenuItem>
